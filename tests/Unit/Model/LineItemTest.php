@@ -35,10 +35,10 @@ class LineItemTest extends TestCase
     public function setUp(): void
     {
         $this->lineItem = new LineItem(
-            'id',
             'contextId',
             1.0,
             'label',
+            'id',
             Carbon::create(1988, 12, 22),
             Carbon::create(2020, 03, 31),
             'tag',
@@ -106,10 +106,10 @@ class LineItemTest extends TestCase
     public function testCreateLineItemFromIsoDates(): void
     {
         $lineItem = new LineItem(
-            'id',
             'contextId',
             1.0,
             'label',
+            'id',
             '1988-12-22T00:00:00+00:00',
             '2020-03-31T00:00:00+00:00'
         );
@@ -124,10 +124,10 @@ class LineItemTest extends TestCase
         $this->expectExceptionMessage('The startDateTime parameter provided must be ISO-8601 formatted');
 
         new LineItem(
-            'id',
             'contextId',
             1.0,
             'label',
+            'id',
             '1988-12-22T00:00:00',
             '2020-03-31T00:00:00+00:00'
         );
@@ -139,10 +139,10 @@ class LineItemTest extends TestCase
         $this->expectExceptionMessage('The endDateTime parameter provided must be ISO-8601 formatted');
 
         new LineItem(
-            'id',
             'contextId',
             1.0,
             'label',
+            'id',
             '1988-12-22T00:00:00+00:00',
             '2020-03-31T00:00:00'
         );
@@ -154,10 +154,10 @@ class LineItemTest extends TestCase
         $this->expectExceptionMessage('Parameter tag provided is 257 characters long and cannot exceed 256');
 
         new LineItem(
-            'id',
             'contextId',
             1.0,
             'label',
+            'id',
             null,
             null,
             '                                                                                                                                                                                                                        
@@ -171,10 +171,10 @@ class LineItemTest extends TestCase
         $this->expectExceptionMessage('Parameter resourceId provided is 257 characters long and cannot exceed 256');
 
         new LineItem(
-            'id',
             'contextId',
             1.0,
             'label',
+            'id',
             null,
             null,
             null,

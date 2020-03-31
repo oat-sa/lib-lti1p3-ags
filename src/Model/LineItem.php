@@ -31,7 +31,7 @@ class LineItem
 {
     public const PARAMETER_MAX_LENGTH = 256;
 
-    /** @var string */
+    /** @var string|null */
     private $id;
 
     /** @var string */
@@ -63,10 +63,10 @@ class LineItem
      * @param DateTimeInterface|string|null $endDateTime
      */
     public function __construct(
-        string $id,
         string $contextId,
         float $scoreMaximum,
         string $label,
+        string $id = null,
         $startDateTime = null,
         $endDateTime = null,
         string $tag = null,
@@ -87,7 +87,7 @@ class LineItem
         $this->setResourceId($resourceId);
     }
 
-    public function getId(): string
+    public function getId(): ?string
     {
         return $this->id;
     }
