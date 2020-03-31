@@ -118,9 +118,11 @@ class LineItem
         return $this->startDateTime;
     }
 
-    public function getISO8601StartDateTime(): string
+    public function getISO8601StartDateTime(): ?string
     {
-        return $this->startDateTime->format(DateTimeInterface::ATOM);
+        return $this->startDateTime
+            ? $this->startDateTime->format(DateTimeInterface::ATOM)
+            : null;
     }
 
     /**
@@ -131,9 +133,11 @@ class LineItem
         return $this->endDateTime;
     }
 
-    public function getISO8601EndDateTime(): string
+    public function getISO8601EndDateTime(): ?string
     {
-        return $this->endDateTime->format(DateTimeInterface::ATOM);
+        return $this->endDateTime
+            ? $this->endDateTime->format(DateTimeInterface::ATOM)
+            : null;
     }
 
     /**
