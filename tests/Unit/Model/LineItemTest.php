@@ -20,6 +20,8 @@
 
 declare(strict_types=1);
 
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model;
+
 use Carbon\Carbon;
 use OAT\Library\Lti1p3Ags\Model\LineItem;
 use PHPUnit\Framework\TestCase;

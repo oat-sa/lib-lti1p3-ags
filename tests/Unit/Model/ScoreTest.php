@@ -20,7 +20,10 @@
 
 declare(strict_types=1);
 
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model;
+
 use Carbon\Carbon;
+use LogicException;
 use OAT\Library\Lti1p3Ags\Model\Score;
 use PHPUnit\Framework\TestCase;
 
@@ -33,11 +36,11 @@ class ScoreTest extends TestCase
     {
         $this->score = new Score(
             'userId',
-        'contextId',
-        'lineItemId',
-        'id',
-        0.8,
-        1.0,
+            'contextId',
+            'lineItemId',
+            'id',
+            0.8,
+            1.0,
             'comment',
             Carbon::create(1988, 12, 22)
         );
@@ -195,16 +198,16 @@ class ScoreTest extends TestCase
         );
 
          new Score(
-            'userId',
-            'contextId',
-            'lineItemId',
-            'id',
-            0.8,
-            1.0,
-            'comment',
-            Carbon::create(1988, 12, 22),
-            Score::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
-            'wrong'
+             'userId',
+             'contextId',
+             'lineItemId',
+             'id',
+             0.8,
+             1.0,
+             'comment',
+             Carbon::create(1988, 12, 22),
+             Score::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
+             'wrong'
          );
     }
 }

@@ -92,8 +92,8 @@ class Score
     /** @var string */
     private $gradingProgressStatus;
 
-    /** 
-     * @param DateTimeInterface|string|null $timestamp 
+    /**
+     * @param DateTimeInterface|string|null $timestamp
      */
     public function __construct(
         string $userId,
@@ -207,7 +207,10 @@ class Score
     {
         if (!$this->isActivityProgressStatusSupported($activityProgressStatus)) {
             throw new LogicException(
-                $this->getErrorMessageWrongStatusProvided($activityProgressStatus, self::SUPPORTED_ACTIVITY_PROGRESS_STATUS)
+                $this->getErrorMessageWrongStatusProvided(
+                    $activityProgressStatus,
+                    self::SUPPORTED_ACTIVITY_PROGRESS_STATUS
+                )
             );
         }
 
@@ -220,7 +223,10 @@ class Score
     {
         if (!$this->isGradingProgressStatusSupported($gradingProgressStatus)) {
             throw new LogicException(
-                $this->getErrorMessageWrongStatusProvided($gradingProgressStatus, self::SUPPORTED_GRADING_PROGRESS_STATUS)
+                $this->getErrorMessageWrongStatusProvided(
+                    $gradingProgressStatus,
+                    self::SUPPORTED_GRADING_PROGRESS_STATUS
+                )
             );
         }
 
