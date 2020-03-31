@@ -75,13 +75,8 @@ class LineItem
         $this->startDateTime = $startDateTime;
         $this->endDateTime = $endDateTime;
 
-        if ($tag !== null) {
-            $this->setTag($tag);
-        }
-
-        if ($resourceId !== null) {
-            $this->setResourceId($resourceId);
-        }
+        $this->setTag($tag);
+        $this->setResourceId($resourceId);
     }
 
     public function getId(): string
@@ -149,7 +144,9 @@ class LineItem
 
     public function setTag(?string $tag): self
     {
-        $this->checkParameterMaxLength('tag', $tag);
+        if ($tag !== null) {
+            $this->checkParameterMaxLength('tag', $tag);
+        }
 
         $this->tag = $tag;
 
@@ -158,7 +155,9 @@ class LineItem
 
     public function setResourceId(?string $resourceId): self
     {
-        $this->checkParameterMaxLength('resourceId', $resourceId);
+        if ($resourceId !== null) {
+            $this->checkParameterMaxLength('resourceId', $resourceId);
+        }
 
         $this->resourceId = $resourceId;
 
