@@ -110,12 +110,22 @@ class LineItem
         return $this->startDateTime;
     }
 
+    public function getISO8601StartDateTime(): string
+    {
+        return $this->startDateTime->format(DateTimeInterface::ATOM);
+    }
+
     /**
      * @return DateTimeInterface|null
      */
     public function getEndDateTime(): ?DateTimeInterface
     {
         return $this->endDateTime;
+    }
+
+    public function getISO8601EndDateTime(): string
+    {
+        return $this->endDateTime->format(DateTimeInterface::ATOM);
     }
 
     /**

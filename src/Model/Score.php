@@ -159,6 +159,11 @@ class Score
         return $this->timestamp;
     }
 
+    public function getISO8601Timestamp(): string
+    {
+        return $this->timestamp->format(DateTimeInterface::ATOM);
+    }
+
     public function getActivityProgressStatus(): string
     {
         return $this->activityProgressStatus;

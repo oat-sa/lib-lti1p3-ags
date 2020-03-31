@@ -84,6 +84,11 @@ class ScoreTest extends TestCase
         $this->assertEquals(Carbon::create(1988, 12, 22), $this->score->getTimestamp());
     }
 
+    public function testGetISO8601Timestamp(): void
+    {
+        $this->assertEquals('1988-12-22T00:00:00+00:00', $this->score->getISO8601Timestamp());
+    }
+
     public function testGetActivityProgressStatus(): void
     {
         $this->assertEquals(Score::ACTIVITY_PROGRESS_STATUS_INITIALIZED, $this->score->getActivityProgressStatus());

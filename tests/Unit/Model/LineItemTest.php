@@ -70,9 +70,19 @@ class LineItemTest extends TestCase
         $this->assertEquals(Carbon::create(1988, 12, 22), $this->lineItem->getStartDateTime());
     }
 
+    public function testGetISO8601StartDateTime(): void
+    {
+        $this->assertEquals('1988-12-22T00:00:00+00:00', $this->lineItem->getISO8601StartDateTime());
+    }
+
     public function testGetEndDateTime(): void
     {
         $this->assertEquals(Carbon::create(2020, 03, 31), $this->lineItem->getEndDateTime());
+    }
+
+    public function testGetISO8601EndDateTime(): void
+    {
+        $this->assertEquals('2020-03-31T00:00:00+00:00', $this->lineItem->getISO8601EndDateTime());
     }
 
     public function testTag(): void
