@@ -99,7 +99,7 @@ class Score
         string $userId,
         string $contextId,
         string $lineItemId,
-        string $id,
+        string $id = null,
         float $scoreGiven = null,
         float $scoreMaximum = null,
         string $comment = '',
