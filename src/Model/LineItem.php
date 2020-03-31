@@ -22,8 +22,10 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model;
 
+use Carbon\Carbon;
 use DateTimeInterface;
 use LogicException;
+use Throwable;
 
 class LineItem
 {
@@ -56,13 +58,17 @@ class LineItem
     /** @var null|string */
     private $resourceLinkId;
 
+    /**
+     * @param DateTimeInterface|string|null $startDateTime
+     * @param DateTimeInterface|string|null $endDateTime
+     */
     public function __construct(
         string $id,
         string $contextId,
         float $scoreMaximum,
         string $label,
-        DateTimeInterface $startDateTime = null,
-        DateTimeInterface $endDateTime = null,
+        $startDateTime = null,
+        $endDateTime = null,
         string $tag = null,
         string $resourceId = null,
         string $resourceLinkId = null
@@ -75,6 +81,8 @@ class LineItem
         $this->startDateTime = $startDateTime;
         $this->endDateTime = $endDateTime;
 
+        $this->setStartDateTime($startDateTime);
+        $this->setEndDateTime($endDateTime);
         $this->setTag($tag);
         $this->setResourceId($resourceId);
     }
@@ -150,6 +158,46 @@ class LineItem
     public function getResourceLinkId(): ?string
     {
         return $this->resourceLinkId;
+    }
+
+    /**
+     * @param DateTimeInterface|string|null $startDateTime
+     */
+    public function setStartDateTime($startDateTime): self
+    {
+        if (is_string($startDateTime)) {
+            try {
+                $this->startDateTime = Carbon::createFromFormat(DateTimeInterface::ATOM, $startDateTime);
+            } catch (Throwable $exception) {
+                throw new LogicException('The startDateTime parameter provided must be ISO-8601 formatted');
+            }
+            
+            return $this;
+        }
+
+        $this->startDateTime = $startDateTime;
+        
+        return $this;
+    }
+
+    /**
+     * @param DateTimeInterface|string|null $endDateTime
+     */
+    public function setEndDateTime($endDateTime): self
+    {
+        if (is_string($endDateTime)) {
+            try {
+                $this->endDateTime = Carbon::createFromFormat(DateTimeInterface::ATOM, $endDateTime);
+            } catch (Throwable $exception) {
+                throw new LogicException('The endDateTime parameter provided must be ISO-8601 formatted');
+            }
+
+            return $this;
+        }
+
+        $this->endDateTime = $endDateTime;
+
+        return $this;
     }
 
     public function setTag(?string $tag): self

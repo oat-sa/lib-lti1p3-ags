@@ -26,6 +26,7 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use LogicException;
 use Ramsey\Uuid\Uuid;
+use Throwable;
 
 class Score
 {
@@ -91,6 +92,9 @@ class Score
     /** @var string */
     private $gradingProgressStatus;
 
+    /** 
+     * @param DateTimeInterface|string|null $timestamp 
+     */
     public function __construct(
         string $userId,
         string $contextId,
@@ -99,7 +103,7 @@ class Score
         float $scoreGiven = null,
         float $scoreMaximum = null,
         string $comment = '',
-        DateTimeInterface $timestamp = null,
+        $timestamp = null,
         string $activityProgressStatus = null,
         string $gradingProgressStatus = null
     ) {
@@ -108,13 +112,13 @@ class Score
         $this->contextId = $contextId;
         $this->lineItemId = $lineItemId;
         $this->comment = $comment;
-        $this->timestamp = $timestamp ?? Carbon::now();
 
         if ($this->areScoresValid($scoreGiven, $scoreMaximum)) {
             $this->scoreGiven = $scoreGiven;
             $this->scoreMaximum = $scoreMaximum;
         }
 
+        $this->setTimestamp($timestamp);
         $this->setActivityProgressStatus($activityProgressStatus ?? self::ACTIVITY_PROGRESS_STATUS_INITIALIZED);
         $this->setGradingProgressStatus($gradingProgressStatus ?? self::GRADING_PROGRESS_STATUS_NOT_READY);
     }
@@ -174,6 +178,26 @@ class Score
         return $this->gradingProgressStatus;
     }
 
+    /**
+     * @param DateTimeInterface|string|null $timestamp
+     */
+    public function setTimestamp($timestamp): self
+    {
+        if (is_string($timestamp)) {
+            try {
+                $this->timestamp = Carbon::createFromFormat(DateTimeInterface::ATOM, $timestamp);
+            } catch (Throwable $exception) {
+                throw new LogicException('The timestamp parameter provided must be ISO-8601 formatted');
+            }
+
+            return $this;
+        }
+
+        $this->timestamp = $timestamp ?? Carbon::now();
+
+        return $this;
+    }
+    
     public function setActivityProgressStatus(string $activityProgressStatus): self
     {
         if (!$this->isActivityProgressStatusSupported($activityProgressStatus)) {

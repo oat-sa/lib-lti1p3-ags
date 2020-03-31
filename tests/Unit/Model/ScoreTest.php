@@ -99,6 +99,22 @@ class ScoreTest extends TestCase
         $this->assertEquals(Score::GRADING_PROGRESS_STATUS_NOT_READY, $this->score->getGradingProgressStatus());
     }
 
+    public function testCreateScoreFromIsoTimestamp(): void
+    {
+        $lineItem = new Score(
+            'userId',
+            'contextId',
+            'lineItemId',
+            'id',
+            0.8,
+            1.0,
+            'comment',
+            '1988-12-22T00:00:00+00:00'
+        );
+
+        $this->assertEquals('1988-12-22T00:00:00+00:00', $lineItem->getISO8601Timestamp());
+    }
+
     public function testScoreIsNotSetWhenInvalid(): void
     {
         $score = new Score(
@@ -123,6 +139,23 @@ class ScoreTest extends TestCase
 
         $this->assertNull($score->getScoreGiven());
         $this->assertNull($score->getScoreMaximum());
+    }
+
+    public function testItThrowExceptionWhenWrongStringFormatForTimestamp(): void
+    {
+        $this->expectException(LogicException::class);
+        $this->expectExceptionMessage('The timestamp parameter provided must be ISO-8601 formatted');
+
+        new Score(
+            'userId',
+            'contextId',
+            'lineItemId',
+            'id',
+            0.8,
+            1.0,
+            'comment',
+            '1988-12-22T00:00:00'
+        );
     }
 
     public function testItThrowExceptionWhenActivityProgressStatusIsWrong(): void
