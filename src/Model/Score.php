@@ -193,7 +193,12 @@ class Score
             return $this;
         }
 
-        $this->timestamp = $timestamp ?? Carbon::now();
+        if ($timestamp instanceof DateTimeInterface) {
+            $this->timestamp = $timestamp;
+            return $this;
+        }
+
+        $this->timestamp = Carbon::now();
 
         return $this;
     }

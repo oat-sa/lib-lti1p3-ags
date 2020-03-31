@@ -175,8 +175,13 @@ class LineItem
             return $this;
         }
 
-        $this->startDateTime = $startDateTime;
-        
+        if ($startDateTime instanceof DateTimeInterface) {
+            $this->startDateTime = $startDateTime;
+            return $this;
+        }
+
+        $this->endDateTime = null;
+
         return $this;
     }
 
@@ -195,7 +200,12 @@ class LineItem
             return $this;
         }
 
-        $this->endDateTime = $endDateTime;
+        if ($endDateTime instanceof DateTimeInterface) {
+            $this->endDateTime = $endDateTime;
+            return $this;
+        }
+
+        $this->endDateTime = null;
 
         return $this;
     }
