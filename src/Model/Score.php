@@ -83,7 +83,7 @@ class Score
     /** @var string */
     private $comment;
 
-    /** @var DateTimeInterface|static */
+    /** @var DateTimeInterface */
     private $timestamp;
 
     /** @var string */
