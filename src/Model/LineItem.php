@@ -73,10 +73,10 @@ class LineItem
         string $resourceId = null,
         string $resourceLinkId = null
     ) {
-        $this->id = $id;
         $this->contextId = $contextId;
         $this->scoreMaximum = $scoreMaximum;
         $this->label = $label;
+        $this->id = $id;
         $this->resourceLinkId = $resourceLinkId;
         $this->startDateTime = $startDateTime;
         $this->endDateTime = $endDateTime;
@@ -102,9 +102,6 @@ class LineItem
         return $this->scoreMaximum;
     }
 
-    /**
-     * @return string
-     */
     public function getLabel(): string
     {
         return $this->label;
@@ -140,25 +137,16 @@ class LineItem
             : null;
     }
 
-    /**
-     * @return string|null
-     */
     public function getTag(): ?string
     {
         return $this->tag;
     }
 
-    /**
-     * @return string|null
-     */
     public function getResourceId(): ?string
     {
         return $this->resourceId;
     }
 
-    /**
-     * @return string|null
-     */
     public function getResourceLinkId(): ?string
     {
         return $this->resourceLinkId;
