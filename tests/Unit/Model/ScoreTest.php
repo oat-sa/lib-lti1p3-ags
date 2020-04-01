@@ -118,6 +118,23 @@ class ScoreTest extends TestCase
         $this->assertEquals('1988-12-22T00:00:00+00:00', $lineItem->getISO8601Timestamp());
     }
 
+    public function testCreateScoreWhenNoTimestamp(): void
+    {
+        Carbon::setTestNow(Carbon::create(1988, 12, 22, 06));
+
+        $lineItem = new Score(
+            'userId',
+            'contextId',
+            'lineItemId',
+            'id',
+            0.8,
+            1.0,
+            'comment'
+        );
+
+        $this->assertEquals('1988-12-22T06:00:00+00:00', $lineItem->getISO8601Timestamp());
+    }
+
     public function testScoreIsNotSetWhenInvalid(): void
     {
         $score = new Score(
