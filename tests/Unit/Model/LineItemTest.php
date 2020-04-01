@@ -121,7 +121,7 @@ class LineItemTest extends TestCase
     public function testItThrowExceptionWhenWrongStringFormatForStartDate(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('The startDateTime parameter provided must be ISO-8601 formatted');
+        $this->expectExceptionMessage('The string parameter provided must be ISO-8601 formatted');
 
         new LineItem(
             'contextId',
@@ -136,7 +136,7 @@ class LineItemTest extends TestCase
     public function testItThrowExceptionWhenWrongStringFormatForEndDate(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('The endDateTime parameter provided must be ISO-8601 formatted');
+        $this->expectExceptionMessage('The string parameter provided must be ISO-8601 formatted');
 
         new LineItem(
             'contextId',

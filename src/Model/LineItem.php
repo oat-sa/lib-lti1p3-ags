@@ -25,10 +25,13 @@ namespace OAT\Library\Lti1p3Ags\Model;
 use Carbon\Carbon;
 use DateTimeInterface;
 use LogicException;
+use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 use Throwable;
 
 class LineItem
 {
+    use DateConverterTrait;
+
     public const PARAMETER_MAX_LENGTH = 256;
 
     /** @var string|null */
@@ -115,10 +118,10 @@ class LineItem
     public function getISO8601StartDateTime(): ?string
     {
         return $this->startDateTime
-            ? $this->startDateTime->format(DateTimeInterface::ATOM)
+            ? $this->dateToIso8601($this->startDateTime)
             : null;
     }
-    
+
     public function getEndDateTime(): ?DateTimeInterface
     {
         return $this->endDateTime;
@@ -127,7 +130,7 @@ class LineItem
     public function getISO8601EndDateTime(): ?string
     {
         return $this->endDateTime
-            ? $this->endDateTime->format(DateTimeInterface::ATOM)
+            ? $this->dateToIso8601($this->endDateTime)
             : null;
     }
 
@@ -151,22 +154,7 @@ class LineItem
      */
     public function setStartDateTime($startDateTime): self
     {
-        if (is_string($startDateTime)) {
-            try {
-                $this->startDateTime = Carbon::createFromFormat(DateTimeInterface::ATOM, $startDateTime);
-            } catch (Throwable $exception) {
-                throw new LogicException('The startDateTime parameter provided must be ISO-8601 formatted');
-            }
-            
-            return $this;
-        }
-
-        if ($startDateTime instanceof DateTimeInterface) {
-            $this->startDateTime = $startDateTime;
-            return $this;
-        }
-
-        $this->endDateTime = null;
+        $this->startDateTime = $this->convertIntoDateTime($startDateTime);
 
         return $this;
     }
@@ -176,22 +164,7 @@ class LineItem
      */
     public function setEndDateTime($endDateTime): self
     {
-        if (is_string($endDateTime)) {
-            try {
-                $this->endDateTime = Carbon::createFromFormat(DateTimeInterface::ATOM, $endDateTime);
-            } catch (Throwable $exception) {
-                throw new LogicException('The endDateTime parameter provided must be ISO-8601 formatted');
-            }
-
-            return $this;
-        }
-
-        if ($endDateTime instanceof DateTimeInterface) {
-            $this->endDateTime = $endDateTime;
-            return $this;
-        }
-
-        $this->endDateTime = null;
+        $this->endDateTime = $this->convertIntoDateTime($endDateTime);
 
         return $this;
     }

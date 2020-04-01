@@ -25,11 +25,14 @@ namespace OAT\Library\Lti1p3Ags\Model;
 use Carbon\Carbon;
 use DateTimeInterface;
 use LogicException;
+use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 use Ramsey\Uuid\Uuid;
 use Throwable;
 
 class Score
 {
+    use DateConverterTrait;
+
     /**
      * You can find the description of those different status in the provided document in the @see section
      * @see docs/ScoreStatus.md
@@ -166,7 +169,7 @@ class Score
     public function getISO8601Timestamp(): ?string
     {
         return $this->timestamp
-            ? $this->timestamp->format(DateTimeInterface::ATOM)
+            ? $this->dateToIso8601($this->timestamp)
             : null;
     }
 
@@ -185,22 +188,7 @@ class Score
      */
     public function setTimestamp($timestamp): self
     {
-        if (is_string($timestamp)) {
-            try {
-                $this->timestamp = Carbon::createFromFormat(DateTimeInterface::ATOM, $timestamp);
-            } catch (Throwable $exception) {
-                throw new LogicException('The timestamp parameter provided must be ISO-8601 formatted');
-            }
-
-            return $this;
-        }
-
-        if ($timestamp instanceof DateTimeInterface) {
-            $this->timestamp = $timestamp;
-            return $this;
-        }
-
-        $this->timestamp = Carbon::now();
+        $this->timestamp = $this->convertIntoDateTime($timestamp) ?? Carbon::now();
 
         return $this;
     }

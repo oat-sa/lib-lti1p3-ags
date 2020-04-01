@@ -147,7 +147,7 @@ class ScoreTest extends TestCase
     public function testItThrowExceptionWhenWrongStringFormatForTimestamp(): void
     {
         $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('The timestamp parameter provided must be ISO-8601 formatted');
+        $this->expectExceptionMessage('The string parameter provided must be ISO-8601 formatted');
 
         new Score(
             'userId',
@@ -197,17 +197,17 @@ class ScoreTest extends TestCase
             )
         );
 
-         new Score(
-             'userId',
-             'contextId',
-             'lineItemId',
-             'id',
-             0.8,
-             1.0,
-             'comment',
-             Carbon::create(1988, 12, 22),
-             Score::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
-             'wrong'
-         );
+        new Score(
+            'userId',
+            'contextId',
+            'lineItemId',
+            'id',
+            0.8,
+            1.0,
+            'comment',
+            Carbon::create(1988, 12, 22),
+            Score::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
+            'wrong'
+        );
     }
 }
