@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; under version 2
+ * of the License (non-upgradable).
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ */
+
+declare(strict_types=1);
+
+namespace OAT\Library\Lti1p3Ags\Tool\Service;
+
+use OAT\Library\Lti1p3Ags\Model\Score;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScorePublishNormalizer;
+use OAT\Library\Lti1p3Core\Deployment\DeploymentInterface;
+use OAT\Library\Lti1p3Core\Message\Claim\AgsClaim;
+use OAT\Library\Lti1p3Core\Service\Client\ServiceClient;
+use Psr\Http\Message\ResponseInterface;
+use Symfony\Component\Translation\Exception\LogicException;
+
+class ScorePublishService
+{
+    public const AUTHORIZATION_SCOPE_SCORE = 'https://purl.imsglobal.org/spec/lti-ags/scope/score';
+
+    /** @var ScorePublishNormalizer */
+    private $scorePublishNormalizer;
+
+    /** @var ServiceClient */
+    private $serviceClient;
+
+    public function __construct(ScorePublishNormalizer $scorePublishNormalizer, ServiceClient $serviceClient)
+    {
+        $this->scorePublishNormalizer = $scorePublishNormalizer;
+        $this->serviceClient = $serviceClient;
+    }
+
+    public function publish(DeploymentInterface $deployment, AgsClaim $agsClaim, Score $score): ResponseInterface
+    {
+        if (null === $agsClaim->getLineItemUrl()) {
+            throw new LogicException('The line item url required to send the score is not defined');
+        }
+
+        return $this->serviceClient->request(
+            $deployment,
+            'POST',
+            $agsClaim->getLineItemUrl() . '/scores',
+            [
+                'json' => $this->scorePublishNormalizer->normalize($score)
+            ],
+            [
+                self::AUTHORIZATION_SCOPE_SCORE
+            ]
+        );
+    }
+}
