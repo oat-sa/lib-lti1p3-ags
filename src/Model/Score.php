@@ -27,7 +27,6 @@ use DateTimeInterface;
 use LogicException;
 use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 use Ramsey\Uuid\Uuid;
-use Throwable;
 
 class Score
 {

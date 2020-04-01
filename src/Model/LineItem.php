@@ -22,11 +22,9 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model;
 
-use Carbon\Carbon;
 use DateTimeInterface;
 use LogicException;
 use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
-use Throwable;
 
 class LineItem
 {
