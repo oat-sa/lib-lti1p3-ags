@@ -107,9 +107,6 @@ class LineItem
         return $this->label;
     }
 
-    /**
-     * @return DateTimeInterface|null
-     */
     public function getStartDateTime(): ?DateTimeInterface
     {
         return $this->startDateTime;
@@ -121,10 +118,7 @@ class LineItem
             ? $this->startDateTime->format(DateTimeInterface::ATOM)
             : null;
     }
-
-    /**
-     * @return DateTimeInterface|null
-     */
+    
     public function getEndDateTime(): ?DateTimeInterface
     {
         return $this->endDateTime;
