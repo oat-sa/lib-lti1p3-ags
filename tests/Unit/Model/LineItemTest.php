@@ -160,8 +160,7 @@ class LineItemTest extends TestCase
             'id',
             null,
             null,
-            '                                                                                                                                                                                                                        
-                            tag_too_long'
+            'tag_too_long                                                                                                                                                                                                                                                     '
         );
     }
 
@@ -178,8 +177,7 @@ class LineItemTest extends TestCase
             null,
             null,
             null,
-            '                                                                                                                                                                                                                        
-                     resourceId_too_long'
+            'resourceId_too_long                                                                                                                                                                                                                                              '
         );
     }
 }
