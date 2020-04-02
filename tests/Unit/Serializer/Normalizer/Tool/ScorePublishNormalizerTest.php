@@ -33,10 +33,8 @@ class ScorePublishNormalizerTest extends TestCase
     /** @var ScorePublishNormalizer */
     private $subject;
 
-    public function setUp()
+    public function setUp(): void
     {
-        parent::setUp();
-
         $this->subject = new ScorePublishNormalizer();
     }
 
