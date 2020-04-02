@@ -75,14 +75,12 @@ class ScorePublishServiceTest extends TestCase
         $this->serviceClientMock
             ->expects($this->once())
             ->method('request')
-            ->withConsecutive(
+            ->with(
+                $deployment,
+                'POST',
+                $agsClaim->getLineItemUrl() . '/scores',
                 [
-                    $deployment,
-                    'POST',
-                    $agsClaim ->getLineItemUrl() . '/scores',
-                    [
-                        'json' => $this->scoreNormalizer->normalize($score)
-                    ]
+                    'json' => $this->scoreNormalizer->normalize($score)
                 ]
             );
 
