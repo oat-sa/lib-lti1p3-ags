@@ -104,7 +104,7 @@ class Score
         string $id = null,
         float $scoreGiven = null,
         float $scoreMaximum = null,
-        string $comment = '',
+        string $comment = null,
         $timestamp = null,
         string $activityProgressStatus = null,
         string $gradingProgressStatus = null
@@ -155,7 +155,7 @@ class Score
         return $this->scoreMaximum;
     }
 
-    public function getComment(): string
+    public function getComment(): ?string
     {
         return $this->comment;
     }

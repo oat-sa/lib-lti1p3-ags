@@ -32,7 +32,7 @@ trait DateConverterTrait
     /**
      * @param DateTimeInterface|string|null $date
      */
-    public function convertIntoDateTime($date): ?DateTimeInterface
+    protected function convertIntoDateTime($date): ?DateTimeInterface
     {
         if (is_string($date)) {
             return $this->iso8601ToDate($date);
@@ -46,7 +46,7 @@ trait DateConverterTrait
 
     }
 
-    public function iso8601ToDate(string $iso8601Date): DateTimeInterface
+    protected function iso8601ToDate(string $iso8601Date): DateTimeInterface
     {
         try {
             return Carbon::createFromFormat(DateTimeInterface::ATOM, $iso8601Date);
@@ -55,7 +55,7 @@ trait DateConverterTrait
         }
     }
 
-    public function dateToIso8601(DateTimeInterface $date): string
+    protected function dateToIso8601(DateTimeInterface $date): string
     {
         return $date->format(DateTimeInterface::ATOM);
     }

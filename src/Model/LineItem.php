@@ -79,8 +79,6 @@ class LineItem
         $this->label = $label;
         $this->id = $id;
         $this->resourceLinkId = $resourceLinkId;
-        $this->startDateTime = $startDateTime;
-        $this->endDateTime = $endDateTime;
 
         $this->setStartDateTime($startDateTime);
         $this->setEndDateTime($endDateTime);
