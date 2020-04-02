@@ -32,6 +32,7 @@ You can find below the implementations of the main concepts of the [LTI Assignme
 ### Service
 
 #### Tool
+
 ##### ScorePublishService
 - Code: [ScorePublishService](src/Tool/Service.php)
 - Documentation: [Score publish service documentation ](https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service)
