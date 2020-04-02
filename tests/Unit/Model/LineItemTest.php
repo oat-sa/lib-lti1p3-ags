@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model;
 
 use Carbon\Carbon;
-use LogicException;
+use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\LineItem;
 use PHPUnit\Framework\TestCase;
 
@@ -73,19 +73,9 @@ class LineItemTest extends TestCase
         $this->assertEquals(Carbon::create(1988, 12, 22), $this->lineItem->getStartDateTime());
     }
 
-    public function testGetISO8601StartDateTime(): void
-    {
-        $this->assertEquals('1988-12-22T00:00:00+00:00', $this->lineItem->getISO8601StartDateTime());
-    }
-
     public function testGetEndDateTime(): void
     {
         $this->assertEquals(Carbon::create(2020, 03, 31), $this->lineItem->getEndDateTime());
-    }
-
-    public function testGetISO8601EndDateTime(): void
-    {
-        $this->assertEquals('2020-03-31T00:00:00+00:00', $this->lineItem->getISO8601EndDateTime());
     }
 
     public function testTag(): void
@@ -103,55 +93,10 @@ class LineItemTest extends TestCase
         $this->assertEquals('resourceLinkId', $this->lineItem->getResourceLinkId());
     }
 
-    public function testCreateLineItemFromIsoDates(): void
-    {
-        $lineItem = new LineItem(
-            'contextId',
-            1.0,
-            'label',
-            'id',
-            '1988-12-22T00:00:00+00:00',
-            '2020-03-31T00:00:00+00:00'
-        );
-
-        $this->assertEquals('1988-12-22T00:00:00+00:00', $lineItem->getISO8601StartDateTime());
-        $this->assertEquals('2020-03-31T00:00:00+00:00', $lineItem->getISO8601EndDateTime());
-    }
-
-    public function testItThrowExceptionWhenWrongStringFormatForStartDate(): void
-    {
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('The string parameter provided must be ISO-8601 formatted');
-
-        new LineItem(
-            'contextId',
-            1.0,
-            'label',
-            'id',
-            '1988-12-22T00:00:00',
-            '2020-03-31T00:00:00+00:00'
-        );
-    }
-
-    public function testItThrowExceptionWhenWrongStringFormatForEndDate(): void
-    {
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('The string parameter provided must be ISO-8601 formatted');
-
-        new LineItem(
-            'contextId',
-            1.0,
-            'label',
-            'id',
-            '1988-12-22T00:00:00+00:00',
-            '2020-03-31T00:00:00'
-        );
-    }
-
     public function testItThrowExceptionWhenTagIsTooLong(): void
     {
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('Parameter tag provided is 257 characters long and cannot exceed 256');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot create a new LineItem: Parameter tag provided is 257 characters long and cannot exceed 256');
 
         new LineItem(
             'contextId',
@@ -166,8 +111,8 @@ class LineItemTest extends TestCase
 
     public function testItThrowExceptionWhenResourceIdIsTooLong(): void
     {
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('Parameter resourceId provided is 257 characters long and cannot exceed 256');
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Cannot create a new LineItem: Parameter resourceId provided is 257 characters long and cannot exceed 256');
 
         new LineItem(
             'contextId',
