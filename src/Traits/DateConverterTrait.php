@@ -2,16 +2,16 @@
 
 /**
  * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU General Public License
+ * modify it under the terms of the GNU General protected License
  * as published by the Free Software Foundation; under version 2
  * of the License (non-upgradable).
  *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * GNU General protected License for more details.
  *
- * You should have received a copy of the GNU General Public License
+ * You should have received a copy of the GNU General protected License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
@@ -32,7 +32,7 @@ trait DateConverterTrait
     /**
      * @param DateTimeInterface|string|null $date
      */
-    public function convertIntoDateTime($date): ?DateTimeInterface
+    protected function convertIntoDateTime($date): ?DateTimeInterface
     {
         if (is_string($date)) {
             return $this->iso8601ToDate($date);
@@ -46,7 +46,7 @@ trait DateConverterTrait
 
     }
 
-    public function iso8601ToDate(string $iso8601Date): DateTimeInterface
+    protected function iso8601ToDate(string $iso8601Date): DateTimeInterface
     {
         try {
             return Carbon::createFromFormat(DateTimeInterface::ATOM, $iso8601Date);
@@ -55,7 +55,7 @@ trait DateConverterTrait
         }
     }
 
-    public function dateToIso8601(DateTimeInterface $date): string
+    protected function dateToIso8601(DateTimeInterface $date): string
     {
         return $date->format(DateTimeInterface::ATOM);
     }
