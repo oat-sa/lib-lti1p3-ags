@@ -5,4 +5,4 @@ CHANGELOG
 -----
 
 * Provided Score and LineItem model
-* Provided ScorePublishService (Tool side service)
+* Provided ScoreServiceClient (Tool side service)

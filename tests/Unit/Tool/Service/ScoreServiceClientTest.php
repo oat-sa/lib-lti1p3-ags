@@ -22,16 +22,16 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Tool\Service;
 
+use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\Score;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScorePublishNormalizer;
 use OAT\Library\Lti1p3Ags\Tests\Traits\DomainTestingTrait;
-use OAT\Library\Lti1p3Ags\Tool\Service\ScorePublishService;
+use OAT\Library\Lti1p3Ags\Tool\Service\ScoreServiceClient;
 use OAT\Library\Lti1p3Core\Message\Claim\AgsClaim;
 use OAT\Library\Lti1p3Core\Service\Client\ServiceClient;
 use PHPUnit\Framework\TestCase;
-use Symfony\Component\Translation\Exception\LogicException;
 
-class ScorePublishServiceTest extends TestCase
+class ScoreServiceClientTest extends TestCase
 {
     use DomainTestingTrait;
 
@@ -49,7 +49,7 @@ class ScorePublishServiceTest extends TestCase
         $this->serviceClientMock = $this->createMock(ServiceClient::class);
         $this->scoreNormalizer = new ScorePublishNormalizer();
 
-        $this->subject = new ScorePublishService($this->scoreNormalizer, $this->serviceClientMock);
+        $this->subject = new ScoreServiceClient($this->scoreNormalizer, $this->serviceClientMock);
     }
 
     public function testItWillPublish(): void
@@ -113,7 +113,7 @@ class ScorePublishServiceTest extends TestCase
             ->expects($this->never())
             ->method('request');
 
-        $this->expectException(LogicException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The line item url required to send the score is not defined');
 
         $this->subject->publish($registration, $agsClaim, $score);
