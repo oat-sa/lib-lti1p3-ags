@@ -81,7 +81,6 @@ class ScoreTest extends TestCase
         $this->assertEquals('comment', $this->score->getComment());
     }
 
-
     public function testGetTimestamp(): void
     {
         $this->assertEquals(Carbon::create(1988, 12, 22), $this->score->getTimestamp());
@@ -96,7 +95,6 @@ class ScoreTest extends TestCase
     {
         $this->assertEquals(Score::GRADING_PROGRESS_STATUS_NOT_READY, $this->score->getGradingProgressStatus());
     }
-
 
     public function testCreateScoreWhenNoTimestamp(): void
     {
