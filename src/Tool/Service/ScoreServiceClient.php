@@ -27,6 +27,7 @@ use OAT\Library\Lti1p3Ags\Model\Score;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScorePublishNormalizer;
 use OAT\Library\Lti1p3Core\Message\Claim\AgsClaim;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
+use OAT\Library\Lti1p3Core\Service\Client\ServiceClient;
 use OAT\Library\Lti1p3Core\Service\Client\ServiceClientInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -40,10 +41,12 @@ class ScoreServiceClient
     /** @var ServiceClientInterface */
     private $serviceClient;
 
-    public function __construct(ScorePublishNormalizer $scorePublishNormalizer, ServiceClientInterface $serviceClient)
-    {
+    public function __construct(
+        ScorePublishNormalizer $scorePublishNormalizer,
+        ServiceClientInterface $serviceClient = null
+    ) {
         $this->scorePublishNormalizer = $scorePublishNormalizer;
-        $this->serviceClient = $serviceClient;
+        $this->serviceClient = $serviceClient ?? new ServiceClient();
     }
 
     public function publish(RegistrationInterface $registration, AgsClaim $agsClaim, Score $score): ResponseInterface
