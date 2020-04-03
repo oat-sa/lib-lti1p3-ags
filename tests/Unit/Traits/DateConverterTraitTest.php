@@ -20,26 +20,38 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Traits;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Traits;
 
 use Carbon\Carbon;
-use DateTimeInterface;
 use InvalidArgumentException;
-use Throwable;
+use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
+use PHPUnit\Framework\TestCase;
 
-trait DateConverterTrait
+class DateConverterTraitTest extends TestCase
 {
-    protected function iso8601ToDate(string $iso8601Date): DateTimeInterface
+    use DateConverterTrait;
+
+    public function testIso8601ToDate(): void
     {
-        try {
-            return Carbon::createFromFormat(DateTimeInterface::ATOM, $iso8601Date);
-        } catch (Throwable $exception) {
-            throw new InvalidArgumentException('The string parameter provided must be ISO-8601 formatted');
-        }
+        $this->assertEquals(
+            Carbon::create(1988, 12, 22),
+            $this->iso8601ToDate('1988-12-22T00:00:00+00:00')
+        );
     }
 
-    protected function dateToIso8601(DateTimeInterface $date): string
+    public function testItThrowExceptionWhenWrongIsoFormat(): void
     {
-        return $date->format(DateTimeInterface::ATOM);
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('The string parameter provided must be ISO-8601 formatted');
+
+        $this->iso8601ToDate('1988-12-22T00:00:00');
+    }
+
+    public function testDateToIso8601(): void
+    {
+        $this->assertEquals(
+            '1988-12-22T00:00:00+00:00',
+            $this->dateToIso8601(Carbon::create(1988, 12, 22))
+        );
     }
 }

@@ -90,9 +90,6 @@ class Score
     /** @var string */
     private $gradingProgressStatus;
 
-    /**
-     * @param DateTimeInterface|string|null $timestamp
-     */
     public function __construct(
         string $userId,
         string $contextId,

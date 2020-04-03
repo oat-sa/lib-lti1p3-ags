@@ -56,10 +56,6 @@ class LineItem
     /** @var string|null */
     private $resourceLinkId;
 
-    /**
-     * @param DateTimeInterface|string|null $startDateTime
-     * @param DateTimeInterface|string|null $endDateTime
-     */
     public function __construct(
         string $contextId,
         float $scoreMaximum,
