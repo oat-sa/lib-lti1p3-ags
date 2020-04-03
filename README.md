@@ -24,7 +24,7 @@ $ composer require oat-sa/lib-lti1p3-ags
 
 You can find below the implementations of the main concepts of the [LTI Assignment and Grade Services](https://www.imsglobal.org/spec/lti-ags/v2p0) specification.
 
-###  Model
+###  Models
 
 - [LineItem](src/Model/LineItem.php)
 - [Score](src/Model/Score.php)
