@@ -29,8 +29,8 @@ use InvalidArgumentException;
 class Score
 {
     /**
-     * You can find the description of those different status in the provided document in the @see section
-     * @see docs/ScoreStatus.md
+     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress
+     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress
      */
     public const ACTIVITY_PROGRESS_STATUS_INITIALIZED = 'Initialized';
     public const ACTIVITY_PROGRESS_STATUS_STARTED = 'Started';
