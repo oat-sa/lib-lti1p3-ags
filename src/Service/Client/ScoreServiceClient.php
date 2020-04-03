@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tool\Service;
+namespace OAT\Library\Lti1p3Ags\Service\Client;
 
 use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\Score;

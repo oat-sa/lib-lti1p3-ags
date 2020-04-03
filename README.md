@@ -34,7 +34,7 @@ You can find below the implementations of the main concepts of the [LTI Assignme
 #### Tool
 
 ##### ScoreServiceClient
-- Code: [ScoreServiceClient](src/Tool/Service/ScoreServiceClient.php)
+- Code: [ScoreServiceClient](src/Service/Client/ScoreServiceClient.php)
 - Documentation: [Score publish service documentation ](https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service)
 - Openapi POST score contract: [openapi](https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service)
 
