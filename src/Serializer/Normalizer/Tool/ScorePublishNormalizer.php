@@ -23,14 +23,17 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool;
 
 use OAT\Library\Lti1p3Ags\Model\Score;
+use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 
 class ScorePublishNormalizer
 {
+    use DateConverterTrait;
+
     public function normalize(Score $score): array
     {
         $scoreNormalized = [
             'userId' => $score->getUserId(),
-            'timestamp' => $score->getISO8601Timestamp(),
+            'timestamp' => $this->dateToIso8601($score->getTimestamp()),
             'activityProgress' => $score->getActivityProgressStatus(),
             'gradingProgress' => $score->getGradingProgressStatus()
         ];

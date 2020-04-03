@@ -25,7 +25,6 @@ namespace OAT\Library\Lti1p3Ags\Traits;
 use Carbon\Carbon;
 use DateTimeInterface;
 use InvalidArgumentException;
-use LogicException;
 use Throwable;
 
 trait DateConverterTrait

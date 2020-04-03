@@ -26,10 +26,13 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use OAT\Library\Lti1p3Ags\Model\Score;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScorePublishNormalizer;
+use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 use PHPUnit\Framework\TestCase;
 
 class ScorePublishNormalizerTest extends TestCase
 {
+    use DateConverterTrait;
+
     /** @var ScorePublishNormalizer */
     private $subject;
 
@@ -55,7 +58,7 @@ class ScorePublishNormalizerTest extends TestCase
                 'userId' => $score->getUserId(),
                 'scoreGiven' => $score->getScoreGiven(),
                 'scoreMaximum' => $score->getScoreMaximum(),
-                'timestamp' => $score->getISO8601Timestamp(),
+                'timestamp' => $this->dateToIso8601($score->getTimestamp()),
                 'activityProgress' => $score->getActivityProgressStatus(),
                 'gradingProgress' => $score->getGradingProgressStatus()
         ];
@@ -73,12 +76,12 @@ class ScorePublishNormalizerTest extends TestCase
             null,
             null,
             '',
-            Carbon::create(1988, 12, 22)->format(DateTimeInterface::ATOM)
+            Carbon::now()
         );
 
         $expectedOutput = [
             'userId' => $score->getUserId(),
-            'timestamp' => $score->getISO8601Timestamp(),
+            'timestamp' => $this->dateToIso8601($score->getTimestamp()),
             'activityProgress' => $score->getActivityProgressStatus(),
             'gradingProgress' => $score->getGradingProgressStatus()
         ];
@@ -96,7 +99,7 @@ class ScorePublishNormalizerTest extends TestCase
             0.3,
             0.4,
             'my comment',
-            Carbon::create(1988, 12, 22)
+            Carbon::now()
         );
 
         $expectedOutput = [
@@ -104,7 +107,7 @@ class ScorePublishNormalizerTest extends TestCase
             'scoreGiven' => $score->getScoreGiven(),
             'scoreMaximum' => $score->getScoreMaximum(),
             'comment' => $score->getComment(),
-            'timestamp' => $score->getISO8601Timestamp(),
+            'timestamp' => $this->dateToIso8601($score->getTimestamp()),
             'activityProgress' => $score->getActivityProgressStatus(),
             'gradingProgress' => $score->getGradingProgressStatus()
         ];
