@@ -22,31 +22,33 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Traits;
 
-use OAT\Library\Lti1p3Core\Deployment\Deployment;
 use OAT\Library\Lti1p3Core\Platform\Platform;
 use OAT\Library\Lti1p3Core\Platform\PlatformInterface;
+use OAT\Library\Lti1p3Core\Registration\Registration;
 use OAT\Library\Lti1p3Core\Security\Key\KeyChainInterface;
 use OAT\Library\Lti1p3Core\Tool\Tool;
 use OAT\Library\Lti1p3Core\Tool\ToolInterface;
 
 trait DomainTestingTrait
 {
-    private function createTestDeployment(
-        string $identifier = 'deploymentIdentifier',
-        string $clientId = 'deploymentClientId',
+    private function createTestRegistration(
+        string $identifier = 'registrationIdentifier',
+        string $clientId = 'registrationClientId',
         PlatformInterface $platform = null,
         ToolInterface $tool = null,
+        array $deploymentIds = ['deploymentIdentifier'],
         KeyChainInterface $platformKeyChain = null,
         KeyChainInterface $toolKeyChain = null,
         string $platformJwksUrl = null,
         string $toolJwksUrl = null
-    ): Deployment {
-        return new Deployment(
+    ): Registration {
+        return new Registration(
             $identifier,
             $clientId,
             $platform ?? $this->createTestPlatform(),
             $tool ?? $this->createTestTool(),
-            $platformKeyChain ,
+            $deploymentIds,
+            $platformKeyChain,
             $toolKeyChain,
             $platformJwksUrl,
             $toolJwksUrl
