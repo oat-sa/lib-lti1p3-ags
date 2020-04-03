@@ -67,7 +67,6 @@ class LineItemTest extends TestCase
         $this->assertEquals('label', $this->lineItem->getLabel());
     }
 
-
     public function testGetStartDateTime(): void
     {
         $this->assertEquals(Carbon::create(1988, 12, 22), $this->lineItem->getStartDateTime());
