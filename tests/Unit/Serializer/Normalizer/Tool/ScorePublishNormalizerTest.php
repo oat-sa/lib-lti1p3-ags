@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Normalizer\Tool;
 
 use Carbon\Carbon;
-use DateTimeInterface;
 use OAT\Library\Lti1p3Ags\Model\Score;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScorePublishNormalizer;
 use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;

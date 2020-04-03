@@ -26,9 +26,9 @@ use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\Score;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScorePublishNormalizer;
 use OAT\Library\Lti1p3Ags\Service\Client\ScoreServiceClient;
-use OAT\Library\Lti1p3Ags\Tests\Traits\DomainTestingTrait;
 use OAT\Library\Lti1p3Core\Message\Claim\AgsClaim;
 use OAT\Library\Lti1p3Core\Service\Client\ServiceClient;
+use OAT\Library\Lti1p3Core\Tests\Traits\DomainTestingTrait;
 use PHPUnit\Framework\TestCase;
 
 class ScoreServiceClientTest extends TestCase
