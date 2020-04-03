@@ -24,34 +24,18 @@ namespace OAT\Library\Lti1p3Ags\Traits;
 
 use Carbon\Carbon;
 use DateTimeInterface;
+use InvalidArgumentException;
 use LogicException;
 use Throwable;
 
 trait DateConverterTrait
 {
-    /**
-     * @param DateTimeInterface|string|null $date
-     */
-    protected function convertIntoDateTime($date): ?DateTimeInterface
-    {
-        if (is_string($date)) {
-            return $this->iso8601ToDate($date);
-        }
-
-        if ($date instanceof DateTimeInterface) {
-            return $date;
-        }
-
-        return null;
-
-    }
-
     protected function iso8601ToDate(string $iso8601Date): DateTimeInterface
     {
         try {
             return Carbon::createFromFormat(DateTimeInterface::ATOM, $iso8601Date);
         } catch (Throwable $exception) {
-            throw new LogicException('The string parameter provided must be ISO-8601 formatted');
+            throw new InvalidArgumentException('The string parameter provided must be ISO-8601 formatted');
         }
     }
 

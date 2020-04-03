@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model;
 
 use Carbon\Carbon;
-use LogicException;
+use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\Score;
 use PHPUnit\Framework\TestCase;
 
@@ -87,11 +87,6 @@ class ScoreTest extends TestCase
         $this->assertEquals(Carbon::create(1988, 12, 22), $this->score->getTimestamp());
     }
 
-    public function testGetISO8601Timestamp(): void
-    {
-        $this->assertEquals('1988-12-22T00:00:00+00:00', $this->score->getISO8601Timestamp());
-    }
-
     public function testGetActivityProgressStatus(): void
     {
         $this->assertEquals(Score::ACTIVITY_PROGRESS_STATUS_INITIALIZED, $this->score->getActivityProgressStatus());
@@ -102,21 +97,6 @@ class ScoreTest extends TestCase
         $this->assertEquals(Score::GRADING_PROGRESS_STATUS_NOT_READY, $this->score->getGradingProgressStatus());
     }
 
-    public function testCreateScoreFromIsoTimestamp(): void
-    {
-        $lineItem = new Score(
-            'userId',
-            'contextId',
-            'lineItemId',
-            'id',
-            0.8,
-            1.0,
-            'comment',
-            '1988-12-22T00:00:00+00:00'
-        );
-
-        $this->assertEquals('1988-12-22T00:00:00+00:00', $lineItem->getISO8601Timestamp());
-    }
 
     public function testCreateScoreWhenNoTimestamp(): void
     {
@@ -132,7 +112,7 @@ class ScoreTest extends TestCase
             'comment'
         );
 
-        $this->assertEquals('1988-12-22T06:00:00+00:00', $lineItem->getISO8601Timestamp());
+        $this->assertEquals(Carbon::now(), $lineItem->getTimestamp());
     }
 
     public function testScoreIsNotSetWhenInvalid(): void
@@ -153,37 +133,20 @@ class ScoreTest extends TestCase
             'contextId',
             'lineItemId',
             'id',
-            null,
-            1.0
+            0.0,
+            -1.1
         );
 
         $this->assertNull($score->getScoreGiven());
         $this->assertNull($score->getScoreMaximum());
     }
 
-    public function testItThrowExceptionWhenWrongStringFormatForTimestamp(): void
-    {
-        $this->expectException(LogicException::class);
-        $this->expectExceptionMessage('The string parameter provided must be ISO-8601 formatted');
-
-        new Score(
-            'userId',
-            'contextId',
-            'lineItemId',
-            'id',
-            0.8,
-            1.0,
-            'comment',
-            '1988-12-22T00:00:00'
-        );
-    }
-
     public function testItThrowExceptionWhenActivityProgressStatusIsWrong(): void
     {
-        $this->expectException(LogicException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
             sprintf(
-                'Status provided: %s is not allowed. Allowed status: %s',
+                'Cannot create a new Score: Activity progress status provided %s is not allowed. Allowed status: %s',
                 'wrong',
                 'Initialized, Started, InProgress, Submitted, Completed'
             )
@@ -205,10 +168,10 @@ class ScoreTest extends TestCase
 
     public function testItThrowExceptionWhenGradingProgressStatusIsWrong(): void
     {
-        $this->expectException(LogicException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
             sprintf(
-                'Status provided: %s is not allowed. Allowed status: %s',
+                'Cannot create a new Score: Grading progress status provided %s is not allowed. Allowed status: %s',
                 'wrong',
                 'FullyGraded, Pending, PendingManual, Failed, NotReady'
             )

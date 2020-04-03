@@ -24,14 +24,10 @@ namespace OAT\Library\Lti1p3Ags\Model;
 
 use Carbon\Carbon;
 use DateTimeInterface;
-use LogicException;
-use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
-use Ramsey\Uuid\Uuid;
+use InvalidArgumentException;
 
 class Score
 {
-    use DateConverterTrait;
-
     /**
      * You can find the description of those different status in the provided document in the @see section
      * @see docs/ScoreStatus.md
@@ -48,7 +44,7 @@ class Score
     public const GRADING_PROGRESS_STATUS_FAILED = 'Failed';
     public const GRADING_PROGRESS_STATUS_NOT_READY = 'NotReady';
 
-    public const SUPPORTED_ACTIVITY_PROGRESS_STATUS = [
+    private const SUPPORTED_ACTIVITY_PROGRESS_STATUS = [
         self::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
         self::ACTIVITY_PROGRESS_STATUS_STARTED,
         self::ACTIVITY_PROGRESS_STATUS_IN_PROGRESS,
@@ -56,16 +52,13 @@ class Score
         self::ACTIVITY_PROGRESS_STATUS_COMPLETED
     ];
 
-    public const SUPPORTED_GRADING_PROGRESS_STATUS = [
+    private const SUPPORTED_GRADING_PROGRESS_STATUS = [
         self::GRADING_PROGRESS_STATUS_FULLY_GRADED,
         self::GRADING_PROGRESS_STATUS_PENDING,
         self::GRADING_PROGRESS_STATUS_PENDING_MANUAL,
         self::GRADING_PROGRESS_STATUS_FAILED,
         self::GRADING_PROGRESS_STATUS_NOT_READY
     ];
-
-    /** @var string */
-    private $id;
 
     /** @var string */
     private $userId;
@@ -76,13 +69,16 @@ class Score
     /** @var string */
     private $lineItemId;
 
+    /** @var string|null */
+    private $id;
+
     /** @var float|null */
     private $scoreGiven;
 
     /** @var float|null */
     private $scoreMaximum;
 
-    /** @var string */
+    /** @var string|null */
     private $comment;
 
     /** @var DateTimeInterface */
@@ -101,26 +97,26 @@ class Score
         string $userId,
         string $contextId,
         string $lineItemId,
-        string $id = null,
-        float $scoreGiven = null,
-        float $scoreMaximum = null,
-        string $comment = null,
-        $timestamp = null,
-        string $activityProgressStatus = null,
-        string $gradingProgressStatus = null
+        ?string $id = null,
+        ?float $scoreGiven = null,
+        ?float $scoreMaximum = null,
+        ?string $comment = null,
+        ?DateTimeInterface $timestamp = null,
+        ?string $activityProgressStatus = null,
+        ?string $gradingProgressStatus = null
     ) {
-        $this->id = $id ?? Uuid::uuid4()->toString();
         $this->userId = $userId;
         $this->contextId = $contextId;
         $this->lineItemId = $lineItemId;
+        $this->id = $id;
         $this->comment = $comment;
+        $this->timestamp = $timestamp ?? Carbon::now();
 
         if ($this->areScoresValid($scoreGiven, $scoreMaximum)) {
             $this->scoreGiven = $scoreGiven;
             $this->scoreMaximum = $scoreMaximum;
         }
 
-        $this->setTimestamp($timestamp);
         $this->setActivityProgressStatus($activityProgressStatus ?? self::ACTIVITY_PROGRESS_STATUS_INITIALIZED);
         $this->setGradingProgressStatus($gradingProgressStatus ?? self::GRADING_PROGRESS_STATUS_NOT_READY);
     }
@@ -165,13 +161,6 @@ class Score
         return $this->timestamp;
     }
 
-    public function getISO8601Timestamp(): ?string
-    {
-        return $this->timestamp
-            ? $this->dateToIso8601($this->timestamp)
-            : null;
-    }
-
     public function getActivityProgressStatus(): string
     {
         return $this->activityProgressStatus;
@@ -181,24 +170,15 @@ class Score
     {
         return $this->gradingProgressStatus;
     }
-
-    /**
-     * @param DateTimeInterface|string|null $timestamp
-     */
-    public function setTimestamp($timestamp): self
-    {
-        $this->timestamp = $this->convertIntoDateTime($timestamp) ?? Carbon::now();
-
-        return $this;
-    }
     
     public function setActivityProgressStatus(string $activityProgressStatus): self
     {
         if (!$this->isActivityProgressStatusSupported($activityProgressStatus)) {
-            throw new LogicException(
-                $this->getErrorMessageWrongStatusProvided(
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Cannot create a new Score: Activity progress status provided %s is not allowed. Allowed status: %s',
                     $activityProgressStatus,
-                    self::SUPPORTED_ACTIVITY_PROGRESS_STATUS
+                    implode(', ', self::SUPPORTED_ACTIVITY_PROGRESS_STATUS)
                 )
             );
         }
@@ -211,10 +191,11 @@ class Score
     public function setGradingProgressStatus(string $gradingProgressStatus): self
     {
         if (!$this->isGradingProgressStatusSupported($gradingProgressStatus)) {
-            throw new LogicException(
-                $this->getErrorMessageWrongStatusProvided(
+            throw new InvalidArgumentException(
+                sprintf(
+                    'Cannot create a new Score: Grading progress status provided %s is not allowed. Allowed status: %s',
                     $gradingProgressStatus,
-                    self::SUPPORTED_GRADING_PROGRESS_STATUS
+                    implode(', ', self::SUPPORTED_GRADING_PROGRESS_STATUS)
                 )
             );
         }
@@ -234,17 +215,10 @@ class Score
         return in_array($gradingProgressStatus, self::SUPPORTED_GRADING_PROGRESS_STATUS, true);
     }
 
-    private function getErrorMessageWrongStatusProvided($providedStatus, $statusAllowed): string
-    {
-        return sprintf(
-            'Status provided: %s is not allowed. Allowed status: %s',
-            $providedStatus,
-            implode(', ', $statusAllowed)
-        );
-    }
-
     private function areScoresValid(?float $scoreGiven, ?float $scoreMaximum): bool
     {
-        return gettype($scoreGiven) === gettype($scoreMaximum);
+        return gettype($scoreGiven) === gettype($scoreMaximum)
+            && $scoreGiven >= 0
+            && $scoreMaximum >= 0;
     }
 }

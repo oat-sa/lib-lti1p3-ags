@@ -23,17 +23,11 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Model;
 
 use DateTimeInterface;
-use LogicException;
-use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
+use InvalidArgumentException;
 
 class LineItem
 {
-    use DateConverterTrait;
-
     public const PARAMETER_MAX_LENGTH = 256;
-
-    /** @var string|null */
-    private $id;
 
     /** @var string */
     private $contextId;
@@ -44,6 +38,9 @@ class LineItem
     /** @var string */
     private $label;
 
+    /** @var string|null */
+    private $id;
+
     /** @var DateTimeInterface|null */
     private $startDateTime;
 
@@ -53,10 +50,10 @@ class LineItem
     /** @var string|null */
     private $tag;
 
-    /** @var null|string */
+    /** @var string|null */
     private $resourceId;
 
-    /** @var null|string */
+    /** @var string|null */
     private $resourceLinkId;
 
     /**
@@ -67,21 +64,21 @@ class LineItem
         string $contextId,
         float $scoreMaximum,
         string $label,
-        string $id = null,
-        $startDateTime = null,
-        $endDateTime = null,
-        string $tag = null,
-        string $resourceId = null,
-        string $resourceLinkId = null
+        ?string $id = null,
+        ?DateTimeInterface $startDateTime = null,
+        ?DateTimeInterface $endDateTime = null,
+        ?string $tag = null,
+        ?string $resourceId = null,
+        ?string $resourceLinkId = null
     ) {
         $this->contextId = $contextId;
         $this->scoreMaximum = $scoreMaximum;
         $this->label = $label;
         $this->id = $id;
+        $this->startDateTime = $startDateTime;
+        $this->endDateTime = $endDateTime;
         $this->resourceLinkId = $resourceLinkId;
 
-        $this->setStartDateTime($startDateTime);
-        $this->setEndDateTime($endDateTime);
         $this->setTag($tag);
         $this->setResourceId($resourceId);
     }
@@ -111,23 +108,9 @@ class LineItem
         return $this->startDateTime;
     }
 
-    public function getISO8601StartDateTime(): ?string
-    {
-        return $this->startDateTime
-            ? $this->dateToIso8601($this->startDateTime)
-            : null;
-    }
-
     public function getEndDateTime(): ?DateTimeInterface
     {
         return $this->endDateTime;
-    }
-
-    public function getISO8601EndDateTime(): ?string
-    {
-        return $this->endDateTime
-            ? $this->dateToIso8601($this->endDateTime)
-            : null;
     }
 
     public function getTag(): ?string
@@ -145,32 +128,9 @@ class LineItem
         return $this->resourceLinkId;
     }
 
-    /**
-     * @param DateTimeInterface|string|null $startDateTime
-     */
-    public function setStartDateTime($startDateTime): self
-    {
-        $this->startDateTime = $this->convertIntoDateTime($startDateTime);
-
-        return $this;
-    }
-
-    /**
-     * @param DateTimeInterface|string|null $endDateTime
-     */
-    public function setEndDateTime($endDateTime): self
-    {
-        $this->endDateTime = $this->convertIntoDateTime($endDateTime);
-
-        return $this;
-    }
-
     public function setTag(?string $tag): self
     {
-        if ($tag !== null) {
-            $this->checkParameterMaxLength('tag', $tag);
-        }
-
+        $this->checkParameterMaxLength('tag', $tag);
         $this->tag = $tag;
 
         return $this;
@@ -178,23 +138,20 @@ class LineItem
 
     public function setResourceId(?string $resourceId): self
     {
-        if ($resourceId !== null) {
-            $this->checkParameterMaxLength('resourceId', $resourceId);
-        }
-
+        $this->checkParameterMaxLength('resourceId', $resourceId);
         $this->resourceId = $resourceId;
 
         return $this;
     }
 
-    private function checkParameterMaxLength(string $parameter, string $value): void
+    private function checkParameterMaxLength(string $parameter, ?string $value): void
     {
-        $length = strlen($value);
+        $length = strlen((string)$value);
 
         if ($length > self::PARAMETER_MAX_LENGTH) {
-            throw new LogicException(
+            throw new InvalidArgumentException(
                 sprintf(
-                    'Parameter %s provided is %d characters long and cannot exceed %s',
+                    'Cannot create a new LineItem: Parameter %s provided is %d characters long and cannot exceed %s',
                     $parameter,
                     $length,
                     self::PARAMETER_MAX_LENGTH
