@@ -24,8 +24,8 @@ namespace OAT\Library\Lti1p3Ags\Tool\Service;
 
 use OAT\Library\Lti1p3Ags\Model\Score;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScorePublishNormalizer;
-use OAT\Library\Lti1p3Core\Deployment\DeploymentInterface;
 use OAT\Library\Lti1p3Core\Message\Claim\AgsClaim;
+use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\ServiceClient;
 use Psr\Http\Message\ResponseInterface;
 use Symfony\Component\Translation\Exception\LogicException;
@@ -46,14 +46,14 @@ class ScorePublishService
         $this->serviceClient = $serviceClient;
     }
 
-    public function publish(DeploymentInterface $deployment, AgsClaim $agsClaim, Score $score): ResponseInterface
+    public function publish(RegistrationInterface $registration, AgsClaim $agsClaim, Score $score): ResponseInterface
     {
         if (null === $agsClaim->getLineItemUrl()) {
             throw new LogicException('The line item url required to send the score is not defined');
         }
 
         return $this->serviceClient->request(
-            $deployment,
+            $registration,
             'POST',
             $agsClaim->getLineItemUrl() . '/scores',
             [
