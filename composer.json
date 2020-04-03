@@ -12,7 +12,7 @@
   "require": {
     "php": "^7.1.3",
     "nesbot/carbon": "^2.31",
-    "oat-sa/lib-lti1p3-core": "dev-feature/NEX-887/deployment-registration-replacement"
+    "oat-sa/lib-lti1p3-core": "dev-master"
   },
   "require-dev": {
     "phpunit/phpunit": "7.5"
