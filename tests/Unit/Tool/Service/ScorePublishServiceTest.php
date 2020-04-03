@@ -63,7 +63,8 @@ class ScorePublishServiceTest extends TestCase
             0.2,
             0.3
         );
-        $agsClaim = new AgsClaim([
+        $agsClaim = new AgsClaim(
+            [
                 'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
                 'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
                 'https://purl.imsglobal.org/spec/lti-ags/scope/score'
@@ -98,13 +99,14 @@ class ScorePublishServiceTest extends TestCase
             0.2,
             0.3
         );
-        $agsClaim = new AgsClaim([
-            'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
-            'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
-            'https://purl.imsglobal.org/spec/lti-ags/scope/score'
-        ],
+        $agsClaim = new AgsClaim(
+            [
+                'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                'https://purl.imsglobal.org/spec/lti-ags/scope/score'
+            ],
             'https://www.myuniv.example.com/2344/lineitems/',
-           null
+            null
         );
 
         $this->serviceClientMock

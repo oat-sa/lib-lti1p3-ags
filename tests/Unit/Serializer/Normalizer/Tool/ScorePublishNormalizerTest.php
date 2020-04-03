@@ -55,12 +55,12 @@ class ScorePublishNormalizerTest extends TestCase
         );
 
         $expectedOutput = [
-                'userId' => $score->getUserId(),
-                'scoreGiven' => $score->getScoreGiven(),
-                'scoreMaximum' => $score->getScoreMaximum(),
-                'timestamp' => $this->dateToIso8601($score->getTimestamp()),
-                'activityProgress' => $score->getActivityProgressStatus(),
-                'gradingProgress' => $score->getGradingProgressStatus()
+            'userId' => $score->getUserId(),
+            'scoreGiven' => $score->getScoreGiven(),
+            'scoreMaximum' => $score->getScoreMaximum(),
+            'timestamp' => $this->dateToIso8601($score->getTimestamp()),
+            'activityProgress' => $score->getActivityProgressStatus(),
+            'gradingProgress' => $score->getGradingProgressStatus()
         ];
 
         $this->assertEquals($expectedOutput, $this->subject->normalize($score));
