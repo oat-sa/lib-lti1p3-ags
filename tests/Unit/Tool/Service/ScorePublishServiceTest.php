@@ -54,7 +54,7 @@ class ScorePublishServiceTest extends TestCase
 
     public function testItWillPublish(): void
     {
-        $deployment = $this->createTestDeployment();
+        $registration = $this->createTestRegistration();
         $score = new Score(
             'userId',
             'contextId',
@@ -76,7 +76,7 @@ class ScorePublishServiceTest extends TestCase
             ->expects($this->once())
             ->method('request')
             ->with(
-                $deployment,
+                $registration,
                 'POST',
                 $agsClaim->getLineItemUrl() . '/scores',
                 [
@@ -84,12 +84,12 @@ class ScorePublishServiceTest extends TestCase
                 ]
             );
 
-        $this->subject->publish($deployment, $agsClaim, $score);
+        $this->subject->publish($registration, $agsClaim, $score);
     }
 
     public function testItWillThrowsAnExceptionIfLineItemUrlIsNotSet(): void
     {
-        $deployment = $this->createTestDeployment();
+        $registration = $this->createTestRegistration();
         $score = new Score(
             'userId',
             'contextId',
@@ -114,7 +114,7 @@ class ScorePublishServiceTest extends TestCase
         $this->expectException(LogicException::class);
         $this->expectExceptionMessage('The line item url required to send the score is not defined');
 
-        $this->subject->publish($deployment, $agsClaim, $score);
+        $this->subject->publish($registration, $agsClaim, $score);
     }
 
     public function testAuthorizationScopeScoreConstant(): void
