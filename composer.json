@@ -15,7 +15,8 @@
     "oat-sa/lib-lti1p3-core": "dev-master"
   },
   "require-dev": {
-    "phpunit/phpunit": "7.5"
+    "phpunit/phpunit": "7.5",
+    "nyholm/psr7": "^1.2"
   },
   "autoload": {
     "psr-4": {
