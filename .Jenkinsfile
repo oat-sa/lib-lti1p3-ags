@@ -22,6 +22,10 @@ pipeline {
                         label: 'Install/Update sources from Composer',
                         script: "COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"$GIT_TOKEN\"}}\' composer update --no-interaction --no-ansi --no-progress"
                     )
+                    sh(
+                        label: 'composer dump autoload',
+                        script: script: "COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"$GIT_TOKEN\"}}\' composer dump-autoload"
+                    )
                 }
                 sh(
                     label: 'Run backend tests',
