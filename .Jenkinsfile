@@ -24,7 +24,7 @@ pipeline {
                     )
                     sh(
                         label: 'composer dump autoload',
-                        script: script: "COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"$GIT_TOKEN\"}}\' composer dump-autoload"
+                        script: "COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"$GIT_TOKEN\"}}\' composer dump-autoload"
                     )
                 }
                 sh(
