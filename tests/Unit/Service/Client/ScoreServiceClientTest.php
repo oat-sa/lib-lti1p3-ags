@@ -52,26 +52,12 @@ class ScoreServiceClientTest extends TestCase
         $this->subject = new ScoreServiceClient($this->scoreNormalizer, $this->serviceClientMock);
     }
 
-    public function testItWillPublish(): void
+    /**
+     * @dataProvider validProvidedInputDataProvider
+     */
+    public function testItWillPublish(AgsClaim $agsClaim, Score $score, array $scopes = null): void
     {
         $registration = $this->createTestRegistration();
-        $score = new Score(
-            'userId',
-            'contextId',
-            'lineItemId',
-            null,
-            0.2,
-            0.3
-        );
-        $agsClaim = new AgsClaim(
-            [
-                'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
-                'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
-                'https://purl.imsglobal.org/spec/lti-ags/scope/score'
-            ],
-            'https://www.myuniv.example.com/2344/lineitems/',
-            'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
-        );
 
         $this->serviceClientMock
             ->expects($this->once())
@@ -85,20 +71,13 @@ class ScoreServiceClientTest extends TestCase
                 ]
             );
 
-        $this->subject->publish($registration, $agsClaim, $score);
+        $this->subject->publish($registration, $agsClaim, $score, $scopes);
     }
 
     public function testItWillThrowsAnExceptionIfLineItemUrlIsNotSet(): void
     {
         $registration = $this->createTestRegistration();
-        $score = new Score(
-            'userId',
-            'contextId',
-            'lineItemId',
-            null,
-            0.2,
-            0.3
-        );
+        $score = $this->getScore();
         $agsClaim = new AgsClaim(
             [
                 'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
@@ -124,6 +103,116 @@ class ScoreServiceClientTest extends TestCase
         $this->assertEquals(
             'https://purl.imsglobal.org/spec/lti-ags/scope/score',
             $this->subject::AUTHORIZATION_SCOPE_SCORE
+        );
+    }
+
+    /**
+     * @dataProvider invalidProvidedInputDataProvider
+     */
+    public function testItWillThrowsAnExceptionIfWrongScopeIsGiven(
+        AgsClaim $agsClaim,
+        Score $score,
+        string $errorMessage,
+        array $scopes = null
+    ): void {
+        $registration = $this->createTestRegistration();
+
+        $this->serviceClientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage($errorMessage);
+
+        $this->subject->publish($registration, $agsClaim, $score, $scopes);
+    }
+
+    public function validProvidedInputDataProvider(): array
+    {
+        return [
+            [//Provided score as method parameter is as expected
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
+                ),
+                $this->getScore(),
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score']
+            ],
+            [//Provided score as method parameter is null but scope in AgsClaim is as expected
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
+                ),
+                $this->getScore(),
+                null
+            ],
+            [//Provided score as method parameter is as expected
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
+                ),
+                $this->getScore(),
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score']
+            ],
+        ];
+    }
+
+    public function invalidProvidedInputDataProvider(): array
+    {
+        return [
+            [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
+                ),
+                $this->getScore(),
+                'The provided scopes https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly is not valid. The only scope allowed is https://purl.imsglobal.org/spec/lti-ags/scope/score',
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly'],
+            ],
+            [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
+                ),
+                $this->getScore(),
+                'The provided scopes https://purl.imsglobal.org/spec/lti-ags/scope/lineitem, https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly is not valid. The only scope allowed is https://purl.imsglobal.org/spec/lti-ags/scope/score',
+                null,
+            ]
+        ];
+    }
+
+    private function getScore(): Score
+    {
+        return new Score(
+            'userId',
+            'contextId',
+            'lineItemId',
+            null,
+            0.2,
+            0.3
         );
     }
 }

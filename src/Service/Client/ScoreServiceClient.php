@@ -49,11 +49,14 @@ class ScoreServiceClient
         $this->serviceClient = $serviceClient ?? new ServiceClient();
     }
 
-    public function publish(RegistrationInterface $registration, AgsClaim $agsClaim, Score $score): ResponseInterface
-    {
-        if (null === $agsClaim->getLineItemUrl()) {
-            throw new InvalidArgumentException('The line item url required to send the score is not defined');
-        }
+    public function publish(
+        RegistrationInterface $registration,
+        AgsClaim $agsClaim,
+        Score $score,
+        array $scopes = null
+    ): ResponseInterface {
+       $this->checkLineItemUrl($agsClaim->getLineItemUrl());
+       $this->checkScopes($agsClaim, $scopes);
 
         return $this->serviceClient->request(
             $registration,
@@ -62,9 +65,34 @@ class ScoreServiceClient
             [
                 'json' => $this->scorePublishNormalizer->normalize($score)
             ],
-            [
-                self::AUTHORIZATION_SCOPE_SCORE
-            ]
+            $scopes ?? [self::AUTHORIZATION_SCOPE_SCORE]
         );
+    }
+
+    private function checkLineItemUrl(?string $lineItemUrl): void
+    {
+        if (null === $lineItemUrl) {
+            throw new InvalidArgumentException('The line item url required to send the score is not defined');
+        }
+    }
+
+    private function checkScopes(AgsClaim $agsClaim, ?array $scopes): void
+    {
+        if (isset($scopes)) {
+            $this->areScopesValid($scopes);
+        } else {
+            $this->areScopesValid($agsClaim->getScopes());
+        }
+    }
+
+    private function areScopesValid(array $scopes): void {
+        if (!in_array(self::AUTHORIZATION_SCOPE_SCORE, $scopes)) {
+            throw new InvalidArgumentException(
+                sprintf(
+                    'The provided scopes %s is not valid. The only scope allowed is %s',
+                    implode(', ', $scopes),
+                    self::AUTHORIZATION_SCOPE_SCORE)
+            );
+        }
     }
 }
