@@ -27,13 +27,5 @@
       "OAT\\Library\\Lti1p3Ags\\Tests\\": "tests/",
       "OAT\\Library\\Lti1p3Core\\Tests\\Traits\\": "vendor/oat-sa/lib-lti1p3-core/tests/traits"
     }
-  },
-  "scripts": {
-    "post-install-cmd": [
-      "composer dump-autoload"
-    ],
-    "post-update-cmd": [
-      "composer dump-autoload"
-    ]
   }
 }
