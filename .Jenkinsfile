@@ -24,7 +24,7 @@ pipeline {
                                 )
                     sh(
                         label: 'Install/Update sources from Composer',
-                        script: "COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"$GIT_TOKEN\"}}\' composer update --prefer-source --no-interaction --no-ansi --no-progress"
+                        script: "COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"$GIT_TOKEN\"}}\' composer update --no-interaction --no-ansi --no-progress"
                     )
                 }
                 sh(
@@ -34,4 +34,5 @@ pipeline {
             }
         }
     }
+}
 }
