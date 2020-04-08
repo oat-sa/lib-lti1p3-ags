@@ -24,7 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Service\Client;
 
 use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\Score;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScorePublishNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScoreServiceClientNormalizer;
 use OAT\Library\Lti1p3Core\Message\Claim\AgsClaim;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\ServiceClient;
@@ -35,17 +35,17 @@ class ScoreServiceClient
 {
     public const AUTHORIZATION_SCOPE_SCORE = 'https://purl.imsglobal.org/spec/lti-ags/scope/score';
 
-    /** @var ScorePublishNormalizer */
-    private $scorePublishNormalizer;
+    /** @var ScoreServiceClientNormalizer */
+    private $scoreServiceClientNormalizer;
 
     /** @var ServiceClientInterface */
     private $serviceClient;
 
     public function __construct(
-        ScorePublishNormalizer $scorePublishNormalizer,
+        ScoreServiceClientNormalizer $scoreServiceClientNormalizer,
         ServiceClientInterface $serviceClient = null
     ) {
-        $this->scorePublishNormalizer = $scorePublishNormalizer;
+        $this->scoreServiceClientNormalizer = $scoreServiceClientNormalizer;
         $this->serviceClient = $serviceClient ?? new ServiceClient();
     }
 
@@ -63,7 +63,7 @@ class ScoreServiceClient
             'POST',
             $agsClaim->getLineItemUrl() . '/scores',
             [
-                'json' => $this->scorePublishNormalizer->normalize($score)
+                'json' => $this->scoreServiceClientNormalizer->normalize($score)
             ],
             $scopes ?? [self::AUTHORIZATION_SCOPE_SCORE]
         );

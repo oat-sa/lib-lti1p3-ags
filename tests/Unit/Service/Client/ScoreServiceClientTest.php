@@ -24,7 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Client;
 
 use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\Score;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScorePublishNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScoreServiceClientNormalizer;
 use OAT\Library\Lti1p3Ags\Service\Client\ScoreServiceClient;
 use OAT\Library\Lti1p3Ags\Tests\Unit\Traits\DomainTestingTrait;
 use OAT\Library\Lti1p3Core\Message\Claim\AgsClaim;
@@ -41,15 +41,15 @@ class ScoreServiceClientTest extends TestCase
     /** @var ServiceClient */
     private $subject;
 
-    /** @var ScorePublishNormalizer */
-    private $scoreNormalizer;
+    /** @var ScoreServiceClientNormalizer */
+    private $scoreServiceClientNormalizer;
 
     protected function setUp(): void
     {
         $this->serviceClientMock = $this->createMock(ServiceClient::class);
-        $this->scoreNormalizer = new ScorePublishNormalizer();
+        $this->scoreServiceClientNormalizer = new ScoreServiceClientNormalizer();
 
-        $this->subject = new ScoreServiceClient($this->scoreNormalizer, $this->serviceClientMock);
+        $this->subject = new ScoreServiceClient($this->scoreServiceClientNormalizer, $this->serviceClientMock);
     }
 
     /**
@@ -67,7 +67,7 @@ class ScoreServiceClientTest extends TestCase
                 'POST',
                 $agsClaim->getLineItemUrl() . '/scores',
                 [
-                    'json' => $this->scoreNormalizer->normalize($score)
+                    'json' => $this->scoreServiceClientNormalizer->normalize($score)
                 ]
             );
 

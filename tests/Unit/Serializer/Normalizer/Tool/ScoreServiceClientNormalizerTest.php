@@ -24,20 +24,20 @@ namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Normalizer\Tool;
 
 use Carbon\Carbon;
 use OAT\Library\Lti1p3Ags\Model\Score;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScorePublishNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScoreServiceClientNormalizer;
 use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 use PHPUnit\Framework\TestCase;
 
-class ScorePublishNormalizerTest extends TestCase
+class ScoreServiceClientNormalizerTest extends TestCase
 {
     use DateConverterTrait;
 
-    /** @var ScorePublishNormalizer */
+    /** @var ScoreServiceClientNormalizer */
     private $subject;
 
     public function setUp(): void
     {
-        $this->subject = new ScorePublishNormalizer();
+        $this->subject = new ScoreServiceClientNormalizer();
     }
 
     public function testItWillNormalize(): void
