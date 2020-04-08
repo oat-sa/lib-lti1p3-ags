@@ -18,10 +18,6 @@ pipeline {
             }
             steps {
                 withCredentials([string(credentialsId: 'jenkins_github_token', variable: 'GIT_TOKEN')]) {
-                 sh(
-                                    label: 'delete vendor',
-                                    script: 'rm -rf vendor/'
-                                )
                     sh(
                         label: 'Install/Update sources from Composer',
                         script: "COMPOSER_AUTH='{\"github-oauth\": {\"github.com\": \"$GIT_TOKEN\"}}\' composer update --no-interaction --no-ansi --no-progress"
