@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Traits;
 
+use DateTimeInterface;
+use OAT\Library\Lti1p3Ags\Model\Score;
 use OAT\Library\Lti1p3Core\Platform\Platform;
 use OAT\Library\Lti1p3Core\Platform\PlatformInterface;
 use OAT\Library\Lti1p3Core\Registration\Registration;
@@ -74,5 +76,31 @@ trait DomainTestingTrait
         string $deepLaunchUrl = 'http://tool.com/deep-launch'
     ): Tool {
         return new Tool($identifier, $name, $audience, $oidcLoginInitiationUrl, $launchUrl, $deepLaunchUrl);
+    }
+
+    private function createScore(
+        string $userId = 'userId',
+        string $contextId = 'contextId',
+        string $lineItemId = 'lineItemId',
+        ?string $id = null,
+        ?float $scoreGiven = 0.2,
+        ?float $scoreMaximum = 0.3,
+        ?string $comment = null,
+        ?DateTimeInterface $timestamp = null,
+        ?string $activityProgressStatus = null,
+        ?string $gradingProgressStatus = null
+    ): Score {
+        return new Score(
+            $userId,
+            $contextId,
+            $lineItemId,
+            $id,
+            $scoreGiven,
+            $scoreMaximum,
+            $comment,
+            $timestamp,
+            $activityProgressStatus,
+            $gradingProgressStatus
+        );
     }
 }

@@ -77,7 +77,7 @@ class ScoreServiceClientTest extends TestCase
     public function testItWillThrowsAnExceptionIfLineItemUrlIsNotSet(): void
     {
         $registration = $this->createTestRegistration();
-        $score = $this->getScore();
+        $score = $this->createScore();
         $agsClaim = new AgsClaim(
             [
                 'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
@@ -140,7 +140,7 @@ class ScoreServiceClientTest extends TestCase
                     'https://www.myuniv.example.com/2344/lineitems/',
                     'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
                 ),
-                $this->getScore(),
+                $this->createScore(),
                 ['https://purl.imsglobal.org/spec/lti-ags/scope/score']
             ],
             [//Provided score as method parameter is null but scope in AgsClaim is as expected
@@ -153,7 +153,7 @@ class ScoreServiceClientTest extends TestCase
                     'https://www.myuniv.example.com/2344/lineitems/',
                     'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
                 ),
-                $this->getScore(),
+                $this->createScore(),
                 null
             ],
             [//Provided score as method parameter is as expected
@@ -165,7 +165,7 @@ class ScoreServiceClientTest extends TestCase
                     'https://www.myuniv.example.com/2344/lineitems/',
                     'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
                 ),
-                $this->getScore(),
+                $this->createScore(),
                 ['https://purl.imsglobal.org/spec/lti-ags/scope/score']
             ],
         ];
@@ -184,7 +184,7 @@ class ScoreServiceClientTest extends TestCase
                     'https://www.myuniv.example.com/2344/lineitems/',
                     'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
                 ),
-                $this->getScore(),
+                $this->createScore(),
                 'The provided scopes https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly is not valid. The only scope allowed is https://purl.imsglobal.org/spec/lti-ags/scope/score',
                 ['https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly'],
             ],
@@ -197,22 +197,10 @@ class ScoreServiceClientTest extends TestCase
                     'https://www.myuniv.example.com/2344/lineitems/',
                     'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
                 ),
-                $this->getScore(),
+                $this->createScore(),
                 'The provided scopes https://purl.imsglobal.org/spec/lti-ags/scope/lineitem, https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly is not valid. The only scope allowed is https://purl.imsglobal.org/spec/lti-ags/scope/score',
                 null,
             ]
         ];
-    }
-
-    private function getScore(): Score
-    {
-        return new Score(
-            'userId',
-            'contextId',
-            'lineItemId',
-            null,
-            0.2,
-            0.3
-        );
     }
 }
