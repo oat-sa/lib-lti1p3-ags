@@ -25,6 +25,7 @@ namespace OAT\Library\Lti1p3Ags\Service\Client;
 use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\Score;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScoreServiceClientNormalizer;
+use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Message\Claim\AgsClaim;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\ServiceClient;
@@ -49,6 +50,10 @@ class ScoreServiceClient
         $this->serviceClient = $serviceClient ?? new ServiceClient();
     }
 
+    /**
+     * @throws LtiException
+     * @throws InvalidArgumentException
+     */
     public function publish(
         RegistrationInterface $registration,
         AgsClaim $agsClaim,
@@ -85,6 +90,7 @@ class ScoreServiceClient
         }
     }
 
+    /** @throws InvalidArgumentException */
     private function areScopesValid(array $scopes): void {
         if (!in_array(self::AUTHORIZATION_SCOPE_SCORE, $scopes)) {
             throw new InvalidArgumentException(
