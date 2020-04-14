@@ -74,6 +74,9 @@ class ScoreServiceClient
         );
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     private function checkLineItemUrl(?string $lineItemUrl): void
     {
         if (null === $lineItemUrl) {
