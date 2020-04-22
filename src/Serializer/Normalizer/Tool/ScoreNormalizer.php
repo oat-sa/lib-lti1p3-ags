@@ -25,7 +25,7 @@ namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool;
 use OAT\Library\Lti1p3Ags\Model\Score;
 use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 
-class ScoreServiceClientNormalizer
+class ScoreNormalizer
 {
     use DateConverterTrait;
 
