@@ -3,16 +3,10 @@
   "description": "OAT LTI 1.3 Advantage AGS Library",
   "type": "library",
   "license": "GPL-2.0-only",
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "https://github.com/oat-sa/lib-lti1p3-core"
-    }
-  ],
   "require": {
     "php": "^7.1.3",
     "nesbot/carbon": "^2.31",
-    "oat-sa/lib-lti1p3-core": "dev-master"
+    "oat-sa/lib-lti1p3-core": "^2.0"
   },
   "require-dev": {
     "phpunit/phpunit": "7.5"
