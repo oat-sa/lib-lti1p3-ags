@@ -60,13 +60,22 @@ class ScoreServiceClient
         Score $score,
         array $scopes = null
     ): ResponseInterface {
-       $this->checkLineItemUrl($agsClaim->getLineItemUrl());
-       $this->checkScopes($agsClaim, $scopes);
+        $this->checkLineItemUrl($agsClaim->getLineItemUrl());
+        $this->checkScopes($agsClaim, $scopes);
 
+        $lineItemUrl = $agsClaim->getLineItemUrl();
+
+        if (strpos(substr($lineItemUrl, -1), '/') !== false) {
+            $lineItemUrl = substr($lineItemUrl, 0, -1);
+        }
+
+        if (strpos(substr($lineItemUrl, -9), '/lineitem') !== false) {
+            $lineItemUrl = substr($lineItemUrl, 0, -9);
+        }
         return $this->serviceClient->request(
             $registration,
             'POST',
-            $agsClaim->getLineItemUrl() . '/scores',
+            $lineItemUrl . '/scores',
             [
                 'json' => $this->scoreNormalizer->normalize($score)
             ],
