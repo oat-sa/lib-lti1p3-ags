@@ -59,8 +59,7 @@ class ScoreServiceClient
         AgsClaim $agsClaim,
         Score $score,
         array $scopes = null
-    ): ResponseInterface
-    {
+    ): ResponseInterface {
         $this->checkLineItemUrl($agsClaim->getLineItemUrl());
         $this->checkScopes($agsClaim, $scopes);
 
