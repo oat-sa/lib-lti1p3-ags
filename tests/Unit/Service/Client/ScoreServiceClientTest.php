@@ -55,7 +55,7 @@ class ScoreServiceClientTest extends TestCase
     /**
      * @dataProvider validProvidedInputDataProvider
      */
-    public function testItWillPublish(AgsClaim $agsClaim, Score $score, array $scopes = null): void
+    public function testItWillPublish(AgsClaim $agsClaim, Score $score, array $scopes = null, string $expectedLineItenUrl): void
     {
         $registration = $this->createTestRegistration();
 
@@ -65,7 +65,7 @@ class ScoreServiceClientTest extends TestCase
             ->with(
                 $registration,
                 'POST',
-                $agsClaim->getLineItemUrl() . '/scores',
+                $expectedLineItenUrl,
                 [
                     'json' => $this->scoreNormalizer->normalize($score)
                 ]
@@ -141,7 +141,8 @@ class ScoreServiceClientTest extends TestCase
                     'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
                 ),
                 $this->createScore(),
-                ['https://purl.imsglobal.org/spec/lti-ags/scope/score']
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
             ],
             [//Provided score as method parameter is null but scope in AgsClaim is as expected
                 new AgsClaim(
@@ -154,7 +155,8 @@ class ScoreServiceClientTest extends TestCase
                     'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
                 ),
                 $this->createScore(),
-                null
+                null,
+                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
             ],
             [//Provided score as method parameter is as expected
                 new AgsClaim(
@@ -166,8 +168,35 @@ class ScoreServiceClientTest extends TestCase
                     'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
                 ),
                 $this->createScore(),
-                ['https://purl.imsglobal.org/spec/lti-ags/scope/score']
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
             ],
+            [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem/'
+                ),
+                $this->createScore(),
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
+            ],
+            [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://www.myuniv.example.com/2344/lineitems/1234/'
+                ),
+                $this->createScore(),
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
+            ]
         ];
     }
 
