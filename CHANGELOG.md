@@ -1,13 +1,13 @@
 CHANGELOG
 =========
 
-0.1.1
+1.0.1
 -----
 
 * Fixed ScoreServiceClient
 
 
-0.1.0
+1.0.0
 -----
 
 * Added Score and LineItem models
