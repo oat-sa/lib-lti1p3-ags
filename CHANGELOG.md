@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+1.0.2
+-----
+
+* Fixed ScoreServiceClient requests content type
+
 1.0.1
 -----
 
