@@ -67,7 +67,8 @@ class ScoreServiceClientTest extends TestCase
                 'POST',
                 $expectedLineItenUrl,
                 [
-                    'json' => $this->scoreNormalizer->normalize($score)
+                    'headers' => ['Content-Type' => ScoreServiceClient::CONTENT_TYPE_SCORE],
+                    'body' => json_encode($this->scoreNormalizer->normalize($score))
                 ]
             );
 

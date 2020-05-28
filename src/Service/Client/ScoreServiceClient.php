@@ -35,6 +35,7 @@ use Psr\Http\Message\ResponseInterface;
 class ScoreServiceClient
 {
     public const AUTHORIZATION_SCOPE_SCORE = 'https://purl.imsglobal.org/spec/lti-ags/scope/score';
+    public const CONTENT_TYPE_SCORE = 'application/vnd.ims.lis.v1.score+json';
 
     /** @var ScoreNormalizer */
     private $scoreNormalizer;
@@ -72,12 +73,14 @@ class ScoreServiceClient
         if (strpos(substr($lineItemUrl, -9), '/lineitem') !== false) {
             $lineItemUrl = substr($lineItemUrl, 0, -9);
         }
+
         return $this->serviceClient->request(
             $registration,
             'POST',
             $lineItemUrl . '/scores',
             [
-                'json' => $this->scoreNormalizer->normalize($score)
+                'headers' => ['Content-Type' => static::CONTENT_TYPE_SCORE],
+                'body' => json_encode($this->scoreNormalizer->normalize($score))
             ],
             $scopes ?? [self::AUTHORIZATION_SCOPE_SCORE]
         );
