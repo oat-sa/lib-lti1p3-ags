@@ -96,6 +96,7 @@ class ScoreFactoryTest extends TestCase
     public function scoreDataProvider(): array
     {
         return [
+            ['userId', 'contextId', 'lineItemId', null, null, null, null, null, null, null],
             ['userId', 'contextId', 'lineItemId', 'id', null, null, null, null, null, null],
             ['userId', 'contextId', 'lineItemId', 'id', 12.34, 56.78, null, null, null, null],
             ['userId', 'contextId', 'lineItemId', 'id', 12.34, 56.78, 'comment', null, null, null],
