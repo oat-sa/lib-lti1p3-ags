@@ -159,7 +159,7 @@ class ScoreFactoryTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
             sprintf(
-                'Cannot create a new Score: Activity progress status provided %s is not allowed. Allowed status: %s',
+                'Cannot create a new Score: Activity progress status provided %s is not allowed. Allowed statuses: %s',
                 'wrong',
                 'Initialized, Started, InProgress, Submitted, Completed'
             )
@@ -184,7 +184,7 @@ class ScoreFactoryTest extends TestCase
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage(
             sprintf(
-                'Cannot create a new Score: Grading progress status provided %s is not allowed. Allowed status: %s',
+                'Cannot create a new Score: Grading progress status provided %s is not allowed. Allowed statuses: %s',
                 'wrong',
                 'FullyGraded, Pending, PendingManual, Failed, NotReady'
             )

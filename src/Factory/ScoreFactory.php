@@ -77,7 +77,7 @@ class ScoreFactory
         if (!in_array($activityProgressStatus, Score::SUPPORTED_ACTIVITY_PROGRESS_STATUSES, true)) {
             throw new InvalidArgumentException(
                 sprintf(
-                    'Cannot create a new Score: Activity progress status provided %s is not allowed. Allowed status: %s',
+                    'Cannot create a new Score: Activity progress status provided %s is not allowed. Allowed statuses: %s',
                     $activityProgressStatus,
                     implode(', ', Score::SUPPORTED_ACTIVITY_PROGRESS_STATUSES)
                 )
@@ -90,7 +90,7 @@ class ScoreFactory
         if (!in_array($gradingProgressStatus, Score::SUPPORTED_GRADING_PROGRESS_STATUSES, true)) {
             throw new InvalidArgumentException(
                 sprintf(
-                    'Cannot create a new Score: Grading progress status provided %s is not allowed. Allowed status: %s',
+                    'Cannot create a new Score: Grading progress status provided %s is not allowed. Allowed statuses: %s',
                     $gradingProgressStatus,
                     implode(', ', Score::SUPPORTED_GRADING_PROGRESS_STATUSES)
                 )
