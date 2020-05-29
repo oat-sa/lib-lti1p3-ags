@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model;
 
 use Carbon\Carbon;
-use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\Score;
 use PHPUnit\Framework\TestCase;
 
@@ -46,9 +45,9 @@ class ScoreTest extends TestCase
         );
     }
 
-    public function testGetId(): void
+    public function testGetIdentifier(): void
     {
-        $this->assertEquals('id', $this->score->getId());
+        $this->assertEquals('id', $this->score->getIdentifier());
     }
 
     public function testGetUserId(): void
@@ -111,81 +110,5 @@ class ScoreTest extends TestCase
         );
 
         $this->assertEquals(Carbon::now(), $lineItem->getTimestamp());
-    }
-
-    public function testScoreIsNotSetWhenInvalid(): void
-    {
-        $score = new Score(
-            'userId',
-            'contextId',
-            'lineItemId',
-            'id',
-            0.8
-        );
-
-        $this->assertNull($score->getScoreGiven());
-        $this->assertNull($score->getScoreMaximum());
-
-        $score = new Score(
-            'userId',
-            'contextId',
-            'lineItemId',
-            'id',
-            0.0,
-            -1.1
-        );
-
-        $this->assertNull($score->getScoreGiven());
-        $this->assertNull($score->getScoreMaximum());
-    }
-
-    public function testItThrowExceptionWhenActivityProgressStatusIsWrong(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            sprintf(
-                'Cannot create a new Score: Activity progress status provided %s is not allowed. Allowed status: %s',
-                'wrong',
-                'Initialized, Started, InProgress, Submitted, Completed'
-            )
-        );
-
-        new Score(
-            'userId',
-            'contextId',
-            'lineItemId',
-            'id',
-            0.8,
-            1.0,
-            'comment',
-            Carbon::create(1988, 12, 22),
-            'wrong',
-            Score::GRADING_PROGRESS_STATUS_NOT_READY
-        );
-    }
-
-    public function testItThrowExceptionWhenGradingProgressStatusIsWrong(): void
-    {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage(
-            sprintf(
-                'Cannot create a new Score: Grading progress status provided %s is not allowed. Allowed status: %s',
-                'wrong',
-                'FullyGraded, Pending, PendingManual, Failed, NotReady'
-            )
-        );
-
-        new Score(
-            'userId',
-            'contextId',
-            'lineItemId',
-            'id',
-            0.8,
-            1.0,
-            'comment',
-            Carbon::create(1988, 12, 22),
-            Score::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
-            'wrong'
-        );
     }
 }
