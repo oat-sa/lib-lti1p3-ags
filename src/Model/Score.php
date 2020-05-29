@@ -113,7 +113,7 @@ class Score
         $this->gradingProgressStatus = $gradingProgressStatus;
     }
 
-    public function getIdentifier(): string
+    public function getIdentifier(): ?string
     {
         return $this->identifier;
     }
