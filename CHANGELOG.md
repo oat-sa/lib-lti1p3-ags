@@ -5,6 +5,7 @@ unreleased
 -----
 
 * Added ScoreFactory
+* Modified score id attribute to identifier
 
 1.0.2
 -----
