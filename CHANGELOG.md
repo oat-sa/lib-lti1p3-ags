@@ -5,7 +5,7 @@ CHANGELOG
 -----
 
 * Added ScoreFactory
-* Modified Score id attribute to identifier
+* Updated Score id attribute to identifier
 
 1.0.2
 -----
