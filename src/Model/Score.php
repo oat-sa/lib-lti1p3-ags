@@ -24,7 +24,6 @@ namespace OAT\Library\Lti1p3Ags\Model;
 
 use Carbon\Carbon;
 use DateTimeInterface;
-use InvalidArgumentException;
 
 class Score
 {
@@ -44,7 +43,7 @@ class Score
     public const GRADING_PROGRESS_STATUS_FAILED = 'Failed';
     public const GRADING_PROGRESS_STATUS_NOT_READY = 'NotReady';
 
-    private const SUPPORTED_ACTIVITY_PROGRESS_STATUS = [
+    public const SUPPORTED_ACTIVITY_PROGRESS_STATUS = [
         self::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
         self::ACTIVITY_PROGRESS_STATUS_STARTED,
         self::ACTIVITY_PROGRESS_STATUS_IN_PROGRESS,
@@ -52,7 +51,7 @@ class Score
         self::ACTIVITY_PROGRESS_STATUS_COMPLETED
     ];
 
-    private const SUPPORTED_GRADING_PROGRESS_STATUS = [
+    public const SUPPORTED_GRADING_PROGRESS_STATUS = [
         self::GRADING_PROGRESS_STATUS_FULLY_GRADED,
         self::GRADING_PROGRESS_STATUS_PENDING,
         self::GRADING_PROGRESS_STATUS_PENDING_MANUAL,
@@ -70,7 +69,7 @@ class Score
     private $lineItemId;
 
     /** @var string|null */
-    private $id;
+    private $identifier;
 
     /** @var float|null */
     private $scoreGiven;
@@ -94,33 +93,29 @@ class Score
         string $userId,
         string $contextId,
         string $lineItemId,
-        ?string $id = null,
+        ?string $identifier = null,
         ?float $scoreGiven = null,
         ?float $scoreMaximum = null,
         ?string $comment = null,
         ?DateTimeInterface $timestamp = null,
-        ?string $activityProgressStatus = null,
-        ?string $gradingProgressStatus = null
+        string $activityProgressStatus = self::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
+        string $gradingProgressStatus = self::GRADING_PROGRESS_STATUS_NOT_READY
     ) {
         $this->userId = $userId;
         $this->contextId = $contextId;
         $this->lineItemId = $lineItemId;
-        $this->id = $id;
+        $this->identifier = $identifier;
+        $this->scoreGiven = $scoreGiven;
+        $this->scoreMaximum = $scoreMaximum;
         $this->comment = $comment;
         $this->timestamp = $timestamp ?? Carbon::now();
-
-        if ($this->areScoresValid($scoreGiven, $scoreMaximum)) {
-            $this->scoreGiven = $scoreGiven;
-            $this->scoreMaximum = $scoreMaximum;
-        }
-
-        $this->setActivityProgressStatus($activityProgressStatus ?? self::ACTIVITY_PROGRESS_STATUS_INITIALIZED);
-        $this->setGradingProgressStatus($gradingProgressStatus ?? self::GRADING_PROGRESS_STATUS_NOT_READY);
+        $this->activityProgressStatus = $activityProgressStatus;
+        $this->gradingProgressStatus = $gradingProgressStatus;
     }
 
-    public function getId(): string
+    public function getIdentifier(): string
     {
-        return $this->id;
+        return $this->identifier;
     }
 
     public function getUserId(): string
@@ -166,56 +161,5 @@ class Score
     public function getGradingProgressStatus(): string
     {
         return $this->gradingProgressStatus;
-    }
-    
-    public function setActivityProgressStatus(string $activityProgressStatus): self
-    {
-        if (!$this->isActivityProgressStatusSupported($activityProgressStatus)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Cannot create a new Score: Activity progress status provided %s is not allowed. Allowed status: %s',
-                    $activityProgressStatus,
-                    implode(', ', self::SUPPORTED_ACTIVITY_PROGRESS_STATUS)
-                )
-            );
-        }
-
-        $this->activityProgressStatus = $activityProgressStatus;
-
-        return $this;
-    }
-
-    public function setGradingProgressStatus(string $gradingProgressStatus): self
-    {
-        if (!$this->isGradingProgressStatusSupported($gradingProgressStatus)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Cannot create a new Score: Grading progress status provided %s is not allowed. Allowed status: %s',
-                    $gradingProgressStatus,
-                    implode(', ', self::SUPPORTED_GRADING_PROGRESS_STATUS)
-                )
-            );
-        }
-
-        $this->gradingProgressStatus = $gradingProgressStatus;
-
-        return $this;
-    }
-
-    public function isActivityProgressStatusSupported(string $activityProgressStatus): bool
-    {
-        return in_array($activityProgressStatus, self::SUPPORTED_ACTIVITY_PROGRESS_STATUS, true);
-    }
-
-    public function isGradingProgressStatusSupported(string $gradingProgressStatus): bool
-    {
-        return in_array($gradingProgressStatus, self::SUPPORTED_GRADING_PROGRESS_STATUS, true);
-    }
-
-    private function areScoresValid(?float $scoreGiven, ?float $scoreMaximum): bool
-    {
-        return gettype($scoreGiven) === gettype($scoreMaximum)
-            && $scoreGiven >= 0
-            && $scoreMaximum >= 0;
     }
 }

@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Normalizer\Tool;
 
 use Carbon\Carbon;
+use OAT\Library\Lti1p3Ags\Factory\ScoreFactory;
 use OAT\Library\Lti1p3Ags\Model\Score;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScoreNormalizer;
 use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
@@ -42,7 +43,7 @@ class ScoreNormalizerTest extends TestCase
 
     public function testItWillNormalize(): void
     {
-        $score = new Score(
+        $score = (new ScoreFactory())->create(
             'userId',
             'contextId',
             'lineItemId',
@@ -67,7 +68,7 @@ class ScoreNormalizerTest extends TestCase
 
     public function testItWillNormalizeWithoutScore(): void
     {
-        $score = new Score(
+        $score = (new ScoreFactory())->create(
             'userId',
             'contextId',
             'lineItemId',
@@ -90,7 +91,7 @@ class ScoreNormalizerTest extends TestCase
 
     public function testItWillAddCommentIfSet(): void
     {
-        $score = new Score(
+        $score = (new ScoreFactory())->create(
             'userId',
             'contextId',
             'lineItemId',

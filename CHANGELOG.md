@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+unreleased
+-----
+
+* Added ScoreFactory
+
 1.0.2
 -----
 
