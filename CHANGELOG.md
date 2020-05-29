@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+1.1.0
+-----
+
+* Added ScoreFactory
+* Updated Score id attribute to identifier
+
 1.0.2
 -----
 
