@@ -119,6 +119,20 @@ class ScoreServiceClientTest extends TestCase
                 ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
                 'https://www.myuniv.example.com/2344/lineitems/1234/scores'
             ],
+            'Data with lineItemUrl with port' => [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://www.myuniv.example.com:1988/2344/lineitems/1234/lineitem'
+                ),
+                $this->createScore(),
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+                'https://www.myuniv.example.com:1988/2344/lineitems/1234/scores'
+            ],
             'Data with lineItemUrl ending with /' => [
                 new AgsClaim(
                     [
