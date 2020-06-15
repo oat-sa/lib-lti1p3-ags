@@ -110,12 +110,14 @@ class ScoreServiceClient
         $urlParsed['path'] = rtrim($urlParsed['path'], '/');
         $urlParsed['path'] = rtrim($urlParsed['path'], '/lineitem');
 
+        $port = isset($urlParsed['port']) ? ':' . $urlParsed['port'] : '';
         $parameters = isset($urlParsed['query']) ? '?' . $urlParsed['query'] : '';
 
         return sprintf(
-            '%s://%s%s%s%s',
+            '%s://%s%s%s%s%s',
             $urlParsed['scheme'],
             $urlParsed['host'],
+            $port,
             $urlParsed['path'],
             '/scores',
             $parameters
