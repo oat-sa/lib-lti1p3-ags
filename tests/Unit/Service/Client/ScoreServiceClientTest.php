@@ -119,6 +119,34 @@ class ScoreServiceClientTest extends TestCase
                 ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
                 'https://www.myuniv.example.com/2344/lineitems/1234/scores'
             ],
+            'Data with lineItemUrl with user' => [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://user@www.myuniv.example.com/2344/lineitems/1234/lineitem'
+                ),
+                $this->createScore(),
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+                'https://user@www.myuniv.example.com/2344/lineitems/1234/scores'
+            ],
+            'Data with lineItemUrl with user+pass' => [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://user:pass@www.myuniv.example.com/2344/lineitems/1234/lineitem'
+                ),
+                $this->createScore(),
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+                'https://user:pass@www.myuniv.example.com/2344/lineitems/1234/scores'
+            ],
             'Data with lineItemUrl with port' => [
                 new AgsClaim(
                     [

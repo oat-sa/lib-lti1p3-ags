@@ -110,17 +110,25 @@ class ScoreServiceClient
         $urlParsed['path'] = rtrim($urlParsed['path'], '/');
         $urlParsed['path'] = rtrim($urlParsed['path'], '/lineitem');
 
-        $port = isset($urlParsed['port']) ? ':' . $urlParsed['port'] : '';
-        $parameters = isset($urlParsed['query']) ? '?' . $urlParsed['query'] : '';
-
         return sprintf(
-            '%s://%s%s%s%s%s',
-            $urlParsed['scheme'],
+            '%s%s%s%s%s%s%s',
+            isset($urlParsed['scheme']) ? $urlParsed['scheme'] . '://' : '',
+            $user = $this->getUsernamePassword($urlParsed),
             $urlParsed['host'],
-            $port,
+            isset($urlParsed['port']) ? ':' . $urlParsed['port'] : '',
             $urlParsed['path'],
             '/scores',
-            $parameters
+            isset($urlParsed['query']) ? '?' . $urlParsed['query'] : ''
         );
+    }
+
+    private function getUsernamePassword(array $urlParsed): string
+    {
+        $username = $urlParsed['user'] ?? '';
+        $password = isset($urlParsed['pass']) ? ':' . $urlParsed['pass']  : '';
+
+        return $username !== ''
+            ? $username . $password . '@'
+            : '';
     }
 }
