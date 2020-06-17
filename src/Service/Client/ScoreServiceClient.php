@@ -64,20 +64,10 @@ class ScoreServiceClient
         $this->checkLineItemUrl($agsClaim->getLineItemUrl());
         $this->checkScopes($agsClaim, $scopes);
 
-        $lineItemUrl = $agsClaim->getLineItemUrl();
-
-        if (strpos(substr($lineItemUrl, -1), '/') !== false) {
-            $lineItemUrl = substr($lineItemUrl, 0, -1);
-        }
-
-        if (strpos(substr($lineItemUrl, -9), '/lineitem') !== false) {
-            $lineItemUrl = substr($lineItemUrl, 0, -9);
-        }
-
         return $this->serviceClient->request(
             $registration,
             'POST',
-            $lineItemUrl . '/scores',
+            $this->forgeScoreEndpointUrl($agsClaim->getLineItemUrl()),
             [
                 'headers' => ['Content-Type' => static::CONTENT_TYPE_SCORE],
                 'body' => json_encode($this->scoreNormalizer->normalize($score))
@@ -98,16 +88,12 @@ class ScoreServiceClient
 
     private function checkScopes(AgsClaim $agsClaim, ?array $scopes): void
     {
-        if (isset($scopes)) {
-            $this->areScopesValid($scopes);
-        } else {
-            $this->areScopesValid($agsClaim->getScopes());
-        }
+        $this->areScopesValid($scopes ?? $agsClaim->getScopes());
     }
 
     /** @throws InvalidArgumentException */
     private function areScopesValid(array $scopes): void {
-        if (!in_array(self::AUTHORIZATION_SCOPE_SCORE, $scopes)) {
+        if (!in_array(self::AUTHORIZATION_SCOPE_SCORE, $scopes, true)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'The provided scopes %s is not valid. The only scope allowed is %s',
@@ -115,5 +101,34 @@ class ScoreServiceClient
                     self::AUTHORIZATION_SCOPE_SCORE)
             );
         }
+    }
+
+    private function forgeScoreEndpointUrl(string $lineItemUrl): string
+    {
+        $urlParsed = parse_url($lineItemUrl);
+
+        $urlParsed['path'] = rtrim($urlParsed['path'], '/');
+        $urlParsed['path'] = rtrim($urlParsed['path'], '/lineitem');
+
+        return sprintf(
+            '%s%s%s%s%s%s%s',
+            isset($urlParsed['scheme']) ? $urlParsed['scheme'] . '://' : '',
+            $user = $this->getUsernamePassword($urlParsed),
+            $urlParsed['host'],
+            isset($urlParsed['port']) ? ':' . $urlParsed['port'] : '',
+            $urlParsed['path'],
+            '/scores',
+            isset($urlParsed['query']) ? '?' . $urlParsed['query'] : ''
+        );
+    }
+
+    private function getUsernamePassword(array $urlParsed): string
+    {
+        $username = $urlParsed['user'] ?? '';
+        $password = isset($urlParsed['pass']) ? ':' . $urlParsed['pass']  : '';
+
+        return $username !== ''
+            ? $username . $password . '@'
+            : '';
     }
 }

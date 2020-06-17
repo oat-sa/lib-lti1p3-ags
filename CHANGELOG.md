@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+1.1.1
+-----
+
+* Updated /scores url generation to avoid parameters bug
+
 1.1.0
 -----
 

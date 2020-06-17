@@ -55,7 +55,7 @@ class ScoreServiceClientTest extends TestCase
     /**
      * @dataProvider validProvidedInputDataProvider
      */
-    public function testItWillPublish(AgsClaim $agsClaim, Score $score, array $scopes = null, string $expectedLineItenUrl): void
+    public function testItWillPublish(AgsClaim $agsClaim, Score $score, ?array $scopes, string $expectedLineItemUrl): void
     {
         $registration = $this->createTestRegistration();
 
@@ -65,7 +65,7 @@ class ScoreServiceClientTest extends TestCase
             ->with(
                 $registration,
                 'POST',
-                $expectedLineItenUrl,
+                $expectedLineItemUrl,
                 [
                     'headers' => ['Content-Type' => ScoreServiceClient::CONTENT_TYPE_SCORE],
                     'body' => json_encode($this->scoreNormalizer->normalize($score))
@@ -73,6 +73,148 @@ class ScoreServiceClientTest extends TestCase
             );
 
         $this->subject->publish($registration, $agsClaim, $score, $scopes);
+    }
+
+    public function validProvidedInputDataProvider(): array
+    {
+        return [
+            'Standard data for AGS claim' => [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
+                ),
+                $this->createScore(),
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
+            ],
+            'Data for AGS claim with no scope' => [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
+                ),
+                $this->createScore(),
+                null,
+                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
+            ],
+            'Data for AGS claim without score scope from claim' => [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
+                ),
+                $this->createScore(),
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
+            ],
+            'Data with lineItemUrl with user' => [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://user@www.myuniv.example.com/2344/lineitems/1234/lineitem'
+                ),
+                $this->createScore(),
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+                'https://user@www.myuniv.example.com/2344/lineitems/1234/scores'
+            ],
+            'Data with lineItemUrl with user+pass' => [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://user:pass@www.myuniv.example.com/2344/lineitems/1234/lineitem'
+                ),
+                $this->createScore(),
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+                'https://user:pass@www.myuniv.example.com/2344/lineitems/1234/scores'
+            ],
+            'Data with lineItemUrl with port' => [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://www.myuniv.example.com:1988/2344/lineitems/1234/lineitem'
+                ),
+                $this->createScore(),
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+                'https://www.myuniv.example.com:1988/2344/lineitems/1234/scores'
+            ],
+            'Data with lineItemUrl ending with /' => [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem/'
+                ),
+                $this->createScore(),
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
+            ],
+            'Data with lineItemUrl ending without lineitem' => [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://www.myuniv.example.com/2344/lineitems/1234/'
+                ),
+                $this->createScore(),
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
+            ],
+            'Data with lineItemUrl ending with parameters' => [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem?param1=value1&param2=value2'
+                ),
+                $this->createScore(),
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+                'https://www.myuniv.example.com/2344/lineitems/1234/scores?param1=value1&param2=value2'
+            ],
+            'Data with lineItemUrl ending with /parameters' => [
+                new AgsClaim(
+                    [
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                    ],
+                    'https://www.myuniv.example.com/2344/lineitems/',
+                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem/?param1=value1&param2=value2'
+                ),
+                $this->createScore(),
+                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
+                'https://www.myuniv.example.com/2344/lineitems/1234/scores?param1=value1&param2=value2'
+            ]
+        ];
     }
 
     public function testItWillThrowsAnExceptionIfLineItemUrlIsNotSet(): void
@@ -126,79 +268,6 @@ class ScoreServiceClientTest extends TestCase
         $this->expectExceptionMessage($errorMessage);
 
         $this->subject->publish($registration, $agsClaim, $score, $scopes);
-    }
-
-    public function validProvidedInputDataProvider(): array
-    {
-        return [
-            [//Provided score as method parameter is as expected
-                new AgsClaim(
-                    [
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
-                    ],
-                    'https://www.myuniv.example.com/2344/lineitems/',
-                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
-                ),
-                $this->createScore(),
-                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
-                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
-            ],
-            [//Provided score as method parameter is null but scope in AgsClaim is as expected
-                new AgsClaim(
-                    [
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
-                    ],
-                    'https://www.myuniv.example.com/2344/lineitems/',
-                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
-                ),
-                $this->createScore(),
-                null,
-                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
-            ],
-            [//Provided score as method parameter is as expected
-                new AgsClaim(
-                    [
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
-                    ],
-                    'https://www.myuniv.example.com/2344/lineitems/',
-                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
-                ),
-                $this->createScore(),
-                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
-                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
-            ],
-            [
-                new AgsClaim(
-                    [
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
-                    ],
-                    'https://www.myuniv.example.com/2344/lineitems/',
-                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem/'
-                ),
-                $this->createScore(),
-                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
-                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
-            ],
-            [
-                new AgsClaim(
-                    [
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
-                    ],
-                    'https://www.myuniv.example.com/2344/lineitems/',
-                    'https://www.myuniv.example.com/2344/lineitems/1234/'
-                ),
-                $this->createScore(),
-                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
-                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
-            ]
-        ];
     }
 
     public function invalidProvidedInputDataProvider(): array
