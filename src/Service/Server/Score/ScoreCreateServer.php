@@ -24,6 +24,11 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\Score;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
+use OAT\Library\Lti1p3Ags\Factory\ScoreFactory;
+use OAT\Library\Lti1p3Ags\Factory\ScoreFactoryInterface;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\RequestScoreNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\RequestScoreNormalizerInterface;
+use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemCreateService;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -37,20 +42,29 @@ class ScoreCreateServer implements RequestHandlerInterface
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var AccessTokenRequestValidator */
-    private $validator;
-
     /** @var ResponseFactory */
     private $factory;
 
+    /** @var ScoreFactoryInterface */
+    private $scoreFactory;
+
+    /** @var RequestScoreNormalizerInterface */
+    private $normalizer;
+
     public function __construct(
+        LineItemCreateService $service,
         AccessTokenRequestValidator $validator,
-        ResponseFactory $factory,
-        $logger
-    ) {
-        $this->validator = $validator;
-        $this->factory = $factory ?? new HttplugFactory();
+        ?ScoreFactoryInterface $scoreFactory,
+        ?ResponseFactory $factory,
+        ?LoggerInterface $logger,
+        RequestScoreNormalizerInterface $normalizer
+    )
+    {
+        $this->service = $service;
+        $this->scoreFactory = $scoreFactory ?? new ScoreFactory();
         $this->logger = $logger ?? new NullLogger();
+        $this->factory = $factory ?? new HttplugFactory();
+        $this->normalizer = $normalizer ?? new RequestScoreNormalizer();
     }
 
     // extract and validate contextID
@@ -61,27 +75,17 @@ class ScoreCreateServer implements RequestHandlerInterface
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $validationResult = $this->validator->validate($request);
-
-        if ($validationResult->hasError()) {
-            $this->logger->error($validationResult->getError());
-
-            return $this->factory->createResponse(401, null, [], $validationResult->getError());
-        }
+        $responseHeaders = [];
+        $responseBody = '';
 
         try {
-            $responseBody = '';
-            $responseHeaders = [
-//                'Content-Type' => static::CONTENT_TYPE_MEMBERSHIP,
-//                'Content-Length' => strlen($responseBody),
-            ];
-
-            return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
-
+            $payload = $this->normalizer->normalize($request->getParsedBody());
+            $this->scoreFactory->create($payload['userId'], $payload['contextId'], $payload['lineItemId']);
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
-
-            return $this->factory->createResponse(500, null, [], 'Internal membership service error');
+            $this->factory->createResponse(404, null, [], 'Access Token not valid');
         }
+
+        return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
     }
 }

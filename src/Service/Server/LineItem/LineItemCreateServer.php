@@ -26,6 +26,7 @@ use http\Exception\BadMethodCallException;
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Factory\LineItemFactory;
+use OAT\Library\Lti1p3Ags\Factory\LineItemFactoryInterface;
 use OAT\Library\Lti1p3Ags\Validator\ValidationException;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
@@ -54,14 +55,15 @@ class LineItemCreateServer implements RequestHandlerInterface
     public function __construct(
         AccessTokenRequestValidator $validator,
         ResponseFactory $factory,
-        LineItemCreateService $service,
-        $logger
+        ?LineItemFactoryInterface $lineItemFactory,
+        ?LineItemCreateService $service,
+        ?LoggerInterface  $logger
     ) {
         $this->validator = $validator;
-        $this->factory = $factory ?? new HttplugFactory();
         $this->service = $service;
         $this->lineItemFactory = $lineItemFactory ?? new LineItemFactory();
         $this->logger = $logger ?? new NullLogger();
+        $this->factory = $factory ?? new HttplugFactory();
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface

@@ -24,6 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 
 use OAT\Library\Lti1p3Ags\Model\LineItem;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepository;
+use OAT\Library\Lti1p3Ags\Validator\LineItemValidator;
 use OAT\Library\Lti1p3Ags\Validator\ValidationException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
@@ -34,7 +35,7 @@ class LineItemCreateService
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var LineItemCreationValidator  */
+    /** @var LineItemValidator  */
     private $validator;
 
     /** @var LineItemRepository */
@@ -42,7 +43,7 @@ class LineItemCreateService
 
     public function __construct(
         LineItemRepository $repository,
-        LineItemCreationValidator $validator,
+        LineItemValidator $validator,
         $logger
     ) {
         $this->repository = $repository;

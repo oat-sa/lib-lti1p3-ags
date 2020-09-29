@@ -22,36 +22,9 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Factory;
 
-use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\LineItem;
-use OAT\Library\Lti1p3Ags\Validator\LineItemValidator;
 
-class LineItemFactory implements LineItemFactoryInterface
+interface LineItemFactoryInterface
 {
-    private $validator;
-
-    public function __construct(?LineItemValidator $validator)
-    {
-        $this->validator = $validator ?? new LineItemValidator();
-    }
-
-    /**
-     * @todo take cares about all fields!
-     * @todo use normalizer?
-     * @todo For deletion, do we need scoreMaximum?
-     *
-     * @throws InvalidArgumentException
-     */
-    public function build(array $data): LineItem
-    {
-        if (empty(array_diff(['contextid', 'scoreMaximum', 'label'], $data))) {
-            throw new InvalidArgumentException();
-        }
-
-        $contextId = $data['contextid'];
-        $scoreMaximum = $data['scoreMaximum'];
-        $label = $data['label'];
-
-        return new LineItem($contextId, $scoreMaximum, $label);
-    }
+    public function build(array $data): LineItem;
 }

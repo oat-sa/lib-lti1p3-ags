@@ -28,7 +28,7 @@ class ValidationException implements Throwable
 {
     private $messages;
 
-    public function __construct(array $messages)
+    public function __construct(?array $messages)
     {
         parent::__construct('Validation has failed');
 
