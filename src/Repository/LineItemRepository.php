@@ -30,6 +30,9 @@ use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
  */
 interface LineItemRepository
 {
+    /**
+     * @throws
+     */
     public function create(LineItem $lineItem): LineItem;
 
     public function findOneById(string $contextId, string $lineItemId): LineItem;

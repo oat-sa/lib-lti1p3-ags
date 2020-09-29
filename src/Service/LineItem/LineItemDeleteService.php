@@ -70,6 +70,7 @@ class LineItemDeleteService implements RequestHandlerInterface
         }
 
         try {
+
             $responseBody = '';
             $responseHeaders = [
 //                'Content-Type' => static::CONTENT_TYPE_MEMBERSHIP,

@@ -24,10 +24,41 @@ namespace OAT\Library\Lti1p3Ags\Validator;
 
 class LineItemValidator
 {
-    public function validate(array $array)
+    private $errors = [];
+
+    /**
+     * @throws ValidationException
+     */
+    public function validate(string $contextId, float $scoreMaximum, string $label): void
+    {
+        if (is_null($contextId)) {
+            $this->errors = 'Missing context id';
+        }
+
+        if (is_float($scoreMaximum)) {
+            $this->errors = 'ScoreMaximum must be a float';
+        }
+
+        if (!empty($this->errors)) {
+            throw new ValidationException($this->errors);
+        }
+    }
+
+    /**
+     * @throws ValidationException
+     */
+    public function validateFromArray(array $array): void
     {
         if (is_null($array['contextId'])) {
-            throw new \InvalidArgumentException();
+            $this->errors = 'Missing context id';
+        }
+
+        if (is_null($array['id'])) {
+            $this->errors = 'Missing id';
+        }
+
+        if (!empty($this->errors)) {
+            throw new ValidationException($this->errors);
         }
     }
 }

@@ -22,9 +22,11 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 
+use http\Exception\BadMethodCallException;
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Factory\LineItemFactory;
+use OAT\Library\Lti1p3Ags\Validator\ValidationException;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -62,13 +64,6 @@ class LineItemCreateServer implements RequestHandlerInterface
         $this->logger = $logger ?? new NullLogger();
     }
 
-    // assert http method
-    // extract and validate contextID
-    // extract LineItemID or null
-    // based on lineItemId, use a service to get or get all
-    // paginated?
-    // find if it is findOneById or findAll (all by context)
-
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $validationResult = $this->validator->validate($request);
@@ -79,36 +74,48 @@ class LineItemCreateServer implements RequestHandlerInterface
             return $this->factory->createResponse(401, null, [], $validationResult->getError());
         }
 
-        //scope
-        //allow https
-
         try {
 
-            // content-type resolution?
+            /** @todo move to another validator? */
+            if (strtolower($request->getMethod()) !== 'post') {
+                throw new BadMethodCallException();
+            }
 
-            $body = $request->getParsedBody();
-
-            $contextId = $body['contextId'] ?? null;
-//            $role = $parameters['role'] ?? null;
-//            $limit = $parameters['limit'] ?? null;
+            /** @todo move to a parser? */
+            $data = $request->getParsedBody();
+            if (strtolower($request->getHeader('Content-type')) == 'application/json') {
+                $data = json_decode($data);
+            }
 
             $lineItem = $this->lineItemFactory->build(
-                $contextId
+                $data
             );
 
-             $lineItem = $this->lineItemFactory->buildFromArray(
-                $body,
-            );
-
+            /** @todo use query instead of business object ? */
             $this->service->create($lineItem);
 
-            $responseBody = '';
+            $responseBody = 'LineItem successfully created.';
             $responseHeaders = [
-//                'Content-Type' => static::CONTENT_TYPE_MEMBERSHIP,
-//                'Content-Length' => strlen($responseBody),
+                'Content-Type' => 'application/json',
+                'Content-Length' => strlen($responseBody),
             ];
 
             return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
+
+        } catch (BadMethodCallException $exception) {
+            $this->logger->error($exception->getMessage());
+
+            return $this->factory->createResponse(405, 'Method not allowed');
+
+        } catch (ValidationException $exception) {
+            $this->logger->error($exception->getMessage());
+
+            return $this->factory->createResponse(
+                422,
+                'Entity not processable',
+                ['Content-Type' => 'application/json'],
+                json_encode($exception->getMessages())
+            );
 
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());

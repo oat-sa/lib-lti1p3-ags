@@ -22,40 +22,42 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 
-use Http\Message\ResponseFactory;
-use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Model\LineItem;
-use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
+use OAT\Library\Lti1p3Ags\Repository\LineItemRepository;
+use OAT\Library\Lti1p3Ags\Validator\ValidationException;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Throwable;
 
-class LineItemCreateService implements RequestHandlerInterface
+class LineItemCreateService
 {
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var AccessTokenRequestValidator */
+    /** @var LineItemCreationValidator  */
     private $validator;
 
-    /** @var ResponseFactory */
-    private $factory;
+    /** @var LineItemRepository */
+    private LineItemRepository $repository;
 
     public function __construct(
-        AccessTokenRequestValidator $validator,
-        ResponseFactory $factory,
+        LineItemRepository $repository,
+        LineItemCreationValidator $validator,
         $logger
     ) {
+        $this->repository = $repository;
         $this->validator = $validator;
-        $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
 
-    public function create(LineItem $lineItem)
+    /**
+     * @throws ValidationException
+     * @throws Throwable
+     */
+    public function create(LineItem $lineItem): void
     {
+        $this->validator->validate($lineItem);
 
+        $this->repository->create($lineItem);
     }
 }

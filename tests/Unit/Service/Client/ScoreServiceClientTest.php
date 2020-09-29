@@ -59,8 +59,6 @@ class ScoreServiceClientTest extends TestCase
     {
         $registration = $this->createTestRegistration();
 
-        var_dump(json_encode($this->scoreNormalizer->normalize($score)));die;
-
         $this->serviceClientMock
             ->expects($this->once())
             ->method('request')
