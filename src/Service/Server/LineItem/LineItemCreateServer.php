@@ -66,6 +66,9 @@ class LineItemCreateServer implements RequestHandlerInterface
         $this->factory = $factory ?? new HttplugFactory();
     }
 
+    /**
+     * @todo TokenValidation and ErrorHandling will be duplicated accross all handlers
+     */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $validationResult = $this->validator->validate($request);
@@ -83,7 +86,7 @@ class LineItemCreateServer implements RequestHandlerInterface
                 throw new BadMethodCallException();
             }
 
-            /** @todo move to a parser? */
+            /** @todo move to a parser/serializer? */
             $data = $request->getParsedBody();
             if (strtolower($request->getHeader('Content-type')) == 'application/json') {
                 $data = json_decode($data);

@@ -53,12 +53,6 @@ class LineItemDeleteServer implements RequestHandlerInterface
         $this->logger = $logger ?? new NullLogger();
     }
 
-    // extract and validate contextID
-    // extract LineItemID or null
-    // based on lineItemId, use a service to get or get all
-    // paginated?
-    // find if it is findOneById or findAll (all by context)
-
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $validationResult = $this->validator->validate($request);
@@ -71,7 +65,7 @@ class LineItemDeleteServer implements RequestHandlerInterface
 
         try {
 
-
+            // Process the request
 
             $responseBody = '';
             $responseHeaders = [

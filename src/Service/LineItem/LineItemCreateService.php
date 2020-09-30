@@ -24,8 +24,10 @@ namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
 use OAT\Library\Lti1p3Ags\Model\LineItem;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepository;
+use OAT\Library\Lti1p3Ags\Validator\CreateLineItemValidator;
 use OAT\Library\Lti1p3Ags\Validator\LineItemValidator;
 use OAT\Library\Lti1p3Ags\Validator\ValidationException;
+use OAT\Library\Lti1p3Ags\Validator\ValidatorInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Throwable;
@@ -35,15 +37,18 @@ class LineItemCreateService implements LineItemCreateServiceInterface
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var LineItemValidator  */
+    /** @var ValidatorInterface  */
     private $validator;
 
     /** @var LineItemRepository */
     private $repository;
 
+    /**
+     * @todo use specific validator for Creation process
+     */
     public function __construct(
         LineItemRepository $repository,
-        LineItemValidator $validator,
+        ValidatorInterface $validator,
         LoggerInterface $logger
     ) {
         $this->repository = $repository;
@@ -57,6 +62,7 @@ class LineItemCreateService implements LineItemCreateServiceInterface
      */
     public function create(LineItem $lineItem): void
     {
+        // Check if id is null, required data are here e.g. scoreMaximum, datetime... not null
         $this->validator->validate($lineItem);
 
         $this->repository->create($lineItem);

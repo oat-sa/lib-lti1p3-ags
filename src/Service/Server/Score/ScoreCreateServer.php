@@ -63,6 +63,7 @@ class ScoreCreateServer implements RequestHandlerInterface
         $this->validator = $validator;
     }
 
+<<<<<<< Updated upstream
 // extract and validate contextID
 // extract LineItemID or null
 // based on lineItemId, use a service to get or get all
@@ -80,6 +81,32 @@ public function handle(ServerRequestInterface $request): ResponseInterface
     } catch (Throwable $exception) {
         $this->logger->error($exception->getMessage());
         $this->factory->createResponse(404, null, [], 'Access Token not valid');
+=======
+    public function handle(ServerRequestInterface $request): ResponseInterface
+    {
+        $validationResult = $this->validator->validate($request);
+
+        if ($validationResult->hasError()) {
+            $this->logger->error($validationResult->getError());
+
+            return $this->factory->createResponse(401, null, [], $validationResult->getError());
+        }
+
+        try {
+            // Process the request
+
+            $responseBody = '';
+            $responseHeaders = [
+            ];
+
+            return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
+
+        } catch (Throwable $exception) {
+            $this->logger->error($exception->getMessage());
+
+            return $this->factory->createResponse(500, null, [], 'Internal membership service error');
+        }
+>>>>>>> Stashed changes
     }
 
     return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);

@@ -20,27 +20,9 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Repository;
+namespace OAT\Library\Lti1p3Ags\Validator;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem;
-use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
-
-/**
- * @todo use query to speak object
- * @todo separate write from read?
- */
-interface LineItemRepository
+interface ValidatorInterface
 {
-    /**
-     * @throws Throwable if duplication
-     */
-    public function create(LineItem $lineItem): LineItem;
-
-    public function findOneById(string $contextId, string $lineItemId): LineItem;
-
-    public function findAll(string $contextId): LineItemContainer;
-
-    public function delete(string $contextId, string $lineItemId): void;
-
-    public function update(LineItem $lineItem): void;
+    public function validate(array $requestData): void;
 }

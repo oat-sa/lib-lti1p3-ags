@@ -53,12 +53,6 @@ class LineItemUpdateServer implements RequestHandlerInterface
         $this->logger = $logger ?? new NullLogger();
     }
 
-    // extract and validate contextID
-    // extract LineItemID or null
-    // based on lineItemId, use a service to get or get all
-    // paginated?
-    // find if it is findOneById or findAll (all by context)
-
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $validationResult = $this->validator->validate($request);
@@ -72,8 +66,6 @@ class LineItemUpdateServer implements RequestHandlerInterface
         try {
             $responseBody = '';
             $responseHeaders = [
-//                'Content-Type' => static::CONTENT_TYPE_MEMBERSHIP,
-//                'Content-Length' => strlen($responseBody),
             ];
 
             return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);

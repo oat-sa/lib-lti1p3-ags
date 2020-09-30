@@ -22,7 +22,10 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Validator;
 
-class LineItemValidator
+/**
+ * @todo validate array, field, or object?
+ */
+class CreateLineItemValidator implements ValidatorInterface
 {
     private $errors = [];
 
