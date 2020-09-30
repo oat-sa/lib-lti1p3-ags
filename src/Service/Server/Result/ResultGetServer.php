@@ -24,7 +24,9 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\Result;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\RequestResultNormalizerInterface;
+use OAT\Library\Lti1p3Ags\Repository\ResultRepository;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\RequestResultDenormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\RequestResultDenormalizerInterface;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -43,12 +45,15 @@ class ResultGetServer implements RequestHandlerInterface
 
     /** @var ResponseFactory */
     private $factory;
-    /** @var RequestResultNormalizerInterface */
-    private $normalizer;
+    /** @var RequestResultDenormalizerInterface */
+    private $denormalizer;
+    /** @var ResultRepository */
+    private $repository;
 
     public function __construct(
+        ResultRepository $repository,
         AccessTokenRequestValidator $validator,
-        RequestResultNormalizerInterface $normalizer,
+        RequestResultDenormalizerInterface $denormalizer,
         ?ResponseFactory $factory,
         ?LoggerInterface $logger
     )
@@ -56,7 +61,8 @@ class ResultGetServer implements RequestHandlerInterface
         $this->validator = $validator;
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
-        $this->normalizer = $normalizer;
+        $this->denormalizer = $denormalizer ?? new RequestResultDenormalizer();
+        $this->repository = $repository;
     }
 
     // extract and validate contextID
@@ -68,12 +74,14 @@ class ResultGetServer implements RequestHandlerInterface
     {
         try {
             $this->validator->validate($request);
-            $result = $this->normalizer->normalize($request);
+            $requestData = $request->getParsedBody();
+            $result = $this->repository->findByLineItem($requestData['contextId'], $requestData['lineItemId']);
+            $payload = $this->denormalizer->denormalize($result);
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
             $this->factory->createResponse(404, null, [], 'Access Token not valid');
         }
 
-        return $this->factory->createResponse(200, null, [], '');
+        return $this->factory->createResponse(200, null, [], $payload);
     }
 }

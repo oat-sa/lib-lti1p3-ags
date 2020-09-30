@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Repository;
 
+use OAT\Library\Lti1p3Ags\Model\Result;
+
 /**
  * @todo use QueryObject
  */

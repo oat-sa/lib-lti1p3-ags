@@ -20,13 +20,32 @@
 
 declare(strict_types=1);
 
-
 namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
 
 use OAT\Library\Lti1p3Ags\Model\Result;
+use OAT\Library\Lti1p3Ags\Validator\RequestDataResultValidator;
+use OAT\Library\Lti1p3Ags\Validator\RequestDataValidatorInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-interface RequestResultNormalizerInterface
+class RequestResultDenormalizer implements RequestResultDenormalizerInterface
 {
-    public function normalize(ServerRequestInterface $request): Result;
+    /** @var RequestDataValidatorInterface */
+    private $validator;
+
+    public function __construct(?RequestDataValidatorInterface $validator)
+    {
+        $this->validator = $validator ?? new RequestDataResultValidator();
+    }
+
+    public function denormalize(Result $result): array
+    {
+        return [
+            'id' => $result->getId(),
+            'userId' => $result->getUserId(),
+            'resultScore' => $result->getResultScore(),
+            'resultMaximum' => $result->getResultMaximum(),
+            'comment' => $result->getComment(),
+            'scoreOf' => $result->getScoreOf()
+        ];
+    }
 }
