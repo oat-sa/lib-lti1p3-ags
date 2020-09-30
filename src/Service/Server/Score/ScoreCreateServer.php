@@ -87,8 +87,7 @@ class ScoreCreateServer implements RequestHandlerInterface
             $this->repository->createFromScore($score);
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
-            $this->factory->createResponse(404, null, [], 'Access Token not valid');
-
+            $this->factory->createResponse(404, null, [], 'Could not save score');
         }
 
         return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
