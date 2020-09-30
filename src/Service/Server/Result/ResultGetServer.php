@@ -24,6 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\Result;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\RequestResultNormalizerInterface;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -42,15 +43,20 @@ class ResultGetServer implements RequestHandlerInterface
 
     /** @var ResponseFactory */
     private $factory;
+    /** @var RequestResultNormalizerInterface */
+    private $normalizer;
 
     public function __construct(
         AccessTokenRequestValidator $validator,
-        ResponseFactory $factory,
-        LoggerInterface $logger
-    ) {
+        RequestResultNormalizerInterface $normalizer,
+        ?ResponseFactory $factory,
+        ?LoggerInterface $logger
+    )
+    {
         $this->validator = $validator;
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
+        $this->normalizer = $normalizer;
     }
 
     // extract and validate contextID
@@ -58,30 +64,16 @@ class ResultGetServer implements RequestHandlerInterface
     // based on lineItemId, use a service to get or get all
     // paginated?
     // find if it is findOneById or findAll (all by context)
-
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $validationResult = $this->validator->validate($request);
-
-        if ($validationResult->hasError()) {
-            $this->logger->error($validationResult->getError());
-
-            return $this->factory->createResponse(401, null, [], $validationResult->getError());
-        }
-
         try {
-            $responseBody = '';
-            $responseHeaders = [
-//                'Content-Type' => static::CONTENT_TYPE_MEMBERSHIP,
-                'Content-Length' => strlen($responseBody),
-            ];
-
-            return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
-
+            $this->validator->validate($request);
+            $result = $this->normalizer->normalize($request);
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
-
-            return $this->factory->createResponse(500, null, [], 'Internal membership service error');
+            $this->factory->createResponse(404, null, [], 'Access Token not valid');
         }
+
+        return $this->factory->createResponse(200, null, [], '');
     }
 }

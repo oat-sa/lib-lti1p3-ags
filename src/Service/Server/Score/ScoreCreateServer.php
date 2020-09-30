@@ -47,37 +47,42 @@ class ScoreCreateServer implements RequestHandlerInterface
 
     /** @var RequestScoreNormalizerInterface */
     private $normalizer;
+    /** @var AccessTokenRequestValidator */
+    private $validator;
 
     public function __construct(
-        AccessTokenRequestValidator $validator,
-        ?ResponseFactory $factory,
         ?LoggerInterface $logger,
-        RequestScoreNormalizerInterface $normalizer
+        ?RequestScoreNormalizerInterface $normalizer,
+        ?ResponseFactory $factory,
+        ?AccessTokenRequestValidator $validator
     )
     {
         $this->logger = $logger ?? new NullLogger();
         $this->factory = $factory ?? new HttplugFactory();
         $this->normalizer = $normalizer ?? new RequestScoreNormalizer();
+        $this->validator = $validator;
     }
 
-    // extract and validate contextID
-    // extract LineItemID or null
-    // based on lineItemId, use a service to get or get all
-    // paginated?
-    // find if it is findOneById or findAll (all by context)
+// extract and validate contextID
+// extract LineItemID or null
+// based on lineItemId, use a service to get or get all
+// paginated?
+// find if it is findOneById or findAll (all by context)
 
-    public function handle(ServerRequestInterface $request): ResponseInterface
-    {
-        $responseHeaders = [];
-        $responseBody = '';
+public
+function handle(ServerRequestInterface $request): ResponseInterface
+{
+    $responseHeaders = [];
+    $responseBody = '';
 
-        try {
-            $score = $this->normalizer->normalize($request);
-        } catch (Throwable $exception) {
-            $this->logger->error($exception->getMessage());
-            $this->factory->createResponse(404, null, [], 'Access Token not valid');
-        }
-
-        return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
+    try {
+        $this->validator->validate($request);
+        $score = $this->normalizer->normalize($request);
+    } catch (Throwable $exception) {
+        $this->logger->error($exception->getMessage());
+        $this->factory->createResponse(404, null, [], 'Access Token not valid');
     }
+
+    return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
+}
 }
