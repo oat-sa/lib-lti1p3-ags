@@ -22,11 +22,20 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 
-use http\Exception\BadMethodCallException;
 use Http\Message\ResponseFactory;
+use HttpException;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Factory\LineItemFactory;
 use OAT\Library\Lti1p3Ags\Factory\LineItemFactoryInterface;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizerInterface;
+use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemCreateService;
+use OAT\Library\Lti1p3Ags\Validator\RequestValidationException;
+use OAT\Library\Lti1p3Ags\Validator\RequestValidator\ContentTypeValidator;
+use OAT\Library\Lti1p3Ags\Validator\RequestValidator\HttpValidatorAggregator;
+use OAT\Library\Lti1p3Ags\Validator\RequestValidator\MethodValidator;
+use OAT\Library\Lti1p3Ags\Validator\RequestValidator\RequestParameterValidator;
+use OAT\Library\Lti1p3Ags\Validator\RequestValidatorInterface;
 use OAT\Library\Lti1p3Ags\Validator\ValidationException;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
@@ -47,23 +56,31 @@ class LineItemCreateServer implements RequestHandlerInterface
     /** @var ResponseFactory */
     private $factory;
 
-    private $service;
+    /** @var LineItemCreateService  */
+    private $lineItemService;
 
     /** @var LineItemFactory */
     private $lineItemFactory;
 
+    /** @var */
+    private $normalizer;
+
     public function __construct(
-        AccessTokenRequestValidator $validator,
+        AccessTokenRequestValidator $accessTokenRequestValidator,
+        RequestValidatorInterface $validator,
         ResponseFactory $factory,
+        ?LineItemNormalizerInterface $normalizer,
         ?LineItemFactoryInterface $lineItemFactory,
-        ?LineItemCreateService $service,
-        ?LoggerInterface  $logger
-    ) {
-        $this->validator = $validator;
-        $this->service = $service;
+        ?LineItemCreateService $lineItemService,
+        ?LoggerInterface $logger
+    )
+    {
+        $this->lineItemService = $lineItemService;
         $this->lineItemFactory = $lineItemFactory ?? new LineItemFactory();
         $this->logger = $logger ?? new NullLogger();
         $this->factory = $factory ?? new HttplugFactory();
+        $this->setValidator($accessTokenRequestValidator);
+        $this->normalizer = $normalizer ?? new LineItemNormalizer();
     }
 
     /**
@@ -71,33 +88,14 @@ class LineItemCreateServer implements RequestHandlerInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $validationResult = $this->validator->validate($request);
-
-        if ($validationResult->hasError()) {
-            $this->logger->error($validationResult->getError());
-
-            return $this->factory->createResponse(401, null, [], $validationResult->getError());
-        }
-
         try {
+            $this->validator->validate($request);
 
-            /** @todo move to another validator? */
-            if (strtolower($request->getMethod()) !== 'post') {
-                throw new BadMethodCallException();
-            }
-
-            /** @todo move to a parser/serializer? */
             $data = $request->getParsedBody();
-            if (strtolower($request->getHeader('Content-type')) == 'application/json') {
-                $data = json_decode($data);
-            }
+            $data = json_decode($data, true);
 
-            $lineItem = $this->lineItemFactory->build(
-                $data
-            );
-
-            /** @todo use query instead of business object ? */
-            $this->service->create($lineItem);
+            $lineItem = $this->normalizer->normalize($data);
+            $this->lineItemService->create($lineItem);
 
             $responseBody = 'LineItem successfully created.';
             $responseHeaders = [
@@ -106,26 +104,24 @@ class LineItemCreateServer implements RequestHandlerInterface
             ];
 
             return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
-
-        } catch (BadMethodCallException $exception) {
+        } catch (RequestValidationException $exception){
             $this->logger->error($exception->getMessage());
 
-            return $this->factory->createResponse(405, 'Method not allowed');
-
-        } catch (ValidationException $exception) {
-            $this->logger->error($exception->getMessage());
-
-            return $this->factory->createResponse(
-                422,
-                'Entity not processable',
-                ['Content-Type' => 'application/json'],
-                json_encode($exception->getMessages())
-            );
-
+            return $this->factory->createResponse($exception->getCode(), $exception->getMessage());
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
 
             return $this->factory->createResponse(500, null, [], 'Internal membership service error');
         }
+    }
+
+    private function setValidator(AccessTokenRequestValidator $accessTokenValidator)
+    {
+        $this->validator = new HttpValidatorAggregator([
+            $accessTokenValidator,
+            new MethodValidator('post'),
+            new ContentTypeValidator('application/json'),
+            new RequestParameterValidator('param1', 'param2', 'param3'),
+        ]);
     }
 }

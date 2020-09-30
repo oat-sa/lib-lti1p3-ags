@@ -24,7 +24,6 @@ namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
 use OAT\Library\Lti1p3Ags\Model\LineItem;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepository;
-use OAT\Library\Lti1p3Ags\Validator\CreateLineItemValidator;
 use OAT\Library\Lti1p3Ags\Validator\LineItemValidator;
 use OAT\Library\Lti1p3Ags\Validator\ValidationException;
 use OAT\Library\Lti1p3Ags\Validator\ValidatorInterface;
