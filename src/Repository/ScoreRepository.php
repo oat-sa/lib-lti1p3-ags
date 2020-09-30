@@ -31,4 +31,6 @@ use OAT\Library\Lti1p3Ags\Model\Score;
 interface ScoreRepository
 {
     public function create(string $contextId, string $lineItemId, Score $score): LineItem;
+
+    public function createFromScore(Score $score): void;
 }

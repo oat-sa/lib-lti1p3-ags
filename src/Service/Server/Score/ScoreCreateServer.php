@@ -26,6 +26,7 @@ use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Factory\ScoreFactory;
 use OAT\Library\Lti1p3Ags\Factory\ScoreFactoryInterface;
+use OAT\Library\Lti1p3Ags\Repository\ScoreRepository;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\RequestScoreNormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\RequestScoreNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemCreateService;
@@ -49,41 +50,30 @@ class ScoreCreateServer implements RequestHandlerInterface
     private $normalizer;
     /** @var AccessTokenRequestValidator */
     private $validator;
+    /** @var ScoreRepository */
+    private $repository;
 
     public function __construct(
+        AccessTokenRequestValidator $validator,
+        ScoreRepository $repository,
         ?LoggerInterface $logger,
         ?RequestScoreNormalizerInterface $normalizer,
-        ?ResponseFactory $factory,
-        ?AccessTokenRequestValidator $validator
+        ?ResponseFactory $factory
     )
     {
         $this->logger = $logger ?? new NullLogger();
         $this->factory = $factory ?? new HttplugFactory();
         $this->normalizer = $normalizer ?? new RequestScoreNormalizer();
         $this->validator = $validator;
+        $this->repository = $repository;
     }
 
-<<<<<<< Updated upstream
-// extract and validate contextID
-// extract LineItemID or null
-// based on lineItemId, use a service to get or get all
-// paginated?
-// find if it is findOneById or findAll (all by context)
 
-public function handle(ServerRequestInterface $request): ResponseInterface
-{
-    $responseHeaders = [];
-    $responseBody = '';
-
-    try {
-        $this->validator->validate($request);
-        $score = $this->normalizer->normalize($request);
-    } catch (Throwable $exception) {
-        $this->logger->error($exception->getMessage());
-        $this->factory->createResponse(404, null, [], 'Access Token not valid');
-=======
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
+        $responseHeaders = [];
+        $responseBody = '';
+
         $validationResult = $this->validator->validate($request);
 
         if ($validationResult->hasError()) {
@@ -93,22 +83,14 @@ public function handle(ServerRequestInterface $request): ResponseInterface
         }
 
         try {
-            // Process the request
-
-            $responseBody = '';
-            $responseHeaders = [
-            ];
-
-            return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
-
+            $score = $this->normalizer->normalize($request);
+            $this->repository->createFromScore($score);
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
+            $this->factory->createResponse(404, null, [], 'Access Token not valid');
 
-            return $this->factory->createResponse(500, null, [], 'Internal membership service error');
         }
->>>>>>> Stashed changes
-    }
 
-    return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
-}
+        return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
+    }
 }
