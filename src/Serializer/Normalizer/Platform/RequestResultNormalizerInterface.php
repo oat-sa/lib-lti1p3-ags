@@ -20,10 +20,13 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Validator;
 
-interface ScoreValidatorInterface
+namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
+
+
+use Psr\Http\Message\ServerRequestInterface;
+
+interface RequestResultNormalizerInterface
 {
-    public function validate(array $requestData): void;
-
+    public function normalize(ServerRequestInterface $request): array;
 }

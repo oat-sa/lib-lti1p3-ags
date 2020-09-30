@@ -20,12 +20,26 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Service\Server\Result;
 
-use Http\Message\ResponseFactory;
-use Nyholm\Psr7\Factory\HttplugFactory;
+namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
 
-class ResultGetService
+
+use OAT\Library\Lti1p3Ags\Validator\RequestDataResultValidator;
+use OAT\Library\Lti1p3Ags\Validator\RequestDataValidatorInterface;
+use Psr\Http\Message\ServerRequestInterface;
+
+class RequestResultNormalizer implements RequestResultNormalizerInterface
 {
+    /** @var RequestDataValidatorInterface */
+    private $validator;
 
+    public function __construct(RequestDataValidatorInterface $validator)
+    {
+        $this->validator = $validator ?? new RequestDataResultValidator();
+    }
+
+    public function normalize(ServerRequestInterface $request): array
+    {
+        $this->validator->validate($request->getParsedBody());
+    }
 }

@@ -45,23 +45,16 @@ class ScoreCreateServer implements RequestHandlerInterface
     /** @var ResponseFactory */
     private $factory;
 
-    /** @var ScoreFactoryInterface */
-    private $scoreFactory;
-
     /** @var RequestScoreNormalizerInterface */
     private $normalizer;
 
     public function __construct(
-        LineItemCreateService $service,
         AccessTokenRequestValidator $validator,
-        ?ScoreFactoryInterface $scoreFactory,
         ?ResponseFactory $factory,
         ?LoggerInterface $logger,
         RequestScoreNormalizerInterface $normalizer
     )
     {
-        $this->service = $service;
-        $this->scoreFactory = $scoreFactory ?? new ScoreFactory();
         $this->logger = $logger ?? new NullLogger();
         $this->factory = $factory ?? new HttplugFactory();
         $this->normalizer = $normalizer ?? new RequestScoreNormalizer();
@@ -79,8 +72,7 @@ class ScoreCreateServer implements RequestHandlerInterface
         $responseBody = '';
 
         try {
-            $payload = $this->normalizer->normalize($request);
-            $this->scoreFactory->create($payload['userId'], $payload['contextId'], $payload['lineItemId']);
+            $score = $this->normalizer->normalize($request);
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
             $this->factory->createResponse(404, null, [], 'Access Token not valid');

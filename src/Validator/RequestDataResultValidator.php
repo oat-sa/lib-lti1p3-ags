@@ -22,11 +22,11 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Validator;
 
-class ScoreValidator implements ScoreValidatorInterface
+class RequestDataResultValidator implements RequestDataValidatorInterface
 {
     public function validate(array $requestData): void
     {
-        if (empty(array_keys($requestData, ['userId', 'contextId', 'lineItem'], true))) {
+        if (array_key_exists('key', $requestData)) {
             throw new ValidationException();
         }
     }

@@ -20,12 +20,14 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Service\Server\Result;
+namespace OAT\Library\Lti1p3Ags\Validator;
 
-use Http\Message\ResponseFactory;
-use Nyholm\Psr7\Factory\HttplugFactory;
-
-class ResultGetService
+class RequestDataScoreValidator implements RequestDataValidatorInterface
 {
-
+    public function validate(array $requestData): void
+    {
+        if (empty(array_keys($requestData, ['userId', 'contextId', 'lineItem'], true))) {
+            throw new ValidationException();
+        }
+    }
 }

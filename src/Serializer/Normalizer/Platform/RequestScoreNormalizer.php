@@ -25,31 +25,37 @@ namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
 use OAT\Library\Lti1p3Ags\Factory\ScoreFactory;
 use OAT\Library\Lti1p3Ags\Factory\ScoreFactoryInterface;
 use OAT\Library\Lti1p3Ags\Model\Score;
-use OAT\Library\Lti1p3Ags\Validator\ScoreValidator;
-use OAT\Library\Lti1p3Ags\Validator\ScoreValidatorInterface;
+use OAT\Library\Lti1p3Ags\Validator\RequestDataScoreValidator;
+use OAT\Library\Lti1p3Ags\Validator\RequestDataValidatorInterface;
+use OAT\Library\Lti1p3Ags\Validator\ValidationException;
 use Psr\Http\Message\ServerRequestInterface;
 
 class RequestScoreNormalizer implements RequestScoreNormalizerInterface
 {
-    /** @var ScoreValidatorInterface */
+    /** @var RequestDataValidatorInterface */
     private $validator;
 
-    /** @var ScoreValidatorInterface */
+    /** @var RequestDataValidatorInterface */
     private $scoreFactory;
 
-    public function __construct(?ScoreValidatorInterface $validator, ?ScoreFactoryInterface $scoreFactory)
+    public function __construct(?RequestDataValidatorInterface $validator, ?ScoreFactoryInterface $scoreFactory)
     {
-        $this->validator = $validator ?? new ScoreValidator();
+        $this->validator = $validator ?? new RequestDataScoreValidator();
         $this->scoreFactory = $scoreFactory ?? new ScoreFactory();
     }
 
     /**
-     * @throws \OAT\Library\Lti1p3Ags\Validator\ValidationException
+     * @throws ValidationException
      */
     public function normalize(ServerRequestInterface $request): Score
     {
         $requestData = $request->getParsedBody();
         $this->validator->validate($requestData);
 
+        return $this->scoreFactory->create(
+            $requestData['userId'],
+            $requestData['contextId'],
+            $requestData['lineItemId']
+        );
     }
 }
