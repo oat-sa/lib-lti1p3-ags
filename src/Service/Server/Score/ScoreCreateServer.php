@@ -79,7 +79,7 @@ class ScoreCreateServer implements RequestHandlerInterface
         $responseBody = '';
 
         try {
-            $payload = $this->normalizer->normalize($request->getParsedBody());
+            $payload = $this->normalizer->normalize($request);
             $this->scoreFactory->create($payload['userId'], $payload['contextId'], $payload['lineItemId']);
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());

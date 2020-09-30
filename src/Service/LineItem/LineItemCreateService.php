@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
+namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
 use OAT\Library\Lti1p3Ags\Model\LineItem;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepository;
