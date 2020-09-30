@@ -23,10 +23,10 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
 
-
+use OAT\Library\Lti1p3Ags\Model\Result;
 use Psr\Http\Message\ServerRequestInterface;
 
 interface RequestResultNormalizerInterface
 {
-    public function normalize(ServerRequestInterface $request): array;
+    public function normalize(ServerRequestInterface $request): Result;
 }
