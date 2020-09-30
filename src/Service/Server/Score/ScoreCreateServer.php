@@ -69,8 +69,7 @@ class ScoreCreateServer implements RequestHandlerInterface
 // paginated?
 // find if it is findOneById or findAll (all by context)
 
-public
-function handle(ServerRequestInterface $request): ResponseInterface
+public function handle(ServerRequestInterface $request): ResponseInterface
 {
     $responseHeaders = [];
     $responseBody = '';
