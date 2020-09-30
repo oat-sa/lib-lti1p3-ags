@@ -24,64 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
-use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
-use Throwable;
 
-class LineItemUpdateService implements RequestHandlerInterface
+class LineItemUpdateService
 {
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var AccessTokenRequestValidator */
-    private $validator;
-
-    /** @var ResponseFactory */
-    private $factory;
-
-    public function __construct(
-        AccessTokenRequestValidator $validator,
-        ResponseFactory $factory,
-        $logger
-    ) {
-        $this->validator = $validator;
-        $this->factory = $factory ?? new HttplugFactory();
-        $this->logger = $logger ?? new NullLogger();
-    }
-
-    // extract and validate contextID
-    // extract LineItemID or null
-    // based on lineItemId, use a service to get or get all
-    // paginated?
-    // find if it is findOneById or findAll (all by context)
-
-    public function handle(ServerRequestInterface $request): ResponseInterface
-    {
-        $validationResult = $this->validator->validate($request);
-
-        if ($validationResult->hasError()) {
-            $this->logger->error($validationResult->getError());
-
-            return $this->factory->createResponse(401, null, [], $validationResult->getError());
-        }
-
-        try {
-            $responseBody = '';
-            $responseHeaders = [
-//                'Content-Type' => static::CONTENT_TYPE_MEMBERSHIP,
-//                'Content-Length' => strlen($responseBody),
-            ];
-
-            return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
-
-        } catch (Throwable $exception) {
-            $this->logger->error($exception->getMessage());
-
-            return $this->factory->createResponse(500, null, [], 'Internal membership service error');
-        }
-    }
 }

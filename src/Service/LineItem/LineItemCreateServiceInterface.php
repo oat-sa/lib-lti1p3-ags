@@ -22,8 +22,9 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
-use Http\Message\ResponseFactory;
-use Nyholm\Psr7\Factory\HttplugFactory;
+use OAT\Library\Lti1p3Ags\Model\LineItem;
 
-class LineItemGetService
-{}
+interface LineItemCreateServiceInterface
+{
+    public function create(LineItem $lineItem): void;
+}

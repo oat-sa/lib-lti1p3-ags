@@ -30,7 +30,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Throwable;
 
-class LineItemCreateService
+class LineItemCreateService implements LineItemCreateServiceInterface
 {
     /** @var LoggerInterface */
     private $logger;
@@ -39,12 +39,12 @@ class LineItemCreateService
     private $validator;
 
     /** @var LineItemRepository */
-    private LineItemRepository $repository;
+    private $repository;
 
     public function __construct(
         LineItemRepository $repository,
         LineItemValidator $validator,
-        $logger
+        LoggerInterface $logger
     ) {
         $this->repository = $repository;
         $this->validator = $validator;

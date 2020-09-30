@@ -46,7 +46,7 @@ class ResultGetServer implements RequestHandlerInterface
     public function __construct(
         AccessTokenRequestValidator $validator,
         ResponseFactory $factory,
-        $logger
+        LoggerInterface $logger
     ) {
         $this->validator = $validator;
         $this->factory = $factory ?? new HttplugFactory();

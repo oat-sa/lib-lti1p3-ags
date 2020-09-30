@@ -75,8 +75,6 @@ class LineItemDeleteServer implements RequestHandlerInterface
 
             $responseBody = '';
             $responseHeaders = [
-//                'Content-Type' => static::CONTENT_TYPE_MEMBERSHIP,
-//                'Content-Length' => strlen($responseBody),
             ];
 
             return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
