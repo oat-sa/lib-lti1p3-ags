@@ -65,32 +65,28 @@ class ResultGetServer implements RequestHandlerInterface
         $this->repository = $repository;
     }
 
-<<<<<<< Updated upstream
-    // extract and validate contextID
-    // extract LineItemID or null
-    // based on lineItemId, use a service to get or get all
-    // paginated?
-    // find if it is findOneById or findAll (all by context)
-=======
->>>>>>> Stashed changes
+
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
+
+        $responseBody = '';
+        $responseHeaders = [];
+
+        $validationResult = $this->validator->validate($request);
+
+        if ($validationResult->hasError()) {
+            $this->logger->error($validationResult->getError());
+
+            return $this->factory->createResponse(401, null, [], $validationResult->getError());
+        }
+
         try {
-<<<<<<< Updated upstream
-            $this->validator->validate($request);
             $requestData = $request->getParsedBody();
             $result = $this->repository->findByLineItem($requestData['contextId'], $requestData['lineItemId']);
             $payload = $this->denormalizer->denormalize($result);
-=======
-            // Process the request
-
-            $responseBody = '';
-            $responseHeaders = [
-            ];
 
             return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
 
->>>>>>> Stashed changes
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
             $this->factory->createResponse(404, null, [], 'Access Token not valid');
