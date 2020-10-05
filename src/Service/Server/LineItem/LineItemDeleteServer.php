@@ -32,6 +32,6 @@ class LineItemDeleteServer implements RequestHandlerInterface
     /** @todo */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        return new Response();
+        return new Response(501);
     }
 }

@@ -22,13 +22,37 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
+use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
 use OAT\Library\Lti1p3Ags\Model\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
+use OAT\Library\Lti1p3Ags\Repository\LineItemRepository;
+use OAT\Library\Lti1p3Ags\Service\LineItem\Query\GetLineItemQuery;
 use OAT\Library\Lti1p3Ags\Service\LineItem\Query\LineItemQuery;
 
-interface LineItemGetServiceInterface
+class LineItemGetService implements LineItemGetServiceInterface
 {
-    public function findAll(LineItemQuery $lineItemQuery): LineItemContainer;
+    /** @var LineItemRepository */
+    private $repository;
 
-    public function findOne(LineItemQuery $lineItemQuery): LineItem;
+    public function __construct(LineItemRepository $repository)
+    {
+        $this->repository = $repository;
+    }
+
+    /**
+     * @throws AgsHttpException
+     */
+    public function findOne(LineItemQuery $query): LineItem
+    {
+        if (!$query->hasLineItemId()) {
+            throw new AgsHttpException('Missing "LineItemId" parameter.', 400);
+        }
+
+        return $this->repository->findOne($query);
+    }
+
+    public function findAll(LineItemQuery $query): LineItemContainer
+    {
+        return $this->repository->findAll($query);
+    }
 }

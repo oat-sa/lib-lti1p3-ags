@@ -20,15 +20,8 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Service\LineItem;
+namespace OAT\Library\Lti1p3Ags\Model;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem;
-use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\LineItemQuery;
-
-interface LineItemGetServiceInterface
+class PartialLineItemContainer extends LineItemContainer
 {
-    public function findAll(LineItemQuery $lineItemQuery): LineItemContainer;
-
-    public function findOne(LineItemQuery $lineItemQuery): LineItem;
 }

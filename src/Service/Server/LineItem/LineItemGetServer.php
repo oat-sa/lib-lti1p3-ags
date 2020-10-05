@@ -60,7 +60,7 @@ class LineItemGetServer implements RequestHandlerInterface
     private $parser;
 
     /** @var LineItemQueryDenormalizer  */
-    private $queryNormalizer;
+    private $queryDenormalizer;
 
     /** @var LineItemNormalizerInterface  */
     private $lineItemNormalizer;
@@ -78,7 +78,7 @@ class LineItemGetServer implements RequestHandlerInterface
         AccessTokenRequestValidator $validator,
         LineItemGetServiceInterface $service,
         UrlParserInterface $parser = null,
-        LineItemQueryDenormalizerInterface $queryNormalizer = null,
+        LineItemQueryDenormalizerInterface $queryDenormalizer = null,
         LineItemNormalizerInterface $lineItemNormalizer = null,
         LineItemContainerNormalizerInterface $lineItemContainerNormalizer = null,
         ResponseFactory $factory = null,
@@ -87,7 +87,7 @@ class LineItemGetServer implements RequestHandlerInterface
         $this->validator = $this->aggregateValidator($validator);
         $this->service = $service;
         $this->parser = $parser ?? new UrlParser();
-        $this->queryNormalizer = $queryNormalizer ?? new LineItemQueryDenormalizer();
+        $this->queryDenormalizer = $queryDenormalizer ?? new LineItemQueryDenormalizer();
         $this->lineItemNormalizer = $lineItemNormalizer ?? new LineItemNormalizer();
         $this->lineItemContainerNormalizer = $lineItemContainerNormalizer
             ?? new LineItemContainerNormalizer($this->lineItemNormalizer);
@@ -100,7 +100,7 @@ class LineItemGetServer implements RequestHandlerInterface
         try {
             $this->validator->validate($request);
 
-            $query = $this->queryNormalizer->denormalize(
+            $query = $this->queryDenormalizer->denormalize(
                 $this->getRequestParameters($request)
             );
 
@@ -108,6 +108,10 @@ class LineItemGetServer implements RequestHandlerInterface
 
             if (!$query->hasLineItemId()) {
                 $lineItemContainer = $this->service->findAll($query);
+
+                if ($lineItemContainer instanceof PartialLineItemContainer) {
+                    $responseCode = 206;
+                }
 
                 $responseBody = $this->lineItemContainerNormalizer->normalize($lineItemContainer);
 
