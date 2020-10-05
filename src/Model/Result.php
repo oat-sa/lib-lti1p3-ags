@@ -59,49 +59,31 @@ class Result
         $this->scoreOf = $scoreOf;
     }
 
-    /**
-     * @return string
-     */
     public function getId(): string
     {
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
     public function getUserId(): string
     {
         return $this->userId;
     }
 
-    /**
-     * @return float
-     */
     public function getResultScore(): float
     {
         return $this->resultScore;
     }
 
-    /**
-     * @return int
-     */
     public function getResultMaximum(): int
     {
         return $this->resultMaximum;
     }
 
-    /**
-     * @return string
-     */
     public function getComment(): string
     {
         return $this->comment;
     }
 
-    /**
-     * @return string
-     */
     public function getScoreOf(): string
     {
         return $this->scoreOf;
