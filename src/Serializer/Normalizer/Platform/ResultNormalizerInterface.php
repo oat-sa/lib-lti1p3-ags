@@ -24,7 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
 
 use OAT\Library\Lti1p3Ags\Model\Result;
 
-interface ResultDenormalizerInterface
+interface ResultNormalizerInterface
 {
-    public function denormalize(Result $result): array;
+    public function normalize(Result $result): array;
 }
