@@ -86,13 +86,14 @@ class LineItemCreateServer implements RequestHandlerInterface
             $this->validator->validate($request);
 
             $data = json_decode((string)$request->getBody(), true);
-            $responseBody = $data;
 
             $responseCode = 200;
 
             $lineItem = $this->lineItemDenormalizer->denormalize($data);
 
-            $this->service->create($lineItem);
+            $persistedLineItem = $this->service->create($lineItem);
+
+            $responseBody = json_encode($this->lineItemNormalizer->normalize($persistedLineItem));
 
             $responseHeaders = [
                 'Content-Type' => 'application/json',

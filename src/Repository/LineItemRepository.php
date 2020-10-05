@@ -32,5 +32,5 @@ interface LineItemRepository
 
     public function findAll(GetLineItemQuery $query): LineItemContainer;
 
-    public function save(LineItem $query): void;
+    public function save(LineItem $query): LineItem;
 }

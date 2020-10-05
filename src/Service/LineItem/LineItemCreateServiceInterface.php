@@ -30,5 +30,5 @@ interface LineItemCreateServiceInterface
     /**
      * @throws AgsHttpException
      */
-    public function create(LineItem $lineItem): void;
+    public function create(LineItem $lineItem): LineItem;
 }

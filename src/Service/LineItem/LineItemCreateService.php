@@ -38,8 +38,8 @@ class LineItemCreateService implements LineItemCreateServiceInterface
     /**
      * @inheritDoc
      */
-    public function create(LineItem $lineItem): void
+    public function create(LineItem $lineItem): LineItem
     {
-        $this->repository->save($lineItem);
+        return $this->repository->save($lineItem);
     }
 }
