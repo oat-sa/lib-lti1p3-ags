@@ -36,7 +36,7 @@ class LineItemQuery
     /** @var integer */
     private $limit;
 
-    public function __construct(string $contextId = null, string $lineItemId = null, int $page = null, int $limit = null)
+    public function __construct(string $contextId, string $lineItemId = null, int $page = null, int $limit = null)
     {
         $this->contextId = $contextId;
         $this->lineItemId = $lineItemId;
@@ -47,11 +47,6 @@ class LineItemQuery
     public function getContextId(): string
     {
         return $this->contextId;
-    }
-
-    public function hasContextId(): bool
-    {
-        return $this->contextId !== null;
     }
 
     public function getLineItemId(): ?string

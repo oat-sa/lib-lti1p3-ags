@@ -33,10 +33,13 @@ use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemContainerNormal
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
+use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
+use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestMethodValidator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorAggregator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequiredContextIdValidator;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -52,6 +55,9 @@ class LineItemGetServer implements RequestHandlerInterface
 
     /** @var LineItemGetServiceInterface  */
     private $service;
+
+    /** @var UrlParserInterface  */
+    private $parser;
 
     /** @var LineItemQueryDenormalizer  */
     private $queryNormalizer;
@@ -71,6 +77,7 @@ class LineItemGetServer implements RequestHandlerInterface
     public function __construct(
         AccessTokenRequestValidator $validator,
         LineItemGetServiceInterface $service,
+        UrlParserInterface $parser = null,
         LineItemQueryDenormalizerInterface $queryNormalizer = null,
         LineItemNormalizerInterface $lineItemNormalizer = null,
         LineItemContainerNormalizerInterface $lineItemContainerNormalizer = null,
@@ -79,6 +86,7 @@ class LineItemGetServer implements RequestHandlerInterface
     ) {
         $this->validator = $this->aggregateValidator($validator);
         $this->service = $service;
+        $this->parser = $parser ?? new UrlParser();
         $this->queryNormalizer = $queryNormalizer ?? new LineItemQueryDenormalizer();
         $this->lineItemNormalizer = $lineItemNormalizer ?? new LineItemNormalizer();
         $this->lineItemContainerNormalizer = $lineItemContainerNormalizer
@@ -92,9 +100,9 @@ class LineItemGetServer implements RequestHandlerInterface
         try {
             $this->validator->validate($request);
 
-            parse_str($request->getUri()->getQuery(), $parameters);
-
-            $query = $this->queryNormalizer->denormalize($parameters);
+            $query = $this->queryNormalizer->denormalize(
+                $this->getRequestParameters($request)
+            );
 
             $responseCode = 200;
 
@@ -144,6 +152,17 @@ class LineItemGetServer implements RequestHandlerInterface
         return new RequestValidatorAggregator([
             new AccessTokenRequestValidatorDecorator($accessTokenValidator),
             new RequestMethodValidator('get'),
+            new RequiredContextIdValidator()
         ]);
+    }
+
+    private function getRequestParameters(ServerRequestInterface $request): array
+    {
+        parse_str($request->getUri()->getQuery(), $parameters);
+
+        return array_merge(
+            $parameters,
+            $this->parser->parse($request)
+        );
     }
 }

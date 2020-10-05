@@ -29,6 +29,7 @@ use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestVali
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestMethodValidator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorAggregator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequiredContextIdValidator;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -95,6 +96,7 @@ class LineItemCreateServer implements RequestHandlerInterface
         return new RequestValidatorAggregator([
             new AccessTokenRequestValidatorDecorator($accessTokenValidator),
             new RequestMethodValidator('post'),
+            new RequiredContextIdValidator()
         ]);
     }
 }

@@ -36,12 +36,11 @@ class LineItemContainerNormalizer implements LineItemContainerNormalizerInterfac
 
     public function normalize(LineItemContainer $lineItemContainer): array
     {
-        $normalizedData = [];
-
-        foreach ($lineItemContainer->getLineItems() as $lineItem) {
-            $normalizedData[] = $this->lineItemNormalizer->normalize($lineItem);
-        }
-
-        return $normalizedData;
+        return array_map(
+            function ($lineItem) {
+                return $this->lineItemNormalizer->normalize($lineItem);
+            },
+            $lineItemContainer->getIterator()
+        );
     }
 }

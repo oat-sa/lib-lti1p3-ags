@@ -31,12 +31,12 @@ class LineItemNormalizer implements LineItemNormalizerInterface
 
     public function normalize(LineItem $lineItem): array
     {
-        $startDateTime = '';
+        $startDateTime = null;
         if ($lineItem->getStartDateTime() !== null) {
             $startDateTime = $this->dateToIso8601($lineItem->getStartDateTime());
         }
 
-        $endDateTime = '';
+        $endDateTime = null;
         if ($lineItem->getEndDateTime() !== null) {
             $endDateTime = $this->dateToIso8601($lineItem->getEndDateTime());
         }
