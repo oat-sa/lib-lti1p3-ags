@@ -41,7 +41,7 @@ class ResultGetQuery
         return $this->contextId;
     }
 
-    public function getLineItemId(): ?string
+    public function getLineItemId(): string
     {
         return $this->lineItemId;
     }
