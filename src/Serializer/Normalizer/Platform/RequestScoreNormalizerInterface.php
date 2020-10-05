@@ -20,14 +20,12 @@
 
 declare(strict_types=1);
 
-
 namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
-
 
 use OAT\Library\Lti1p3Ags\Model\Score;
 use Psr\Http\Message\ServerRequestInterface;
 
 interface RequestScoreNormalizerInterface
 {
-    public function normalize(ServerRequestInterface $request): Score;
+    public function normalize(array $data): Score;
 }

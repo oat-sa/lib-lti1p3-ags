@@ -26,5 +26,5 @@ use OAT\Library\Lti1p3Ags\Model\LineItem;
 
 interface LineItemNormalizerInterface
 {
-    public function normalize(array $data): LineItem;
+    public function normalize(LineItem $lineItem): array;
 }

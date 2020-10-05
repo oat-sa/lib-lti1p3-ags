@@ -23,16 +23,34 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
 
 use OAT\Library\Lti1p3Ags\Model\LineItem;
+use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 
 class LineItemNormalizer implements LineItemNormalizerInterface
 {
-    //todo: validate if those key are ok, fill other keys
-    public function normalize(array $data): LineItem
+    use DateConverterTrait;
+
+    public function normalize(LineItem $lineItem): array
     {
-        return new LineItem(
-            $data['contextId'],
-            $data['scoreMaximum'],
-            $data['label']
-        );
+        $startDateTime = '';
+        if ($lineItem->getStartDateTime() !== null) {
+            $startDateTime = $this->dateToIso8601($lineItem->getStartDateTime());
+        }
+
+        $endDateTime = '';
+        if ($lineItem->getEndDateTime() !== null) {
+            $endDateTime = $this->dateToIso8601($lineItem->getEndDateTime());
+        }
+
+        return [
+            'contextId' => $lineItem->getContextId(),
+            'scoreMaximum' => $lineItem->getScoreMaximum(),
+            'label' => $lineItem->getLabel(),
+            'id' => $lineItem->getId() ?? '',
+            'startDateTime' => $startDateTime,
+            'endDateTime' => $endDateTime,
+            'tag' => $lineItem->getTag() ?? '',
+            'resourceId' => $lineItem->getResourceId() ?? '',
+            'resourceLinkId' => $lineItem->getResourceLinkId() ?? ''
+        ];
     }
 }

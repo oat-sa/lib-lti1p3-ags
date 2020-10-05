@@ -22,9 +22,10 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\Score;
 
-use OAT\Library\Lti1p3Ags\Model\Score;
+use OAT\Library\Lti1p3Ags\Model\Result;
+use OAT\Library\Lti1p3Ags\Service\LineItem\Query\ResultGetQuery;
 
 interface ResultGetServiceInterface
 {
-    public function create(Score $score): void;
+    public function findOne(ResultGetQuery $resultGetQuery): Result;
 }

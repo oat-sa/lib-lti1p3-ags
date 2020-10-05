@@ -20,32 +20,14 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Validator\RequestValidator;
+namespace OAT\Library\Lti1p3Ags\Service\Server\RequestValidator;
 
-use OAT\Library\Lti1p3Ags\Validator\RequestValidationException;
-use OAT\Library\Lti1p3Ags\Validator\RequestValidatorInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class ContentTypeValidator implements RequestValidatorInterface
+interface RequestValidatorInterface
 {
-    /** @var string */
-    private $contentType;
-
-    public function __construct(string $contentType)
-    {
-        $this->contentType = $contentType;
-    }
-
-    public function validate(ServerRequestInterface $request): void
-    {
-        if (strtolower($request->getHeader('Content-type')) === $this->contentType) {
-            throw new RequestValidationException('Wrong content type', 406);
-        }
-
-        $data = json_decode($request->getParsedBody(), true);
-
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new RequestValidationException('Not acceptable', 406);
-        }
-    }
+    /**
+     * @throws RequestValidatorException
+     */
+    public function validate(ServerRequestInterface $request): void;
 }

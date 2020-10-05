@@ -20,11 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Validator;
+namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
 
-use Psr\Http\Message\ServerRequestInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
 
-interface RequestValidatorInterface
+interface LineItemContainerNormalizerInterface
 {
-    public function validate(ServerRequestInterface $request): void;
+    public function normalize(LineItemContainer $lineItemContainer): array;
 }

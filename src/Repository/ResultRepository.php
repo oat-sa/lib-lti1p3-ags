@@ -22,12 +22,11 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Repository;
 
+use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
 use OAT\Library\Lti1p3Ags\Model\Result;
+use OAT\Library\Lti1p3Ags\Service\LineItem\Query\ResultGetQuery;
 
-/**
- * @todo use QueryObject
- */
 interface ResultRepository
 {
-    public function findByLineItem(string $contextId, string $lineItemId): Result;
+    public function findOne(ResultGetQuery $resultGetQuery): Result;
 }

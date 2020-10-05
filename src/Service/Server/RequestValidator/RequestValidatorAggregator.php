@@ -20,26 +20,27 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Validator\RequestValidator;
+namespace OAT\Library\Lti1p3Ags\Service\Server\RequestValidator;
 
-use http\Exception\BadMethodCallException;
-use OAT\Library\Lti1p3Ags\Validator\RequestValidatorInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class MethodValidator implements RequestValidatorInterface
+class RequestValidatorAggregator implements RequestValidatorInterface
 {
-    /** @var string */
-    private $method;
+    /** @var ServerRequestInterface[] */
+    private $validators;
 
-    public function __construct(string $method)
+    public function __construct(RequestValidatorInterface ...$validators)
     {
-        $this->method = $method;
+        $this->validators = $validators;
     }
 
+    /**
+     * @throws RequestValidatorException
+     */
     public function validate(ServerRequestInterface $request): void
     {
-        if (strtolower($request->getMethod()) !== $this->method) {
-            throw new BadMethodCallException('Method not allowed', 405);
+        foreach ($this->validators as $validator) {
+            $validator->validate($request);
         }
     }
 }

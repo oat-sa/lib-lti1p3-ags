@@ -30,18 +30,10 @@ class ResultGetQuery
     /** @var string|null */
     private $lineItemId;
 
-    /** @var integer */
-    private $page;
-
-    /** @var integer */
-    private $limit;
-
-    public function __construct(string $contextId, string $lineItemId, int $page = null, int $limit = null)
+    public function __construct(string $contextId, string $lineItemId)
     {
         $this->contextId = $contextId;
         $this->lineItemId = $lineItemId;
-        $this->page = $page;
-        $this->limit = $limit;
     }
 
     public function getContextId(): string
@@ -52,15 +44,5 @@ class ResultGetQuery
     public function getLineItemId(): ?string
     {
         return $this->lineItemId;
-    }
-
-    public function getPage(): ?int
-    {
-        return $this->page;
-    }
-
-    public function getLimit(): ?int
-    {
-        return $this->limit;
     }
 }

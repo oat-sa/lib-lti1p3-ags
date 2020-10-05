@@ -20,10 +20,8 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Validator;
+namespace OAT\Library\Lti1p3Ags\Model;
 
-interface RequestDataValidatorInterface
+class PartialLineItemContainer extends LineItemContainer
 {
-    public function validate(array $requestData): void;
-
 }

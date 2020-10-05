@@ -20,14 +20,22 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Validator;
+namespace OAT\Library\Lti1p3Ags\Exception;
 
-class RequestDataScoreValidator implements RequestDataValidatorInterface
+use Exception;
+
+class AgsHttpException extends Exception
 {
-    public function validate(array $requestData): void
+    private const REASON_PHARSES = [
+        400 => 'Bad Request',
+        401 => 'Unauthorized',
+        405 => 'Method not allowed',
+        422 => 'Unprocessable Entity',
+        500 => 'Internal Error',
+    ];
+
+    public function getReasonPhrase(): ?string
     {
-        if (empty(array_keys($requestData, ['userId', 'contextId', 'lineItem'], true))) {
-            throw new ValidationException();
-        }
+        return self::REASON_PHARSES[$this->getCode()] ?? null;
     }
 }

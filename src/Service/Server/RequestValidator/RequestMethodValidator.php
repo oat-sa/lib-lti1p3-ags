@@ -20,21 +20,30 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Repository;
+namespace OAT\Library\Lti1p3Ags\Service\Server\RequestValidator;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem;
-use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\ResultGetQuery;
+use Psr\Http\Message\ServerRequestInterface;
 
-interface LineItemRepository
+class RequestMethodValidator implements RequestValidatorInterface
 {
-    public function create(LineItem $lineItem): void;
+    /** @var string */
+    private $httpMethod;
 
-    public function findOne(ResultGetQuery $query): LineItem;
+    public function __construct(string $httpMethod)
+    {
+        $this->httpMethod = $httpMethod;
+    }
 
-    public function findAll(ResultGetQuery $query): LineItemContainer;
-
-    public function delete(ResultGetQuery $query): void;
-
-    public function update(LineItem $lineItem): void;
+    /**
+     * @throws RequestValidatorException
+     */
+    public function validate(ServerRequestInterface $request): void
+    {
+        if (strtolower($request->getMethod()) !== $this->method) {
+            throw new RequestValidatorException(
+                sprintf('Expected http method is %s', $this->httpMethod),
+                405
+            );
+        }
+    }
 }

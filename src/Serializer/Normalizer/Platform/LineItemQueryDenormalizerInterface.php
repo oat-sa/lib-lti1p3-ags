@@ -20,9 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Validator;
+namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Plateform;
 
-interface ValidatorInterface
+use OAT\Library\Lti1p3Ags\Service\LineItem\Query\LineItemQuery;
+
+interface LineItemQueryDenormalizerInterface
 {
-    public function validate(array $requestData): void;
+    public function denormalize(array $data): LineItemQuery;
 }

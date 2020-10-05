@@ -24,12 +24,11 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\Score;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
-use OAT\Library\Lti1p3Ags\Factory\ScoreFactory;
-use OAT\Library\Lti1p3Ags\Factory\ScoreFactoryInterface;
-use OAT\Library\Lti1p3Ags\Repository\ScoreRepository;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\RequestScoreNormalizer;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\RequestScoreNormalizerInterface;
-use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemCreateService;
+use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestMethodValidator;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorAggregator;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -43,53 +42,59 @@ class ScoreCreateServer implements RequestHandlerInterface
     /** @var LoggerInterface */
     private $logger;
 
+    /** @var AccessTokenRequestValidator */
+    private $validator;
+
     /** @var ResponseFactory */
     private $factory;
 
-    /** @var RequestScoreNormalizerInterface */
-    private $normalizer;
-    /** @var AccessTokenRequestValidator */
-    private $validator;
-    /** @var ScoreRepository */
-    private $repository;
-
     public function __construct(
         AccessTokenRequestValidator $validator,
-        ScoreRepository $repository,
-        ?LoggerInterface $logger,
-        ?RequestScoreNormalizerInterface $normalizer,
-        ?ResponseFactory $factory
-    )
-    {
-        $this->logger = $logger ?? new NullLogger();
+        ResponseFactory $factory = null,
+        LoggerInterface $logger = null
+    ) {
+        $this->validator = $this->aggregateValidator($validator);
         $this->factory = $factory ?? new HttplugFactory();
-        $this->normalizer = $normalizer ?? new RequestScoreNormalizer();
-        $this->validator = $validator;
-        $this->repository = $repository;
+        $this->logger = $logger ?? new NullLogger();
     }
-
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $responseHeaders = [];
-        $responseBody = '';
-
-        $validationResult = $this->validator->validate($request);
-
-        if ($validationResult->hasError()) {
-            $this->logger->error($validationResult->getError());
-
-            return $this->factory->createResponse(401, null, [], $validationResult->getError());
-        }
-
         try {
-            $score = $this->normalizer->normalize($request);
-            $this->repository->createFromScore($score);
+            $this->validator->validate($request);
+
+            $responseBody = 'Processed !';
+            $responseCode = 200;
+
+            $responseHeaders = [
+                'Content-Type' => 'application/json',
+                'Content-length' => strlen($responseBody),
+            ];
+
+            return $this->factory->createResponse($responseCode, null, $responseHeaders, $responseBody);
+
+        } catch (AgsHttpException $exception) {
+            $this->logger->error($exception->getMessage());
+
+            return $this->factory->createResponse(
+                $exception->getCode(),
+                $exception->getReasonPhrase(),
+                [],
+                $exception->getMessage()
+            );
+
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
-            $this->factory->createResponse(404, null, [], 'Could not save score');
-        }
 
-        return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
+            return $this->factory->createResponse(500, null, [], 'Internal server error');
+        }
+    }
+
+    private function aggregateValidator(AccessTokenRequestValidator $accessTokenValidator): RequestValidatorInterface
+    {
+        return new RequestValidatorAggregator([
+            new AccessTokenRequestValidatorDecorator($accessTokenValidator),
+            new RequestMethodValidator('post'),
+        ]);
     }
 }

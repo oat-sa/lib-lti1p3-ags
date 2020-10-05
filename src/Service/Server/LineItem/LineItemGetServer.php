@@ -24,6 +24,19 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
+use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
+use OAT\Library\Lti1p3Ags\Model\PartialLineItemContainer;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Plateform\LineItemQueryDenormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Plateform\LineItemQueryDenormalizerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemContainerNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemContainerNormalizerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizerInterface;
+use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestMethodValidator;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorAggregator;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -34,46 +47,103 @@ use Throwable;
 
 class LineItemGetServer implements RequestHandlerInterface
 {
-    /** @var LoggerInterface */
-    private $logger;
-
-    /** @var AccessTokenRequestValidator */
+    /** @var RequestValidatorInterface */
     private $validator;
+
+    /** @var LineItemGetServiceInterface  */
+    private $service;
+
+    /** @var LineItemQueryDenormalizer  */
+    private $queryNormalizer;
+
+    /** @var LineItemNormalizerInterface  */
+    private $lineItemNormalizer;
+
+    /** @var LineItemContainerNormalizerInterface  */
+    private $lineItemContainerNormalizer;
 
     /** @var ResponseFactory */
     private $factory;
 
+    /** @var LoggerInterface */
+    private $logger;
+
     public function __construct(
         AccessTokenRequestValidator $validator,
-        ResponseFactory $factory,
-        $logger
+        LineItemGetServiceInterface $service,
+        LineItemQueryDenormalizerInterface $queryNormalizer = null,
+        LineItemNormalizerInterface $lineItemNormalizer = null,
+        LineItemContainerNormalizerInterface $lineItemContainerNormalizer = null,
+        ResponseFactory $factory = null,
+        LoggerInterface $logger = null
     ) {
-        $this->validator = $validator;
+        $this->validator = $this->aggregateValidator($validator);
+        $this->service = $service;
+        $this->queryNormalizer = $queryNormalizer ?? new LineItemQueryDenormalizer();
+        $this->lineItemNormalizer = $lineItemNormalizer ?? new LineItemNormalizer();
+        $this->lineItemContainerNormalizer = $lineItemContainerNormalizer
+            ?? new LineItemContainerNormalizer($this->lineItemNormalizer);
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $validationResult = $this->validator->validate($request);
-
-        if ($validationResult->hasError()) {
-            $this->logger->error($validationResult->getError());
-
-            return $this->factory->createResponse(401, null, [], $validationResult->getError());
-        }
-
         try {
-            $responseBody = '';
+            $this->validator->validate($request);
+
+            parse_str($request->getUri()->getQuery(), $parameters);
+
+            $query = $this->queryNormalizer->denormalize($parameters);
+
+            $responseCode = 200;
+
+            if (!$query->hasLineItemId()) {
+                $lineItemContainer = $this->service->findAll($query);
+
+                $responseBody = $this->lineItemContainerNormalizer->normalize($lineItemContainer);
+
+                if ($lineItemContainer instanceof PartialLineItemContainer) {
+                    $responseCode = 206;
+                }
+
+            } else {
+                $responseBody = $this->lineItemNormalizer->normalize(
+                    $this->service->findOne($query)
+                );
+            }
+
+            $responseBody = json_encode($responseBody);
+
             $responseHeaders = [
+                'Content-Type' => 'application/json',
+                'Content-length' => strlen($responseBody),
             ];
 
-            return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
+            return $this->factory->createResponse($responseCode, null, $responseHeaders, $responseBody);
+
+        } catch (AgsHttpException $exception) {
+            $this->logger->error($exception->getMessage());
+
+            return $this->factory->createResponse(
+                $exception->getCode(),
+                $exception->getReasonPhrase(),
+                [],
+                $exception->getMessage()
+            );
 
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
 
-            return $this->factory->createResponse(500, null, [], 'Internal membership service error');
+            return $this->factory->createResponse(500, null, [], 'Internal server error');
         }
+    }
+
+    private function aggregateValidator(AccessTokenRequestValidator $accessTokenValidator): RequestValidatorInterface
+    {
+        return new RequestValidatorAggregator([
+            new AccessTokenRequestValidatorDecorator($accessTokenValidator),
+            new RequestMethodValidator('get'),
+        ]);
     }
 }

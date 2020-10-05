@@ -24,6 +24,11 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
+use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestMethodValidator;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorAggregator;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -45,35 +50,51 @@ class LineItemUpdateServer implements RequestHandlerInterface
 
     public function __construct(
         AccessTokenRequestValidator $validator,
-        ResponseFactory $factory,
-        $logger
+        ResponseFactory $factory = null,
+        LoggerInterface $logger = null
     ) {
-        $this->validator = $validator;
+        $this->validator = $this->aggregateValidator($validator);
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $validationResult = $this->validator->validate($request);
-
-        if ($validationResult->hasError()) {
-            $this->logger->error($validationResult->getError());
-
-            return $this->factory->createResponse(401, null, [], $validationResult->getError());
-        }
-
         try {
-            $responseBody = '';
+            $this->validator->validate($request);
+
+            $responseBody = 'Processed !';
+            $responseCode = 200;
+
             $responseHeaders = [
+                'Content-Type' => 'application/json',
+                'Content-length' => strlen($responseBody),
             ];
 
-            return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
+            return $this->factory->createResponse($responseCode, null, $responseHeaders, $responseBody);
+
+        } catch (AgsHttpException $exception) {
+            $this->logger->error($exception->getMessage());
+
+            return $this->factory->createResponse(
+                $exception->getCode(),
+                $exception->getReasonPhrase(),
+                [],
+                $exception->getMessage()
+            );
 
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
 
-            return $this->factory->createResponse(500, null, [], 'Internal membership service error');
+            return $this->factory->createResponse(500, null, [], 'Internal server error');
         }
+    }
+
+    private function aggregateValidator(AccessTokenRequestValidator $accessTokenValidator): RequestValidatorInterface
+    {
+        return new RequestValidatorAggregator([
+            new AccessTokenRequestValidatorDecorator($accessTokenValidator),
+            new RequestMethodValidator('put'),
+        ]);
     }
 }

@@ -20,29 +20,19 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Validator\RequestValidator;
+namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Plateform;
 
-use HttpException;
-use OAT\Library\Lti1p3Ags\Validator\RequestValidationException;
-use OAT\Library\Lti1p3Ags\Validator\RequestValidatorInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use OAT\Library\Lti1p3Ags\Service\LineItem\Query\LineItemQuery;
 
-class RequestParameterValidator implements RequestValidatorInterface
+class LineItemQueryDenormalizer implements LineItemQueryDenormalizerInterface
 {
-    /** @var array */
-    private $parameters;
-
-    public function __construct(string ...$parameteres)
+    public function denormalize(array $data): LineItemQuery
     {
-        $this->parameters = $parameteres;
-    }
+        $contextId = $data['contextId'] ?? null;
+        $lineItemId = $data['lineItemId'] ?? null;
+        $page = $data['page'] ?? null;
+        $limit = $data['limit'] ?? null;
 
-    public function validate(ServerRequestInterface $request): void
-    {
-        $data = json_decode($request->getParsedBody(), true);
-
-        if (!empty(array_diff(array_keys($data), $this->parameters))) {
-            throw new RequestValidationException('Parameters missing', 422);
-        }
+        return new LineItemQuery($contextId, $lineItemId, $page, $limit);
     }
 }

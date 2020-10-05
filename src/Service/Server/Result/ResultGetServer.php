@@ -24,9 +24,11 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\Result;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
-use OAT\Library\Lti1p3Ags\Repository\ResultRepository;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\RequestResultDenormalizer;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\RequestResultDenormalizerInterface;
+use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestMethodValidator;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorAggregator;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -45,53 +47,54 @@ class ResultGetServer implements RequestHandlerInterface
 
     /** @var ResponseFactory */
     private $factory;
-    /** @var RequestResultDenormalizerInterface */
-    private $denormalizer;
-    /** @var ResultRepository */
-    private $repository;
 
     public function __construct(
-        ResultRepository $repository,
         AccessTokenRequestValidator $validator,
-        RequestResultDenormalizerInterface $denormalizer,
-        ?ResponseFactory $factory,
-        ?LoggerInterface $logger
-    )
-    {
-        $this->validator = $validator;
+        ResponseFactory $factory = null,
+        LoggerInterface $logger = null
+    ) {
+        $this->validator = $this->aggregateValidator($validator);
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
-        $this->denormalizer = $denormalizer ?? new RequestResultDenormalizer();
-        $this->repository = $repository;
     }
-
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-
-        $responseBody = '';
-        $responseHeaders = [];
-
-        $validationResult = $this->validator->validate($request);
-
-        if ($validationResult->hasError()) {
-            $this->logger->error($validationResult->getError());
-
-            return $this->factory->createResponse(401, null, [], $validationResult->getError());
-        }
-
         try {
-            $requestData = $request->getParsedBody();
-            $result = $this->repository->findByLineItem($requestData['contextId'], $requestData['lineItemId']);
-            $payload = $this->denormalizer->denormalize($result);
+            $this->validator->validate($request);
 
-            return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
+            $responseBody = 'Processed !';
+            $responseCode = 200;
+
+            $responseHeaders = [
+                'Content-Type' => 'application/json',
+                'Content-length' => strlen($responseBody),
+            ];
+
+            return $this->factory->createResponse($responseCode, null, $responseHeaders, $responseBody);
+
+        } catch (AgsHttpException $exception) {
+            $this->logger->error($exception->getMessage());
+
+            return $this->factory->createResponse(
+                $exception->getCode(),
+                $exception->getReasonPhrase(),
+                [],
+                $exception->getMessage()
+            );
 
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
-            $this->factory->createResponse(404, null, [], 'Access Token not valid');
-        }
 
-        return $this->factory->createResponse(200, null, [], $payload);
+            return $this->factory->createResponse(500, null, [], 'Internal server error');
+        }
+    }
+
+    private function aggregateValidator(AccessTokenRequestValidator $accessTokenValidator): RequestValidatorInterface
+    {
+        return new RequestValidatorAggregator([
+            new AccessTokenRequestValidatorDecorator($accessTokenValidator),
+            new RequestMethodValidator('get'),
+        ]);
     }
 }

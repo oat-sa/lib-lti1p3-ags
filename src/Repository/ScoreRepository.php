@@ -22,15 +22,10 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Repository;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem;
+use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
 use OAT\Library\Lti1p3Ags\Model\Score;
 
-/**
- * @todo use QueryObject
- */
 interface ScoreRepository
 {
-    public function create(string $contextId, string $lineItemId, Score $score): LineItem;
-
-    public function createFromScore(Score $score): void;
+    public function create(Score $score): void;
 }

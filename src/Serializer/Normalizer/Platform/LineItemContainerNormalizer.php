@@ -22,30 +22,26 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
 
-use OAT\Library\Lti1p3Ags\Model\Result;
-use OAT\Library\Lti1p3Ags\Validator\RequestDataResultValidator;
-use OAT\Library\Lti1p3Ags\Validator\RequestDataValidatorInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
 
-class RequestResultDenormalizer implements RequestResultDenormalizerInterface
+class LineItemContainerNormalizer implements LineItemContainerNormalizerInterface
 {
-    /** @var RequestDataValidatorInterface */
-    private $validator;
+    /** @var LineItemNormalizer */
+    private $lineItemNormalizer;
 
-    public function __construct(?RequestDataValidatorInterface $validator)
+    public function __construct(LineItemNormalizer $lineItemNormalizer)
     {
-        $this->validator = $validator ?? new RequestDataResultValidator();
+        $this->lineItemNormalizer = $lineItemNormalizer;
     }
 
-    public function denormalize(Result $result): array
+    public function normalize(LineItemContainer $lineItemContainer): array
     {
-        return [
-            'id' => $result->getId(),
-            'userId' => $result->getUserId(),
-            'resultScore' => $result->getResultScore(),
-            'resultMaximum' => $result->getResultMaximum(),
-            'comment' => $result->getComment(),
-            'scoreOf' => $result->getScoreOf()
-        ];
+        $normalizedData = [];
+
+        foreach ($lineItemContainer->getLineItems() as $lineItem) {
+            $normalizedData[] = $this->lineItemNormalizer->normalize($lineItem);
+        }
+
+        return $normalizedData;
     }
 }

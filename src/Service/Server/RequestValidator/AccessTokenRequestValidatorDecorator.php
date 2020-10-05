@@ -20,25 +20,30 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Validator\RequestValidator;
+namespace OAT\Library\Lti1p3Ags\Service\Server\RequestValidator;
 
-use OAT\Library\Lti1p3Ags\Validator\RequestValidatorInterface;
+use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ServerRequestInterface;
 
-class HttpValidatorAggregator implements RequestValidatorInterface
+class AccessTokenRequestValidatorDecorator implements RequestValidatorInterface
 {
-    /** @var ServerRequestInterface[] */
-    private $validators;
+    /** @var AccessTokenRequestValidator */
+    private $validator;
 
-    public function __construct(RequestValidatorInterface ...$validators)
+    public function __construct(AccessTokenRequestValidator $validator)
     {
-        $this->validators = $validators;
+        $this->validator = $validator;
     }
 
+    /**
+     * @throws RequestValidatorException
+     */
     public function validate(ServerRequestInterface $request): void
     {
-        foreach ($this->validators as $validator) {
-            $validator->validate($request);
+        $validationResult = $this->validator->validate($request);
+
+        if ($validationResult->hasError()) {
+            throw new RequestValidatorException($validationResult->getError(), 401);
         }
     }
 }
