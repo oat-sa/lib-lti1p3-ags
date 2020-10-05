@@ -111,10 +111,6 @@ class LineItemGetServer implements RequestHandlerInterface
 
                 $responseBody = $this->lineItemContainerNormalizer->normalize($lineItemContainer);
 
-                if ($lineItemContainer instanceof PartialLineItemContainer) {
-                    $responseCode = 206;
-                }
-
             } else {
                 $responseBody = $this->lineItemNormalizer->normalize(
                     $this->service->findOne($query)

@@ -26,6 +26,7 @@ use IteratorAggregate;
 
 class LineItemContainer implements IteratorAggregate
 {
+    /** @var LineItem[] */
     private $lineItems;
 
     public function __construct(LineItem ...$lineItems)

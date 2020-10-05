@@ -20,11 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Factory;
+namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem;
+use OAT\Library\Lti1p3Ags\Model\Result;
 
-interface LineItemFactoryInterface
+interface ResultDenormalizerInterface
 {
-    public function build(array $data): LineItem;
+    public function denormalize(Result $result): array;
 }

@@ -28,7 +28,7 @@ class LineItemQueryDenormalizer implements LineItemQueryDenormalizerInterface
 {
     public function denormalize(array $data): LineItemQuery
     {
-        $contextId = $data['contextId'] ?? null;
+        $contextId = $data['contextId'];
         $lineItemId = $data['lineItemId'] ?? null;
         $page = $data['page'] ?? null;
         $limit = $data['limit'] ?? null;

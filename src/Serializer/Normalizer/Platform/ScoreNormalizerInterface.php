@@ -25,7 +25,7 @@ namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
 use OAT\Library\Lti1p3Ags\Model\Score;
 use Psr\Http\Message\ServerRequestInterface;
 
-interface RequestScoreNormalizerInterface
+interface ScoreNormalizerInterface
 {
     public function normalize(array $data): Score;
 }

@@ -27,7 +27,7 @@ class LineItemQuery
     /** @var string */
     private $contextId;
 
-    /** @var string|null */
+    /** @var string */
     private $lineItemId;
 
     /** @var integer */

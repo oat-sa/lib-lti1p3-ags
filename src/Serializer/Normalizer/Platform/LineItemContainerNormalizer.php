@@ -26,10 +26,10 @@ use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
 
 class LineItemContainerNormalizer implements LineItemContainerNormalizerInterface
 {
-    /** @var LineItemNormalizer */
+    /** @var LineItemNormalizerInterface */
     private $lineItemNormalizer;
 
-    public function __construct(LineItemNormalizer $lineItemNormalizer)
+    public function __construct(LineItemNormalizerInterface $lineItemNormalizer)
     {
         $this->lineItemNormalizer = $lineItemNormalizer;
     }
