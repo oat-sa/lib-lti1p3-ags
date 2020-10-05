@@ -20,19 +20,31 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Exception;
 
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\LineItemQuery;
+use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
+use PHPUnit\Framework\TestCase;
 
-class LineItemQueryDenormalizer implements LineItemQueryDenormalizerInterface
+class AgsHttpExceptionTest extends TestCase
 {
-    public function denormalize(array $data): LineItemQuery
+    /**
+     * @dataProvider getReasonPhraseFor401ExceptionProvider
+     */
+    public function testGetReasonPhrase(int $code, ?string $reasonPhrase): void
     {
-        $contextId = $data['contextId'];
-        $lineItemId = $data['lineItemId'] ?? null;
-        $page = $data['page'] ?? null;
-        $limit = $data['limit'] ?? null;
+        $exception = new AgsHttpException('some message', $code);
+        $this->assertSame($reasonPhrase, $exception->getReasonPhrase());
+    }
 
-        return new LineItemQuery($contextId, $lineItemId, $page, $limit);
+    public function getReasonPhraseFor401ExceptionProvider(): array
+    {
+        return [
+            [400, 'Bad Request'],
+            [401, 'Unauthorized'],
+            [405, 'Method not allowed'],
+            [422, 'Unprocessable Entity'],
+            [500, 'Internal Error'],
+            [999, null],
+        ];
     }
 }

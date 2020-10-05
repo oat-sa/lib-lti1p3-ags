@@ -20,19 +20,23 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model;
 
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\LineItemQuery;
+use OAT\Library\Lti1p3Ags\Model\LineItem;
+use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
+use PHPUnit\Framework\TestCase;
 
-class LineItemQueryDenormalizer implements LineItemQueryDenormalizerInterface
+class LineItemContainerTest extends TestCase
 {
-    public function denormalize(array $data): LineItemQuery
+    public function testGetIterator(): void
     {
-        $contextId = $data['contextId'];
-        $lineItemId = $data['lineItemId'] ?? null;
-        $page = $data['page'] ?? null;
-        $limit = $data['limit'] ?? null;
+        $iterator = [
+            $this->createMock(LineItem::class),
+            $this->createMock(LineItem::class)
+        ];
 
-        return new LineItemQuery($contextId, $lineItemId, $page, $limit);
+        $lineItemContainer = new LineItemContainer(...$iterator);
+
+        $this->assertSame($iterator, $lineItemContainer->getIterator());
     }
 }

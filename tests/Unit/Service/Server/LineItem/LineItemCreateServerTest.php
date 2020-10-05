@@ -20,19 +20,28 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\Score;
 
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\LineItemQuery;
+use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemCreateServer;
+use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestInterface;
 
-class LineItemQueryDenormalizer implements LineItemQueryDenormalizerInterface
+class LineItemCreateserverTest extends TestCase
 {
-    public function denormalize(array $data): LineItemQuery
-    {
-        $contextId = $data['contextId'];
-        $lineItemId = $data['lineItemId'] ?? null;
-        $page = $data['page'] ?? null;
-        $limit = $data['limit'] ?? null;
+    /** @var LineItemCreateServer */
+    private $subject;
 
-        return new LineItemQuery($contextId, $lineItemId, $page, $limit);
+    public function setUp()
+    {
+        $this->subject = new LineItemCreateServer();
+    }
+
+    public function testEndpointIsNotImplemented()
+    {
+        $response = $this->subject->handle(
+            $this->createMock(ServerRequestInterface::class)
+        );
+
+        $this->assertSame(501, $response->getStatusCode());
     }
 }

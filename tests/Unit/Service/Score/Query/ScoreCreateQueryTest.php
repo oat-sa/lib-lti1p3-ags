@@ -20,19 +20,24 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Score\Query;
 
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\LineItemQuery;
+use OAT\Library\Lti1p3Ags\Model\Score;
+use OAT\Library\Lti1p3Ags\Service\LineItem\Query\ScoreCreateQuery;
+use PHPUnit\Framework\TestCase;
 
-class LineItemQueryDenormalizer implements LineItemQueryDenormalizerInterface
+class ScoreCreateQueryTest extends TestCase
 {
-    public function denormalize(array $data): LineItemQuery
+    public function testScoreCreateQueryGetter()
     {
-        $contextId = $data['contextId'];
-        $lineItemId = $data['lineItemId'] ?? null;
-        $page = $data['page'] ?? null;
-        $limit = $data['limit'] ?? null;
+        $contextId = 'context-id';
+        $lineItemId = 'line-item-id';
+        $score = $this->createMock(Score::class);
 
-        return new LineItemQuery($contextId, $lineItemId, $page, $limit);
+        $lineItemQuery = new ScoreCreateQuery($contextId, $lineItemId, $score);
+
+        $this->assertSame($contextId, $lineItemQuery->getContextId());
+        $this->assertSame($lineItemId, $lineItemQuery->getLineItemId());
+        $this->assertSame($score, $lineItemQuery->getScore());
     }
 }
