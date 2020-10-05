@@ -29,7 +29,7 @@ class ScoreCreateQuery
     /** @var string */
     private $contextId;
 
-    /** @var string|null */
+    /** @var string */
     private $lineItemId;
 
     /** @var Score */
@@ -47,7 +47,7 @@ class ScoreCreateQuery
         return $this->contextId;
     }
 
-    public function getLineItemId(): ?string
+    public function getLineItemId(): string
     {
         return $this->lineItemId;
     }

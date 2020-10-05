@@ -27,7 +27,7 @@ class ResultGetQuery
     /** @var string */
     private $contextId;
 
-    /** @var string|null */
+    /** @var string */
     private $lineItemId;
 
     public function __construct(string $contextId, string $lineItemId)

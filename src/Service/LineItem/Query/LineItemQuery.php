@@ -27,13 +27,13 @@ class LineItemQuery
     /** @var string */
     private $contextId;
 
-    /** @var string */
+    /** @var string|null */
     private $lineItemId;
 
-    /** @var integer */
+    /** @var integer|null */
     private $page;
 
-    /** @var integer */
+    /** @var integer|null */
     private $limit;
 
     public function __construct(string $contextId, string $lineItemId = null, int $page = null, int $limit = null)
