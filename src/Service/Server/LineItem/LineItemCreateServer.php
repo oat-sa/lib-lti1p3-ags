@@ -29,8 +29,7 @@ use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemDenormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemDenormalizerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizerInterface;
-use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemCreateService;
-use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetService;
+use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemCreateServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestMethodValidator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorAggregator;
@@ -48,7 +47,7 @@ class LineItemCreateServer implements RequestHandlerInterface
     /** @var RequestValidatorInterface */
     private $validator;
 
-    /** @var LineItemGetService */
+    /** @var LineItemCreateServiceInterface */
     private $service;
 
     /** @var LineItemDenormalizerInterface */
@@ -65,7 +64,7 @@ class LineItemCreateServer implements RequestHandlerInterface
 
     public function __construct(
         AccessTokenRequestValidator $validator,
-        LineItemCreateService $service,
+        LineItemCreateServiceInterface $service,
         LineItemDenormalizerInterface $lineItemDenormalizer = null,
         LineItemNormalizerInterface $lineItemNormalizer = null,
         ResponseFactory $factory = null,
@@ -83,11 +82,10 @@ class LineItemCreateServer implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try {
+            // @TODO Missing get `contextId` from URI
             $this->validator->validate($request);
 
             $data = json_decode((string)$request->getBody(), true);
-
-            $responseCode = 200;
 
             $lineItem = $this->lineItemDenormalizer->denormalize($data);
 
@@ -95,27 +93,33 @@ class LineItemCreateServer implements RequestHandlerInterface
 
             $responseBody = json_encode($this->lineItemNormalizer->normalize($persistedLineItem));
 
-            $responseHeaders = [
-                'Content-Type' => 'application/json',
-                'Content-length' => strlen($responseBody),
-            ];
-
-            return $this->factory->createResponse($responseCode, null, $responseHeaders, $responseBody);
-
+            return $this->factory->createResponse(
+                201,
+                null,
+                [
+                    'Content-Type' => 'application/json',
+                    'Content-length' => strlen($responseBody),
+                ],
+                $responseBody
+            );
         } catch (AgsHttpException $exception) {
-            $this->logger->error($exception->getMessage());
-
             return $this->factory->createResponse(
                 $exception->getCode(),
                 $exception->getReasonPhrase(),
                 [],
                 $exception->getMessage()
             );
-
         } catch (Throwable $exception) {
-            $this->logger->error($exception->getMessage());
-
-            return $this->factory->createResponse(500, null, [], 'Internal membership service error');
+            return $this->factory->createResponse(
+                500,
+                null,
+                [],
+                'Internal membership service error'
+            );
+        } finally {
+            if (isset($exception)) {
+                $this->logger->error($exception->getMessage());
+            }
         }
     }
 
