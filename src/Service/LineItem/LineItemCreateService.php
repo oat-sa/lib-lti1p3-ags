@@ -20,17 +20,26 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Repository;
+namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
 use OAT\Library\Lti1p3Ags\Model\LineItem;
-use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\GetLineItemQuery;
+use OAT\Library\Lti1p3Ags\Repository\LineItemRepository;
 
-interface LineItemRepository
+class LineItemCreateService implements LineItemCreateServiceInterface
 {
-    public function findOne(GetLineItemQuery $query): LineItem;
+    /** @var LineItemRepository */
+    private $repository;
 
-    public function findAll(GetLineItemQuery $query): LineItemContainer;
+    public function __construct(LineItemRepository $repository)
+    {
+        $this->repository = $repository;
+    }
 
-    public function save(LineItem $query): void;
+    /**
+     * @inheritDoc
+     */
+    public function create(LineItem $lineItem): void
+    {
+        $this->repository->save($lineItem);
+    }
 }

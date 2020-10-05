@@ -20,17 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Repository;
+namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
 
 use OAT\Library\Lti1p3Ags\Model\LineItem;
-use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\GetLineItemQuery;
 
-interface LineItemRepository
+interface LineItemDenormalizerInterface
 {
-    public function findOne(GetLineItemQuery $query): LineItem;
-
-    public function findAll(GetLineItemQuery $query): LineItemContainer;
-
-    public function save(LineItem $query): void;
+    public function denormalize(array $data): LineItem;
 }
