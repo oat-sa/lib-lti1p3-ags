@@ -20,22 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Repository;
+namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
 use OAT\Library\Lti1p3Ags\Model\LineItem;
-use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\ResultGetQuery;
-use Throwable;
 
-interface LineItemRepository
+interface LineItemUpdateServiceInterface
 {
-    public function create(LineItem $lineItem): LineItem;
-
-    public function findOne(ResultGetQuery $query): LineItem;
-
-    public function findAll(ResultGetQuery $query): LineItemContainer;
-
-    public function delete(ResultGetQuery $query): void;
-
     public function update(LineItem $lineItem): void;
 }

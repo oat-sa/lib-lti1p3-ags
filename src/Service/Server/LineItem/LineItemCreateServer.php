@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 
 use Http\Message\ResponseFactory;
-use HttpException;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Factory\LineItemFactory;
 use OAT\Library\Lti1p3Ags\Factory\LineItemFactoryInterface;
@@ -36,7 +35,6 @@ use OAT\Library\Lti1p3Ags\Validator\RequestValidator\HttpValidatorAggregator;
 use OAT\Library\Lti1p3Ags\Validator\RequestValidator\MethodValidator;
 use OAT\Library\Lti1p3Ags\Validator\RequestValidator\RequestParameterValidator;
 use OAT\Library\Lti1p3Ags\Validator\RequestValidatorInterface;
-use OAT\Library\Lti1p3Ags\Validator\ValidationException;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;

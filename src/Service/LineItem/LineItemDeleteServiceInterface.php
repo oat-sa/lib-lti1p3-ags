@@ -22,17 +22,9 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
-use Http\Message\ResponseFactory;
-use Nyholm\Psr7\Factory\HttplugFactory;
-use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Log\LoggerInterface;
-use Psr\Log\NullLogger;
-use Throwable;
+use OAT\Library\Lti1p3Ags\Service\LineItem\Query\ResultGetQuery;
 
-class LineItemDeleteService
+interface LineItemDeleteServiceInterface
 {
-
+    public function delete(ResultGetQuery $lineItemQuery): void;
 }
