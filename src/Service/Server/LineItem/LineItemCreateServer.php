@@ -33,6 +33,7 @@ use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemCreateServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\CreateLineItemValidator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestMethodValidator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorAggregator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
@@ -90,7 +91,6 @@ class LineItemCreateServer implements RequestHandlerInterface
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try {
-            // @TODO Missing get `contextId` from URI
             $this->validator->validate($request);
 
             $data = array_merge(
@@ -141,6 +141,7 @@ class LineItemCreateServer implements RequestHandlerInterface
                 new AccessTokenRequestValidatorDecorator($accessTokenValidator),
                 new RequestMethodValidator('post'),
                 new RequiredContextIdValidator(),
+                new CreateLineItemValidator()
             ]
         );
     }

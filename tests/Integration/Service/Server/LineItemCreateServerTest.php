@@ -22,14 +22,15 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Integration\Service\LineItem;
 
+use Exception;
 use GuzzleHttp\Psr7\ServerRequest;
 use GuzzleHttp\Psr7\Utils;
-use OAT\Library\Lti1p3Ags\Repository\LineItemRepository;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemCreateServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemCreateServer;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Throwable;
 
 class LineItemCreateServerTest extends TestCase
 {
@@ -38,9 +39,6 @@ class LineItemCreateServerTest extends TestCase
 
     /** @var LineItemCreateServiceInterface|MockObject */
     private $service;
-
-    /** @var LineItemRepository */
-    private $repository;
 
     /** @var AccessTokenRequestValidator|MockObject */
     private $validator;
@@ -51,12 +49,7 @@ class LineItemCreateServerTest extends TestCase
         $this->validator = $this->createMock(AccessTokenRequestValidator::class);
         $this->subject = new LineItemCreateServer(
             $this->validator,
-            $this->service,
-            null,
-            null,
-            null,
-            null,
-            null
+            $this->service
         );
     }
 
@@ -68,11 +61,19 @@ class LineItemCreateServerTest extends TestCase
         $expectedResponseBody,
         string $requestMethod,
         string $url,
-        array $requestBody
+        array $requestBody,
+        Throwable $unhandledException = null
     ): void
     {
         $this->service
-            ->method('create');
+            ->method('create')
+            ->willReturnCallback(
+                function () use ($unhandledException): void {
+                    if ($unhandledException) {
+                        throw $unhandledException;
+                    }
+                }
+            );
 
         $request = new ServerRequest(
             $requestMethod,
@@ -100,28 +101,40 @@ class LineItemCreateServerTest extends TestCase
                 'expectedResponseBody' => 'Url path must contain contextId as first uri path part.',
                 'requestMethod' => 'POST',
                 'url' => '/',
-                'requestBody' => $this->createLineItem()
+                'requestBody' => $this->createLineItem(),
+                'unhandledException' => null
+            ],
+            'Required fields not provided' => [
+                'expectedStatusCode' => 400,
+                'expectedResponseBody' => 'All required fields were not provided',
+                'requestMethod' => 'POST',
+                'url' => $urlWithContext,
+                'requestBody' => [],
+                'unhandledException' => null
             ],
             'HTTP method not accepted' => [
                 'expectedStatusCode' => 405,
                 'expectedResponseBody' => 'Expected http method is post',
                 'requestMethod' => 'GET',
                 'url' => $urlWithContext,
-                'requestBody' => []
+                'requestBody' => [],
+                'unhandledException' => null
             ],
             'Internal error' => [
                 'expectedStatusCode' => 500,
                 'expectedResponseBody' => 'Internal AGS service error',
                 'requestMethod' => 'POST',
                 'contextId' => $urlWithContext,
-                'requestBody' => []
+                'requestBody' => $this->createLineItem(),
+                'unhandledException' => new Exception('Not handled exception')
             ],
             'LineItem Created successfully' => [
                 'expectedStatusCode' => 201,
-                'expectedResponseBody' => $this->createLineItem(),
+                'expectedResponseBody' => $this->createLineItemResponse(),
                 'requestMethod' => 'POST',
                 'contextId' => $urlWithContext,
-                'requestBody' => $this->createLineItem()
+                'requestBody' => $this->createLineItem(),
+                'unhandledException' => null
             ]
         ];
     }
@@ -129,7 +142,6 @@ class LineItemCreateServerTest extends TestCase
     private function createLineItem(): array
     {
         return [
-            'contextId' => 'myContextId',
             'scoreMaximum' => 100,
             'label' => 'My Label',
             'id' => 'myId',
@@ -139,5 +151,13 @@ class LineItemCreateServerTest extends TestCase
             'resourceId' => 'myResourceId',
             'resourceLinkId' => 'myResourceLinkId',
         ];
+    }
+
+    private function createLineItemResponse(): array
+    {
+        return array_merge(
+            ['contextId' => 'myContextId'],
+            self::createLineItem()
+        );
     }
 }
