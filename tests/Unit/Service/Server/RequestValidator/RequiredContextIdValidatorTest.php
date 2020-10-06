@@ -34,7 +34,7 @@ class RequiredContextIdValidatorTest extends TestCase
     /** @var RequiredContextIdValidator  */
     private $subject;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = new RequiredContextIdValidator();
     }

@@ -25,9 +25,6 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Model\PartialLineItemContainer;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemQueryDenormalizer;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemQueryDenormalizerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemContainerNormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemContainerNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizer;
@@ -59,9 +56,6 @@ class LineItemGetServer implements RequestHandlerInterface
     /** @var UrlParserInterface  */
     private $parser;
 
-    /** @var LineItemQueryDenormalizer  */
-    private $queryDenormalizer;
-
     /** @var LineItemNormalizerInterface  */
     private $lineItemNormalizer;
 
@@ -78,7 +72,6 @@ class LineItemGetServer implements RequestHandlerInterface
         AccessTokenRequestValidator $validator,
         LineItemGetServiceInterface $service,
         UrlParserInterface $parser = null,
-        LineItemQueryDenormalizerInterface $queryDenormalizer = null,
         LineItemNormalizerInterface $lineItemNormalizer = null,
         LineItemContainerNormalizerInterface $lineItemContainerNormalizer = null,
         ResponseFactory $factory = null,
@@ -87,7 +80,6 @@ class LineItemGetServer implements RequestHandlerInterface
         $this->validator = $this->aggregateValidator($validator);
         $this->service = $service;
         $this->parser = $parser ?? new UrlParser();
-        $this->queryDenormalizer = $queryDenormalizer ?? new LineItemQueryDenormalizer();
         $this->lineItemNormalizer = $lineItemNormalizer ?? new LineItemNormalizer();
         $this->lineItemContainerNormalizer = $lineItemContainerNormalizer ?? new LineItemContainerNormalizer($this->lineItemNormalizer);
         $this->factory = $factory ?? new HttplugFactory();
@@ -99,24 +91,20 @@ class LineItemGetServer implements RequestHandlerInterface
         try {
             $this->validator->validate($request);
 
-            $query = $this->queryDenormalizer->denormalize(
-                $this->parser->parse($request)
-            );
+            $data = $this->parser->parse($request);
 
-            $responseCode = 200;
+            $contextId = $data['contextId'];
+            $lineItemId = $data['lineItemId'] ?? null;
+            $page = $data['page'] ?? null;
+            $limit = $data['limit'] ?? null;
 
-            if (!$query->hasLineItemId()) {
-                $lineItemContainer = $this->service->findAll($query);
-
-                if ($lineItemContainer instanceof PartialLineItemContainer) {
-                    $responseCode = 206;
-                }
-
-                $responseBody = $this->lineItemContainerNormalizer->normalize($lineItemContainer);
-
+            if ($lineItemId !== null) {
+                $responseBody = $this->lineItemContainerNormalizer->normalize(
+                    $this->service->findAll($contextId, $page, $limit)
+                );
             } else {
                 $responseBody = $this->lineItemNormalizer->normalize(
-                    $this->service->findOne($query)
+                    $this->service->findOne($contextId, $lineItemId)
                 );
             }
 
@@ -127,7 +115,7 @@ class LineItemGetServer implements RequestHandlerInterface
                 'Content-length' => strlen($responseBody),
             ];
 
-            return $this->factory->createResponse($responseCode, null, $responseHeaders, $responseBody);
+            return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
 
         } catch (AgsHttpException $exception) {
             $this->logger->error($exception->getMessage());

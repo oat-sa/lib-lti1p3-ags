@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Score\Query;
 
-use OAT\Library\Lti1p3Ags\Model\Score;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\ScoreCreateQuery;
+use OAT\Library\Lti1p3Ags\Model\Score\Score;
+use OAT\Library\Lti1p3Ags\Service\Score\Query\ScoreCreateQuery;
 use PHPUnit\Framework\TestCase;
 
 class ScoreCreateQueryTest extends TestCase

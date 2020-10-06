@@ -37,7 +37,7 @@ class AccessTokenRequestValidatorDecoratorTest extends TestCase
     /** @var AccessTokenRequestValidator */
     private $validator;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->validator = $this->createMock(AccessTokenRequestValidator::class);
         $this->subject = new AccessTokenRequestValidatorDecorator($this->validator);

@@ -31,7 +31,7 @@ class LineItemCreateserverTest extends TestCase
     /** @var LineItemCreateServer */
     private $subject;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = new LineItemCreateServer();
     }

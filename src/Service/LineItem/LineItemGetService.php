@@ -22,36 +22,27 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
-use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Model\LineItem;
-use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
-use OAT\Library\Lti1p3Ags\Repository\LineItemRepository;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\LineItemQuery;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
+use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 
 class LineItemGetService implements LineItemGetServiceInterface
 {
-    /** @var LineItemRepository */
+    /** @var LineItemRepositoryInterface */
     private $repository;
 
-    public function __construct(LineItemRepository $repository)
+    public function __construct(LineItemRepositoryInterface $repository)
     {
         $this->repository = $repository;
     }
 
-    /**
-     * @throws AgsHttpException
-     */
-    public function findOne(LineItemQuery $query): LineItem
+    public function findAll(string $contextId, int $page = null, int $limit = null): LineItemContainer
     {
-        if (!$query->hasLineItemId()) {
-            throw new AgsHttpException('Missing "LineItemId" parameter.', 400);
-        }
-
-        return $this->repository->findOne($query);
+        return $this->repository->findAll($contextId, $page, $limit);
     }
 
-    public function findAll(LineItemQuery $query): LineItemContainer
+    public function findOne(string $contextId, string $lineItemId): LineItem
     {
-        return $this->repository->findAll($query);
+        return $this->repository->findOne($contextId, $lineItemId);
     }
 }
