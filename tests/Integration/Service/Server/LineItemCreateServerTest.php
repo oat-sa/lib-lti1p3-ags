@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\LineItem;
+namespace OAT\Library\Lti1p3Ags\Tests\Integration\Service\LineItem;
 
 use GuzzleHttp\Psr7\ServerRequest;
 use GuzzleHttp\Psr7\Utils;
