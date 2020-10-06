@@ -24,7 +24,6 @@ namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Normalizer\Tool;
 
 use Carbon\Carbon;
 use OAT\Library\Lti1p3Ags\Factory\ScoreFactory;
-use OAT\Library\Lti1p3Ags\Model\Score;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScoreNormalizer;
 use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 use PHPUnit\Framework\TestCase;

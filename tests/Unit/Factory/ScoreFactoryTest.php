@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace Unit\Factory;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Factory;
 
 use Carbon\Carbon;
 use InvalidArgumentException;

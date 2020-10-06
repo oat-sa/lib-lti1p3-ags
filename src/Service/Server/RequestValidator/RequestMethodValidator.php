@@ -39,7 +39,7 @@ class RequestMethodValidator implements RequestValidatorInterface
      */
     public function validate(ServerRequestInterface $request): void
     {
-        if (strtolower($request->getMethod()) !== $this->httpMethod) {
+        if (strtolower($request->getMethod()) !== strtolower($this->httpMethod)) {
             throw new RequestValidatorException(
                 sprintf('Expected http method is %s', $this->httpMethod),
                 405

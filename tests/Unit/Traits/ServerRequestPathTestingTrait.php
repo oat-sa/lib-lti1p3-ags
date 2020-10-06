@@ -20,27 +20,27 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Service\Server\RequestValidator;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Traits;
 
-use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
-use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 
-class RequiredLineItemIdValidator implements RequestValidatorInterface
+trait ServerRequestPathTestingTrait
 {
-    private $parser;
-
-    public function __construct(UrlParserInterface $parser = null)
+    private function getMockForServerRequestWithPath(string $path): ServerRequestInterface
     {
-        $this->parser = $parser ?? new UrlParser();
-    }
+        $uri = $this->createMock(UriInterface::class);
+        $uri
+            ->expects($this->once())
+            ->method('getPath')
+            ->willReturn($path);
 
-    public function validate(ServerRequestInterface $request): void
-    {
-        $data = $this->parser->parse($request);
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request
+            ->expects($this->once())
+            ->method('getUri')
+            ->willReturn($uri);
 
-        if ($data['lineItemId'] === null) {
-            throw new RequestValidatorException('Url path must contain lienItemId as third uri path part.', 400);
-        }
+        return $request;
     }
 }

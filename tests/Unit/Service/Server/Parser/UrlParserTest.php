@@ -23,12 +23,13 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\Parser;
 
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
+use OAT\Library\Lti1p3Ags\Tests\Unit\Traits\ServerRequestPathTestingTrait;
 use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Message\UriInterface;
 
 class UrlParserTest extends TestCase
 {
+    use ServerRequestPathTestingTrait;
+
     private $subject;
 
     public function setUp()
@@ -73,23 +74,9 @@ class UrlParserTest extends TestCase
             [
                 '/toto/lineItem', ['contextId' => 'toto', 'lineItemId' => null]
             ],
+            [
+                'toto/lineItem/abcdef/another/action', ['contextId' => 'toto', 'lineItemId' => 'abcdef']
+            ],
         ];
-    }
-
-    private function getMockForServerRequestWithPath(string $path): ServerRequestInterface
-    {
-        $uri = $this->createMock(UriInterface::class);
-        $uri
-            ->expects($this->once())
-            ->method('getPath')
-            ->willReturn($path);
-
-        $request = $this->createMock(ServerRequestInterface::class);
-        $request
-            ->expects($this->once())
-            ->method('getUri')
-            ->willReturn($uri);
-
-        return $request;
     }
 }
