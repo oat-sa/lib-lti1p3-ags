@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorException;
@@ -40,23 +39,10 @@ class LineItemCreateService implements LineItemCreateServiceInterface
     /**
      * @inheritDoc
      */
-    public function create(LineItemInterface $lineItem): void //@TODO Use LineItemInterface instead
+    public function create(LineItemInterface $lineItem): void
     {
-        //@TODO Add extra domain validations here (check specs)
-
-        /*
-        {
-          "startDateTime": "2020-10-06T13:59:10.213Z",
-          "endDateTime": "2020-10-06T13:59:10.213Z",
-          "scoreMaximum": 0,
-          "label": "string",
-          "tag": "string",
-          "resourceId": "string",
-          "resourceLinkId": "string"
-        }
-        */
-
-        if ($lineItem->getStartDateTime() > $lineItem->getEndDateTime()) {
+        if ($lineItem->getStartDateTime() && $lineItem->getStartDateTime() &&
+            ($lineItem->getStartDateTime() > $lineItem->getEndDateTime())) {
             throw new RequestValidatorException(
                 sprintf(
                     'Value of startDateTime (%s) time should be lower or equal than endDateTime (%s)',

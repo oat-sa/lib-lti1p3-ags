@@ -22,9 +22,11 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\LineItem;
 
+use DateTimeImmutable;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemCreateService;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorException;
 use PHPUnit\Framework\TestCase;
 
 class LineItemCreateServiceTest extends TestCase
@@ -49,6 +51,29 @@ class LineItemCreateServiceTest extends TestCase
             ->expects($this->once())
             ->method('create')
             ->with($lineItem);
+
+        $this->subject->create($lineItem);
+    }
+
+    public function testCreateWithInvalidDates(): void
+    {
+        $lineItem = new LineItem(
+            'someId',
+            100,
+            'label',
+            null,
+            new DateTimeImmutable('tomorrow'),
+            new DateTimeImmutable('today')
+        );
+
+        $this->expectException(RequestValidatorException::class);
+        $this->expectExceptionMessage(
+            sprintf(
+                'Value of startDateTime (%s) time should be lower or equal than endDateTime (%s)',
+                $lineItem->getStartDateTime()->format('Y-m-d H:i:s'),
+                $lineItem->getEndDateTime()->format('Y-m-d H:i:s')
+            )
+        );
 
         $this->subject->create($lineItem);
     }
