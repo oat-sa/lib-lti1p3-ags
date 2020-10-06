@@ -93,7 +93,10 @@ class LineItemCreateServer implements RequestHandlerInterface
             // @TODO Missing get `contextId` from URI
             $this->validator->validate($request);
 
-            $data = json_decode((string)$request->getBody(), true);
+            $data = array_merge(
+                json_decode((string)$request->getBody(), true),
+                $this->urlParser->parse($request)
+            );
 
             $lineItem = $this->lineItemDenormalizer->denormalize($data);
 
@@ -118,6 +121,9 @@ class LineItemCreateServer implements RequestHandlerInterface
                 $exception->getMessage()
             );
         } catch (Throwable $exception) {
+
+            var_dump($exception->getMessage()); //FIXME
+
             return $this->factory->createResponse(
                 500,
                 null,
@@ -134,7 +140,7 @@ class LineItemCreateServer implements RequestHandlerInterface
     private function aggregateValidator(AccessTokenRequestValidator $accessTokenValidator): RequestValidatorInterface
     {
         return new RequestValidatorAggregator(
-            [
+            ...[
                 new AccessTokenRequestValidatorDecorator($accessTokenValidator),
                 new RequestMethodValidator('post'),
                 new RequiredContextIdValidator(),
