@@ -29,6 +29,14 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class CreateLineItemValidatorTest extends TestCase
 {
+    /** @var CreateLineItemValidator */
+    private $validator;
+
+    public function setUp(): void
+    {
+        $this->validator = new CreateLineItemValidator();
+    }
+
     public function testValidateWithCorrectDataDoesNotThrowException(): void
     {
         $request = $this->createMock(ServerRequestInterface::class);
@@ -49,7 +57,7 @@ class CreateLineItemValidatorTest extends TestCase
                 )
             );
 
-        $this->assertNull((new CreateLineItemValidator())->validate($request));
+        $this->assertNull($this->validator->validate($request));
     }
 
     public function testValidateInvalidJson(): void
@@ -62,7 +70,7 @@ class CreateLineItemValidatorTest extends TestCase
         $this->expectException(RequestValidatorException::class);
         $this->expectExceptionMessage('Invalid json: Syntax error');
 
-        (new CreateLineItemValidator())->validate($request);
+        $this->validator->validate($request);
     }
 
     public function testValidateMissingParameters(): void
@@ -75,6 +83,41 @@ class CreateLineItemValidatorTest extends TestCase
         $this->expectException(RequestValidatorException::class);
         $this->expectExceptionMessage('All required fields were not provided');
 
-        (new CreateLineItemValidator())->validate($request);
+        $this->validator->validate($request);
+    }
+
+    /**
+     * @dataProvider getNotEmptyValidators
+     */
+    public function testValidateEmptyParameters(string $emptyField): void
+    {
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request->expects($this->once())
+            ->method('getBody')
+            ->willReturn(
+                json_encode(
+                    [
+                        'scoreMaximum' => 100,
+                        'label' => 'My Label',
+                        $emptyField => ''
+                    ]
+                )
+            );
+
+        $this->expectException(RequestValidatorException::class);
+        $this->expectExceptionMessage(sprintf('Field %s cannot have an empty value', $emptyField));
+
+        $this->validator->validate($request);
+    }
+
+    public function getNotEmptyValidators(): array
+    {
+        return [
+            ['startDateTime'],
+            ['endDateTime'],
+            ['tag'],
+            ['resourceId'],
+            ['resourceLinkId'],
+        ];
     }
 }

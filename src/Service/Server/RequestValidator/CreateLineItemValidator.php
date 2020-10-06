@@ -50,11 +50,29 @@ class CreateLineItemValidator implements RequestValidatorInterface
             );
         }
 
-        //@TODO Check better way to validate these fields
-        //$data['startDateTime'],
-        //$data['endDateTime'],
-        //$data['tag'],
-        //$data['resourceId'],
-        //$data['resourceLinkId']
+        $notEmptyFields = [
+            'startDateTime',
+            'endDateTime',
+            'tag',
+            'resourceId',
+            'resourceLinkId'
+        ];
+
+        foreach ($notEmptyFields as $field) {
+            if ($this->isEmptyIfProvided($field, $data)) {
+                throw new RequestValidatorException(
+                    sprintf(
+                        'Field %s cannot have an empty value',
+                        $field
+                    ),
+                    400
+                );
+            }
+        }
+    }
+
+    private function isEmptyIfProvided(string $field, array $data): bool
+    {
+        return array_key_exists($field, $data) && empty($data[$field]);
     }
 }
