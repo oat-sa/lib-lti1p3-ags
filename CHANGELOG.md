@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+2.0.0
+-----
+
+* Upgraded for oat-sa/lib-lti1p3-core version 3.0.0
+* Prepared Travis integration
+* Updated documentation
+
 1.1.1
 -----
 
