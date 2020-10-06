@@ -43,7 +43,7 @@ class LineItemCreateServerTest extends TestCase
     /** @var AccessTokenRequestValidator|MockObject */
     private $validator;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->service = $this->createMock(LineItemCreateServiceInterface::class);
         $this->validator = $this->createMock(AccessTokenRequestValidator::class);

@@ -23,12 +23,12 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
 use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
 interface LineItemCreateServiceInterface
 {
     /**
      * @throws AgsHttpException
      */
-    public function create(LineItem $lineItem): void;
+    public function create(LineItemInterface $lineItem): void;
 }

@@ -23,14 +23,15 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
 
 use DateTimeImmutable;
-use OAT\Library\Lti1p3Ags\Model\LineItem;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 
 class LineItemDenormalizer implements LineItemDenormalizerInterface
 {
     use DateConverterTrait;
 
-    public function denormalize(array $data): LineItem
+    public function denormalize(array $data): LineItemInterface
     {
         return new LineItem(
             (string)$data['contextId'],

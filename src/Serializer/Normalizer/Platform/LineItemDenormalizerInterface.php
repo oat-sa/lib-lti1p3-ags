@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
 interface LineItemDenormalizerInterface
 {
-    public function denormalize(array $data): LineItem;
+    public function denormalize(array $data): LineItemInterface;
 }

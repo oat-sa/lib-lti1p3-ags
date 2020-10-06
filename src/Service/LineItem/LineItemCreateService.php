@@ -22,17 +22,17 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem;
-use OAT\Library\Lti1p3Ags\Repository\LineItemRepository;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorException;
 
 class LineItemCreateService implements LineItemCreateServiceInterface
 {
-    /** @var LineItemRepository */
+    /** @var LineItemRepositoryInterface */
     private $repository;
 
-    //@TODO Rename LineItemRepositoryInterface
-    public function __construct(LineItemRepository $repository)
+    public function __construct(LineItemRepositoryInterface $repository)
     {
         $this->repository = $repository;
     }
@@ -40,7 +40,7 @@ class LineItemCreateService implements LineItemCreateServiceInterface
     /**
      * @inheritDoc
      */
-    public function create(LineItem $lineItem): void //@TODO Use LineItemInterface instead
+    public function create(LineItemInterface $lineItem): void //@TODO Use LineItemInterface instead
     {
         //@TODO Add extra domain validations here (check specs)
 
