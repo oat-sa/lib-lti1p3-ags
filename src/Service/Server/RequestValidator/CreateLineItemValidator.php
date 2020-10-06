@@ -33,7 +33,7 @@ class CreateLineItemValidator implements RequestValidatorInterface
     {
         $data = json_decode((string)$request->getBody(), true);
 
-        if ($data === false) {
+        if ($data === null) {
             throw new RequestValidatorException(
                 sprintf(
                     'Invalid json: %s',
