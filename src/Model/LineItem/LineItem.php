@@ -20,12 +20,15 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model;
+namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
 use DateTimeInterface;
 use InvalidArgumentException;
 
-class LineItem
+/**
+ * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
+ */
+class LineItem implements LineItemInterface
 {
     public const PARAMETER_MAX_LENGTH = 256;
 
@@ -124,7 +127,7 @@ class LineItem
         return $this->resourceLinkId;
     }
 
-    public function setTag(?string $tag): self
+    public function setTag(?string $tag): LineItemInterface
     {
         $this->checkParameterMaxLength('tag', $tag);
         $this->tag = $tag;
@@ -132,7 +135,7 @@ class LineItem
         return $this;
     }
 
-    public function setResourceId(?string $resourceId): self
+    public function setResourceId(?string $resourceId): LineItemInterface
     {
         $this->checkParameterMaxLength('resourceId', $resourceId);
         $this->resourceId = $resourceId;

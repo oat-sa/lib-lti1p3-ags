@@ -20,44 +20,67 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Client;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Score\Client;
 
 use InvalidArgumentException;
-use OAT\Library\Lti1p3Ags\Model\Score;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScoreNormalizer;
-use OAT\Library\Lti1p3Ags\Service\Client\ScoreServiceClient;
-use OAT\Library\Lti1p3Ags\Tests\Unit\Traits\DomainTestingTrait;
-use OAT\Library\Lti1p3Core\Message\Claim\AgsClaim;
-use OAT\Library\Lti1p3Core\Service\Client\ServiceClient;
+use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
+use OAT\Library\Lti1p3Ags\Serializer\Score\Normalizer\ScoreNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\Score\Normalizer\ScoreNormalizerInterface;
+use OAT\Library\Lti1p3Ags\Service\Score\Client\ScoreServiceClient;
+use OAT\Library\Lti1p3Ags\Service\Score\ScoreServiceInterface;
+use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
+use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use OAT\Library\Lti1p3Core\Message\Payload\Claim\AgsClaim;
+use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
+use OAT\Library\Lti1p3Core\Service\Client\ServiceClientInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class ScoreServiceClientTest extends TestCase
 {
-    use DomainTestingTrait;
+    use AgsDomainTestingTrait;
 
-    /** @var ServiceClient */
+    /** @var ServiceClientInterface|MockObject */
     private $serviceClientMock;
 
-    /** @var ServiceClient */
-    private $subject;
-
-    /** @var ScoreNormalizer */
+    /** @var ScoreNormalizerInterface */
     private $scoreNormalizer;
+
+    /** @var ScoreServiceClient */
+    private $subject;
 
     protected function setUp(): void
     {
-        $this->serviceClientMock = $this->createMock(ServiceClient::class);
+        $this->serviceClientMock = $this->createMock(ServiceClientInterface::class);
         $this->scoreNormalizer = new ScoreNormalizer();
 
-        $this->subject = new ScoreServiceClient($this->scoreNormalizer, $this->serviceClientMock);
+        $this->subject = new ScoreServiceClient($this->serviceClientMock, $this->scoreNormalizer);
+    }
+
+    public function testAuthorizationScopeScoreConstant(): void
+    {
+        $this->assertEquals(
+            'https://purl.imsglobal.org/spec/lti-ags/scope/score',
+            ScoreServiceInterface::AUTHORIZATION_SCOPE_SCORE
+        );
     }
 
     /**
      * @dataProvider validProvidedInputDataProvider
      */
-    public function testItWillPublish(AgsClaim $agsClaim, Score $score, ?array $scopes, string $expectedLineItemUrl): void
-    {
+    public function testPublishForPayload(
+        AgsClaim $agsClaim,
+        ScoreInterface $score,
+        string $expectedLineItemUrl
+    ): void {
+
         $registration = $this->createTestRegistration();
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->any())
+            ->method('getAgs')
+            ->willReturn($agsClaim);
 
         $this->serviceClientMock
             ->expects($this->once())
@@ -72,7 +95,7 @@ class ScoreServiceClientTest extends TestCase
                 ]
             );
 
-        $this->subject->publish($registration, $agsClaim, $score, $scopes);
+        $this->subject->publishForPayload($registration, $payload, $score);
     }
 
     public function validProvidedInputDataProvider(): array
@@ -89,34 +112,6 @@ class ScoreServiceClientTest extends TestCase
                     'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
                 ),
                 $this->createScore(),
-                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
-                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
-            ],
-            'Data for AGS claim with no scope' => [
-                new AgsClaim(
-                    [
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
-                    ],
-                    'https://www.myuniv.example.com/2344/lineitems/',
-                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
-                ),
-                $this->createScore(),
-                null,
-                'https://www.myuniv.example.com/2344/lineitems/1234/scores'
-            ],
-            'Data for AGS claim without score scope from claim' => [
-                new AgsClaim(
-                    [
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
-                    ],
-                    'https://www.myuniv.example.com/2344/lineitems/',
-                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
-                ),
-                $this->createScore(),
-                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
                 'https://www.myuniv.example.com/2344/lineitems/1234/scores'
             ],
             'Data with lineItemUrl with user' => [
@@ -130,10 +125,9 @@ class ScoreServiceClientTest extends TestCase
                     'https://user@www.myuniv.example.com/2344/lineitems/1234/lineitem'
                 ),
                 $this->createScore(),
-                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
                 'https://user@www.myuniv.example.com/2344/lineitems/1234/scores'
             ],
-            'Data with lineItemUrl with user+pass' => [
+            'Data with lineItemUrl with user and password' => [
                 new AgsClaim(
                     [
                         'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
@@ -144,7 +138,6 @@ class ScoreServiceClientTest extends TestCase
                     'https://user:pass@www.myuniv.example.com/2344/lineitems/1234/lineitem'
                 ),
                 $this->createScore(),
-                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
                 'https://user:pass@www.myuniv.example.com/2344/lineitems/1234/scores'
             ],
             'Data with lineItemUrl with port' => [
@@ -158,7 +151,6 @@ class ScoreServiceClientTest extends TestCase
                     'https://www.myuniv.example.com:1988/2344/lineitems/1234/lineitem'
                 ),
                 $this->createScore(),
-                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
                 'https://www.myuniv.example.com:1988/2344/lineitems/1234/scores'
             ],
             'Data with lineItemUrl ending with /' => [
@@ -172,20 +164,19 @@ class ScoreServiceClientTest extends TestCase
                     'https://www.myuniv.example.com/2344/lineitems/1234/lineitem/'
                 ),
                 $this->createScore(),
-                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
                 'https://www.myuniv.example.com/2344/lineitems/1234/scores'
             ],
-            'Data with lineItemUrl ending without lineitem' => [
+            'Data with lineItemUrl ending without line item' => [
                 new AgsClaim(
                     [
                         'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
                         'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
                     ],
                     'https://www.myuniv.example.com/2344/lineitems/',
                     'https://www.myuniv.example.com/2344/lineitems/1234/'
                 ),
                 $this->createScore(),
-                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
                 'https://www.myuniv.example.com/2344/lineitems/1234/scores'
             ],
             'Data with lineItemUrl ending with parameters' => [
@@ -193,12 +184,12 @@ class ScoreServiceClientTest extends TestCase
                     [
                         'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
                         'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
                     ],
                     'https://www.myuniv.example.com/2344/lineitems/',
                     'https://www.myuniv.example.com/2344/lineitems/1234/lineitem?param1=value1&param2=value2'
                 ),
                 $this->createScore(),
-                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
                 'https://www.myuniv.example.com/2344/lineitems/1234/scores?param1=value1&param2=value2'
             ],
             'Data with lineItemUrl ending with /parameters' => [
@@ -206,12 +197,12 @@ class ScoreServiceClientTest extends TestCase
                     [
                         'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
                         'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
                     ],
                     'https://www.myuniv.example.com/2344/lineitems/',
                     'https://www.myuniv.example.com/2344/lineitems/1234/lineitem/?param1=value1&param2=value2'
                 ),
                 $this->createScore(),
-                ['https://purl.imsglobal.org/spec/lti-ags/scope/score'],
                 'https://www.myuniv.example.com/2344/lineitems/1234/scores?param1=value1&param2=value2'
             ]
         ];
@@ -220,7 +211,7 @@ class ScoreServiceClientTest extends TestCase
     public function testItWillThrowsAnExceptionIfLineItemUrlIsNotSet(): void
     {
         $registration = $this->createTestRegistration();
-        $score = $this->createScore();
+
         $agsClaim = new AgsClaim(
             [
                 'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
@@ -231,75 +222,21 @@ class ScoreServiceClientTest extends TestCase
             null
         );
 
-        $this->serviceClientMock
-            ->expects($this->never())
-            ->method('request');
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->any())
+            ->method('getAgs')
+            ->willReturn($agsClaim);
 
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('The line item url required to send the score is not defined');
-
-        $this->subject->publish($registration, $agsClaim, $score);
-    }
-
-    public function testAuthorizationScopeScoreConstant(): void
-    {
-        $this->assertEquals(
-            'https://purl.imsglobal.org/spec/lti-ags/scope/score',
-            $this->subject::AUTHORIZATION_SCOPE_SCORE
-        );
-    }
-
-    /**
-     * @dataProvider invalidProvidedInputDataProvider
-     */
-    public function testItWillThrowsAnExceptionIfWrongScopeIsGiven(
-        AgsClaim $agsClaim,
-        Score $score,
-        string $errorMessage,
-        array $scopes = null
-    ): void {
-        $registration = $this->createTestRegistration();
+        $score = $this->createScore();
 
         $this->serviceClientMock
             ->expects($this->never())
             ->method('request');
 
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage($errorMessage);
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot publish score for payload: Provided payload AGS claim does not contain a line item url');
 
-        $this->subject->publish($registration, $agsClaim, $score, $scopes);
-    }
-
-    public function invalidProvidedInputDataProvider(): array
-    {
-        return [
-            [
-                new AgsClaim(
-                    [
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/score'
-                    ],
-                    'https://www.myuniv.example.com/2344/lineitems/',
-                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
-                ),
-                $this->createScore(),
-                'The provided scopes https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly is not valid. The only scope allowed is https://purl.imsglobal.org/spec/lti-ags/scope/score',
-                ['https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly'],
-            ],
-            [
-                new AgsClaim(
-                    [
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
-                        'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
-                    ],
-                    'https://www.myuniv.example.com/2344/lineitems/',
-                    'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
-                ),
-                $this->createScore(),
-                'The provided scopes https://purl.imsglobal.org/spec/lti-ags/scope/lineitem, https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly is not valid. The only scope allowed is https://purl.imsglobal.org/spec/lti-ags/scope/score',
-                null,
-            ]
-        ];
+        $this->subject->publishForPayload($registration, $payload, $score);
     }
 }

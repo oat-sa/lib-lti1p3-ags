@@ -20,15 +20,16 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model\Score;
 
 use Carbon\Carbon;
-use OAT\Library\Lti1p3Ags\Model\Score;
+use OAT\Library\Lti1p3Ags\Model\Score\Score;
+use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 use PHPUnit\Framework\TestCase;
 
 class ScoreTest extends TestCase
 {
-    /** @var Score */
+    /** @var ScoreInterface */
     private $score;
 
     public function setUp(): void

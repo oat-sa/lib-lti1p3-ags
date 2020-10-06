@@ -20,16 +20,16 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool;
+namespace OAT\Library\Lti1p3Ags\Serializer\Score\Normalizer;
 
-use OAT\Library\Lti1p3Ags\Model\Score;
+use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 
-class ScoreNormalizer
+class ScoreNormalizer implements ScoreNormalizerInterface
 {
     use DateConverterTrait;
 
-    public function normalize(Score $score): array
+    public function normalize(ScoreInterface $score): array
     {
         $scoreNormalized = [
             'userId' => $score->getUserId(),
