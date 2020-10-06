@@ -25,8 +25,7 @@ namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\LineItem;
 use Exception;
 use Http\Message\ResponseFactory;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
-use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
-use OAT\Library\Lti1p3Ags\Model\PartialLineItemContainer;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemContainerNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemQueryDenormalizer;
@@ -183,22 +182,6 @@ class LineItemGetServerTest extends TestCase
         $this->assertSame($expectedEncodedLineItem, (string) $response->getBody());
     }
 
-    public function testFindAllWithFullList(): void
-    {
-        $this->provideTestForFindAll(
-            $this->createMock(LineItemContainer::class),
-            200
-        );
-    }
-
-    public function testFindAllWithParialList(): void
-    {
-        $this->provideTestForFindAll(
-            $this->createMock(PartialLineItemContainer::class),
-            206
-        );
-    }
-
     private function provideMocks(bool $hasLineItemId): void
     {
         $requestParameters = ['some-parameters'];
@@ -221,10 +204,9 @@ class LineItemGetServerTest extends TestCase
             ->with($requestParameters)
             ->willReturn($query);
     }
-
-    private function provideTestForFindAll(LineItemContainer $lineItemContainer, int $expectedCode): void
+    public function testFindAllWithFullList(): void
     {
-        $this->provideMocks(false);
+        $lineItemContainer = $this->createMock(LineItemContainer::class);
 
         $normalizedLineItem = ['encoded-line-item'];
 
@@ -250,7 +232,7 @@ class LineItemGetServerTest extends TestCase
         );
 
         $this->assertSame($expectedEncodedLineItem, (string) $response->getBody());
-        $this->assertSame($expectedCode, $response->getStatusCode());
+        $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
         $this->assertSame((string) strlen($expectedEncodedLineItem), $response->getHeaderLine('Content-length'));
     }

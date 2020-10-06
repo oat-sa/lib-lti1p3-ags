@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model;
 
-use OAT\Library\Lti1p3Ags\Model\Result;
+use OAT\Library\Lti1p3Ags\Model\Result\Result;
 use PHPUnit\Framework\TestCase;
 
 class ResultTest extends TestCase
