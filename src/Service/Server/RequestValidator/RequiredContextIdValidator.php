@@ -28,7 +28,7 @@ class RequiredContextIdValidator implements RequestValidatorInterface
 {
     public function validate(ServerRequestInterface $request): void
     {
-        $parsedUrl = explode('/', $request->getUri()->getPath());
+        $parsedUrl = $request->getUri()->getPath();
 
         if ($parsedUrl === '' || $parsedUrl === '/') {
             throw new RequestValidatorException('Url path must contain contextId as first uri path part.', 400);

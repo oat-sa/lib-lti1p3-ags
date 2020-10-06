@@ -20,27 +20,29 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Service\Server\RequestValidator;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\Score;
 
-use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
-use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
+use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemGetServer;
+use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemUpdateServer;
+use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 
-class RequiredLineItemIdValidator implements RequestValidatorInterface
+class LineItemGetServerTest extends TestCase
 {
-    private $parser;
+    /** @var LineItemUpdateServer */
+    private $subject;
 
-    public function __construct(UrlParserInterface $parser = null)
+    public function setUp()
     {
-        $this->parser = $parser ?? new UrlParser();
+        $this->subject = new LineItemGetServer();
     }
 
-    public function validate(ServerRequestInterface $request): void
-    {
-        $data = $this->parser->parse($request);
-
-        if ($data['lineItemId'] === null) {
-            throw new RequestValidatorException('Url path must contain lienItemId as third uri path part.', 400);
-        }
-    }
+//    public function testEndpointIsNotImplemented()
+//    {
+//        $response = $this->subject->handle(
+//            $this->createMock(ServerRequestInterface::class)
+//        );
+//
+//        $this->assertSame(501, $response->getStatusCode());
+//    }
 }
