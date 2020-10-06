@@ -20,24 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Score\Query;
+namespace OAT\Library\Lti1p3Ags\Serializer\Score\Normalizer;
 
-use OAT\Library\Lti1p3Ags\Model\Score\Score;
-use OAT\Library\Lti1p3Ags\Service\Score\Query\ScoreCreateQuery;
-use PHPUnit\Framework\TestCase;
+use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 
-class ScoreCreateQueryTest extends TestCase
+interface ScoreNormalizerInterface
 {
-    public function testScoreCreateQueryGetter()
-    {
-        $contextId = 'context-id';
-        $lineItemId = 'line-item-id';
-        $score = $this->createMock(Score::class);
-
-        $lineItemQuery = new ScoreCreateQuery($contextId, $lineItemId, $score);
-
-        $this->assertSame($contextId, $lineItemQuery->getContextId());
-        $this->assertSame($lineItemId, $lineItemQuery->getLineItemId());
-        $this->assertSame($score, $lineItemQuery->getScore());
-    }
+    public function normalize(ScoreInterface $score): array;
 }

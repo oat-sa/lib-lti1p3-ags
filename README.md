@@ -26,15 +26,15 @@ You can find below the implementations of the main concepts of the [LTI Assignme
 
 ###  Models
 
-- [LineItem](src/Model/LineItem.php)
-- [Score](src/Model/Score.php)
+- [LineItem](src/Model/LineItem/LineItem.php)
+- [Score](src/Model/Score/Score.php)
 
 ### Service
 
 #### Tool
 
 ##### ScoreServiceClient
-- Code: [ScoreServiceClient](src/Service/Client/ScoreServiceClient.php)
+- Code: [ScoreServiceClient](src/Service/Score/Client/ScoreServiceClient.php)
 - Documentation: [Score publish service documentation ](https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service)
 - Openapi POST score contract: [openapi](https://www.imsglobal.org/spec/lti-ags/v2p0/openapi/#/default/Scores.POST)
 

@@ -30,7 +30,7 @@ class ResultTest extends TestCase
     /** @var Result */
     private $subject;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = new Result(
             'id',

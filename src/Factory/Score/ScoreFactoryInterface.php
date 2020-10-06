@@ -20,24 +20,23 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Score\Query;
+namespace OAT\Library\Lti1p3Ags\Factory\Score;
 
-use OAT\Library\Lti1p3Ags\Model\Score\Score;
-use OAT\Library\Lti1p3Ags\Service\Score\Query\ScoreCreateQuery;
-use PHPUnit\Framework\TestCase;
+use DateTimeInterface;
+use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 
-class ScoreCreateQueryTest extends TestCase
+interface ScoreFactoryInterface
 {
-    public function testScoreCreateQueryGetter()
-    {
-        $contextId = 'context-id';
-        $lineItemId = 'line-item-id';
-        $score = $this->createMock(Score::class);
-
-        $lineItemQuery = new ScoreCreateQuery($contextId, $lineItemId, $score);
-
-        $this->assertSame($contextId, $lineItemQuery->getContextId());
-        $this->assertSame($lineItemId, $lineItemQuery->getLineItemId());
-        $this->assertSame($score, $lineItemQuery->getScore());
-    }
+    public function create(
+        string $userId,
+        string $contextId,
+        string $lineItemId,
+        ?string $identifier = null,
+        ?float $scoreGiven = null,
+        ?float $scoreMaximum = null,
+        ?string $comment = null,
+        ?DateTimeInterface $timestamp = null,
+        ?string $activityProgressStatus = ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
+        ?string $gradingProgressStatus = ScoreInterface::GRADING_PROGRESS_STATUS_NOT_READY
+    ): ScoreInterface;
 }

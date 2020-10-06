@@ -24,7 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\LineItem;
 
 use Exception;
 use Http\Message\ResponseFactory;
-use OAT\Library\Lti1p3Ags\Model\LineItem;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
 use OAT\Library\Lti1p3Ags\Model\PartialLineItemContainer;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemContainerNormalizerInterface;
@@ -73,7 +73,7 @@ class LineItemGetServerTest extends TestCase
     /** @var LoggerInterface */
     private $logger;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->validator = $this->createMock(AccessTokenRequestValidator::class);
         $this->service = $this->createMock(LineItemGetServiceInterface::class);

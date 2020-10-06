@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 
 interface LineItemNormalizerInterface
 {

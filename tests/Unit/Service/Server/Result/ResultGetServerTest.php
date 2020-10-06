@@ -31,7 +31,7 @@ class ResultGetServerTest extends TestCase
     /** @var ResultGetServer */
     private $subject;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = new ResultGetServer();
     }

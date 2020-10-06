@@ -20,24 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Score\Query;
+namespace OAT\Library\Lti1p3Ags\Service\Score;
 
-use OAT\Library\Lti1p3Ags\Model\Score\Score;
-use OAT\Library\Lti1p3Ags\Service\Score\Query\ScoreCreateQuery;
-use PHPUnit\Framework\TestCase;
-
-class ScoreCreateQueryTest extends TestCase
+interface ScoreServiceInterface
 {
-    public function testScoreCreateQueryGetter()
-    {
-        $contextId = 'context-id';
-        $lineItemId = 'line-item-id';
-        $score = $this->createMock(Score::class);
-
-        $lineItemQuery = new ScoreCreateQuery($contextId, $lineItemId, $score);
-
-        $this->assertSame($contextId, $lineItemQuery->getContextId());
-        $this->assertSame($lineItemId, $lineItemQuery->getLineItemId());
-        $this->assertSame($score, $lineItemQuery->getScore());
-    }
+    public const AUTHORIZATION_SCOPE_SCORE = 'https://purl.imsglobal.org/spec/lti-ags/scope/score';
+    public const CONTENT_TYPE_SCORE = 'application/vnd.ims.lis.v1.score+json';
 }

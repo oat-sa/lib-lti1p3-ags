@@ -34,7 +34,7 @@ class RequiredLineItemIdValidatorTest extends TestCase
     /** @var RequiredLineItemIdValidator  */
     private $subject;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->subject = new RequiredLineItemIdValidator();
     }

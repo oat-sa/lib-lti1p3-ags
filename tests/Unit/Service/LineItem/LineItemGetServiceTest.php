@@ -36,7 +36,7 @@ class LineItemGetServiceTest extends TestCase
     /** @var LineItemRepository */
     private $repository;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->repository = $this->createMock(LineItemRepository::class);
         $this->subject = new LineItemGetService($this->repository);

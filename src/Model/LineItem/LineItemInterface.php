@@ -20,24 +20,34 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Score\Query;
+namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
-use OAT\Library\Lti1p3Ags\Model\Score\Score;
-use OAT\Library\Lti1p3Ags\Service\Score\Query\ScoreCreateQuery;
-use PHPUnit\Framework\TestCase;
+use DateTimeInterface;
 
-class ScoreCreateQueryTest extends TestCase
+/**
+ * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
+ */
+interface LineItemInterface
 {
-    public function testScoreCreateQueryGetter()
-    {
-        $contextId = 'context-id';
-        $lineItemId = 'line-item-id';
-        $score = $this->createMock(Score::class);
+    public function getId(): ?string;
 
-        $lineItemQuery = new ScoreCreateQuery($contextId, $lineItemId, $score);
+    public function getContextId(): string;
 
-        $this->assertSame($contextId, $lineItemQuery->getContextId());
-        $this->assertSame($lineItemId, $lineItemQuery->getLineItemId());
-        $this->assertSame($score, $lineItemQuery->getScore());
-    }
+    public function getScoreMaximum(): float;
+
+    public function getLabel(): string;
+
+    public function getStartDateTime(): ?DateTimeInterface;
+
+    public function getEndDateTime(): ?DateTimeInterface;
+
+    public function getTag(): ?string;
+
+    public function getResourceId(): ?string;
+
+    public function getResourceLinkId(): ?string;
+
+    public function setTag(?string $tag): LineItemInterface;
+
+    public function setResourceId(?string $resourceId): LineItemInterface;
 }

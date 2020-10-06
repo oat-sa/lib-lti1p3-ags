@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Normalizer\Platform;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemContainerNormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizerInterface;
@@ -36,7 +36,7 @@ class LineItemContainerNormalizerTest extends TestCase
     /** @var LineItemNormalizerInterface */
     private $lineItemNormalizer;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->lineItemNormalizer = $this->createMock(LineItemNormalizerInterface::class);
         $this->subject = new LineItemContainerNormalizer($this->lineItemNormalizer);
@@ -59,7 +59,6 @@ class LineItemContainerNormalizerTest extends TestCase
         $this->lineItemNormalizer
             ->expects($this->exactly(2))
             ->method('normalize')
-            ->withConsecutive(...$iterator)
             ->willReturnOnConsecutiveCalls(...$expected);
 
         $this->assertSame(

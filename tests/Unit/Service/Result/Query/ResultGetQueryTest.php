@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Result\Query;
 
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\ResultGetQuery;
+use OAT\Library\Lti1p3Ags\Service\Result\Query\ResultGetQuery;
 use PHPUnit\Framework\TestCase;
 
 class ResultGetQueryTest extends TestCase
