@@ -28,10 +28,7 @@ use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemContainerNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizerInterface;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemQueryDenormalizer;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemQueryDenormalizerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\LineItemQuery;
 use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemGetServer;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorException;
@@ -57,9 +54,6 @@ class LineItemGetServerTest extends TestCase
     /** @var UrlParserInterface  */
     private $parser;
 
-    /** @var LineItemQueryDenormalizer  */
-    private $queryDenormalizer;
-
     /** @var LineItemNormalizerInterface  */
     private $lineItemNormalizer;
 
@@ -77,7 +71,6 @@ class LineItemGetServerTest extends TestCase
         $this->validator = $this->createMock(AccessTokenRequestValidator::class);
         $this->service = $this->createMock(LineItemGetServiceInterface::class);
         $this->parser = $this->createMock(UrlParserInterface::class);
-        $this->queryDenormalizer = $this->createMock(LineItemQueryDenormalizerInterface::class);
         $this->lineItemNormalizer = $this->createMock(LineItemNormalizerInterface::class);
         $this->lineItemContainerNormalizer = $this->createMock(LineItemContainerNormalizerInterface::class);
 
@@ -85,7 +78,6 @@ class LineItemGetServerTest extends TestCase
             $this->validator,
             $this->service,
             $this->parser,
-            $this->queryDenormalizer,
             $this->lineItemNormalizer,
             $this->lineItemContainerNormalizer
         );
@@ -150,7 +142,12 @@ class LineItemGetServerTest extends TestCase
 
     public function testFindOne(): void
     {
-        $this->provideMocks(true);
+        $requestParameters = [
+            'contextId' => 'toto',
+            'lineItemId' => 'titi'
+        ];
+
+        $this->provideMocks($requestParameters);
 
         $lineItem = $this->createMock(LineItem::class);
         $normalizedLineItem = ['encoded-line-item'];
@@ -168,10 +165,6 @@ class LineItemGetServerTest extends TestCase
             ->with($lineItem)
             ->willReturn($normalizedLineItem);
 
-        $this->lineItemContainerNormalizer
-            ->expects($this->never())
-            ->method('normalize');
-
         $response = $this->subject->handle(
             $this->getMockForServerRequestWithPath('/context-id')
         );
@@ -182,30 +175,14 @@ class LineItemGetServerTest extends TestCase
         $this->assertSame($expectedEncodedLineItem, (string) $response->getBody());
     }
 
-    private function provideMocks(bool $hasLineItemId): void
+    public function testFindAll(): void
     {
-        $requestParameters = ['some-parameters'];
+        $requestParameters = [
+            'contextId' => 'toto',
+        ];
 
-        $this->validator->method('validate');
-        $this->parser
-            ->expects($this->once())
-            ->method('parse')
-            ->willReturn($requestParameters);
+        $this->provideMocks($requestParameters);
 
-        $query = $this->createMock(LineItemQuery::class);
-        $query
-            ->expects($this->once())
-            ->method('hasLineItemId')
-            ->willReturn($hasLineItemId);
-
-        $this->queryDenormalizer
-            ->expects($this->once())
-            ->method('denormalize')
-            ->with($requestParameters)
-            ->willReturn($query);
-    }
-    public function testFindAllWithFullList(): void
-    {
         $lineItemContainer = $this->createMock(LineItemContainer::class);
 
         $normalizedLineItem = ['encoded-line-item'];
@@ -223,10 +200,6 @@ class LineItemGetServerTest extends TestCase
             ->with($lineItemContainer)
             ->willReturn($normalizedLineItem);
 
-        $this->lineItemNormalizer
-            ->expects($this->never())
-            ->method('normalize');
-
         $response = $this->subject->handle(
             $this->getMockForServerRequestWithPath('/context-id')
         );
@@ -235,5 +208,14 @@ class LineItemGetServerTest extends TestCase
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
         $this->assertSame((string) strlen($expectedEncodedLineItem), $response->getHeaderLine('Content-length'));
+    }
+
+    private function provideMocks($requestParameters): void
+    {
+        $this->validator->method('validate');
+        $this->parser
+            ->expects($this->once())
+            ->method('parse')
+            ->willReturn($requestParameters);
     }
 }
