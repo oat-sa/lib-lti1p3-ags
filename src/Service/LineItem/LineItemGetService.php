@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 
 class LineItemGetService implements LineItemGetServiceInterface
@@ -36,12 +36,12 @@ class LineItemGetService implements LineItemGetServiceInterface
         $this->repository = $repository;
     }
 
-    public function findAll(string $contextId, int $page = null, int $limit = null): LineItemContainer
+    public function findAll(string $contextId, int $page = null, int $limit = null): LineItemContainerInterface
     {
         return $this->repository->findAll($contextId, $page, $limit);
     }
 
-    public function findOne(string $contextId, string $lineItemId): LineItem
+    public function findOne(string $contextId, string $lineItemId): LineItemInterface
     {
         return $this->repository->findOne($contextId, $lineItemId);
     }

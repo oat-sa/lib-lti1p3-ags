@@ -25,6 +25,8 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemContainerNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemContainerNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
@@ -35,7 +37,6 @@ use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestMethodValidator
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorAggregator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequiredContextIdValidator;
-use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequiredLineItemIdValidator;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -44,7 +45,7 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Throwable;
 
-class LineItemGetServer implements RequestHandlerInterface
+class LineItemGetAllServer implements RequestHandlerInterface
 {
     /** @var RequestValidatorInterface */
     private $validator;
@@ -55,8 +56,8 @@ class LineItemGetServer implements RequestHandlerInterface
     /** @var UrlParserInterface  */
     private $parser;
 
-    /** @var LineItemNormalizerInterface  */
-    private $lineItemNormalizer;
+    /** @var LineItemContainerNormalizerInterface  */
+    private $lineItemContainerNormalizer;
 
     /** @var ResponseFactory */
     private $factory;
@@ -68,14 +69,14 @@ class LineItemGetServer implements RequestHandlerInterface
         AccessTokenRequestValidator $validator,
         LineItemGetServiceInterface $service,
         UrlParserInterface $parser = null,
-        LineItemNormalizerInterface $lineItemNormalizer = null,
+        LineItemContainerNormalizerInterface $lineItemContainerNormalizer = null,
         ResponseFactory $factory = null,
         LoggerInterface $logger = null
     ) {
         $this->validator = $this->aggregateValidator($validator);
         $this->service = $service;
         $this->parser = $parser ?? new UrlParser();
-        $this->lineItemNormalizer = $lineItemNormalizer ?? new LineItemNormalizer();
+        $this->lineItemContainerNormalizer = $lineItemContainerNormalizer ?? new LineItemContainerNormalizer(new LineItemNormalizer());
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
@@ -88,10 +89,11 @@ class LineItemGetServer implements RequestHandlerInterface
             $data = $this->parser->parse($request);
 
             $contextId = $data['contextId'];
-            $lineItemId = $data['lineItemId'];
+            $page = $data['page'] ?? null;
+            $limit = $data['limit'] ?? null;
 
-            $responseBody = $this->lineItemNormalizer->normalize(
-                $this->service->findOne($contextId, (string) $lineItemId)
+            $responseBody = $this->lineItemContainerNormalizer->normalize(
+                $this->service->findAll($contextId, $page, $limit)
             );
 
             $responseBody = json_encode($responseBody);
@@ -125,8 +127,7 @@ class LineItemGetServer implements RequestHandlerInterface
         return new RequestValidatorAggregator(...[
             new AccessTokenRequestValidatorDecorator($accessTokenValidator),
             new RequestMethodValidator('get'),
-            new RequiredContextIdValidator(),
-            new RequiredLineItemIdValidator()
+            new RequiredContextIdValidator()
         ]);
     }
 }

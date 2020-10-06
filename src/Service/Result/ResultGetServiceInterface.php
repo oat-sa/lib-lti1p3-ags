@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\Score;
 
-use OAT\Library\Lti1p3Ags\Model\Result\Result;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
 
 interface ResultGetServiceInterface
 {
-    public function findOne(string $contextId, string $lineItemId): Result;
+    public function findOne(string $contextId, string $lineItemId): ResultInterface;
 }

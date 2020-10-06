@@ -20,11 +20,12 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Normalizer\Platform;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\LineItem\Normalizer;
 
 use Carbon\Carbon;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 use PHPUnit\Framework\TestCase;
 
@@ -32,7 +33,7 @@ class LineItemNormalizerTest extends TestCase
 {
     use DateConverterTrait;
 
-    /** @var LineItemNormalizer  */
+    /** @var LineItemNormalizerInterface  */
     private $subject;
 
     public function setUp(): void

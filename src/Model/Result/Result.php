@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\Result;
 
-class Result
+class Result implements ResultInterface
 {
     /** @var string */
     private $id;

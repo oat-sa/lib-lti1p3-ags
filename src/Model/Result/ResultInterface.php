@@ -20,11 +20,19 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
+namespace OAT\Library\Lti1p3Ags\Model\Result;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
-
-interface LineItemContainerNormalizerInterface
+interface ResultInterface
 {
-    public function normalize(LineItemContainer $lineItemContainer): array;
+    public function getId(): string;
+
+    public function getUserId(): string;
+
+    public function getResultScore(): float;
+
+    public function getResultMaximum(): int;
+
+    public function getComment(): string;
+
+    public function getScoreOf(): string;
 }

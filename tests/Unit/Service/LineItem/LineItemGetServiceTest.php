@@ -22,15 +22,14 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\LineItem;
 
-use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetService;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\LineItemQuery;
+use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
 use PHPUnit\Framework\TestCase;
 
 class LineItemGetServiceTest extends TestCase
 {
-    /** @var LineItemGetService  */
+    /** @var LineItemGetServiceInterface  */
     private $subject;
 
     /** @var LineItemRepositoryInterface */

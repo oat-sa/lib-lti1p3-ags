@@ -26,7 +26,7 @@ use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemCreateServer;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 
-class LineItemCreateserverTest extends TestCase
+class LineItemCreateServerTest extends TestCase
 {
     /** @var LineItemCreateServer */
     private $subject;

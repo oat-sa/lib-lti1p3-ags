@@ -20,13 +20,23 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Repository;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model\LineItem;
 
-use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Model\Result;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\ResultGetQuery;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use PHPUnit\Framework\TestCase;
 
-interface ResultRepository
+class LineItemContainerTest extends TestCase
 {
-    public function findOne(ResultGetQuery $resultGetQuery): Result;
+    public function testGetIterator(): void
+    {
+        $iterator = [
+            $this->createMock(LineItemInterface::class),
+            $this->createMock(LineItemInterface::class)
+        ];
+
+        $lineItemContainer = new LineItemContainer(...$iterator);
+
+        $this->assertSame($iterator, $lineItemContainer->getIterator());
+    }
 }

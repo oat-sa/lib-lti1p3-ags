@@ -40,7 +40,7 @@ class RequiredLineItemIdValidator implements RequestValidatorInterface
         $data = $this->parser->parse($request);
 
         if ($data['lineItemId'] === null) {
-            throw new RequestValidatorException('Url path must contain lienItemId as third uri path part.', 400);
+            throw new RequestValidatorException('Url path must contain lineItemId as third uri path part.', 400);
         }
     }
 }

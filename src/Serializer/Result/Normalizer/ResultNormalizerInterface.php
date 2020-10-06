@@ -20,12 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Repository;
+namespace OAT\Library\Lti1p3Ags\Serializer\Result\Normalizer;
 
-use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Model\Score;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
 
-interface ScoreRepository
+interface ResultNormalizerInterface
 {
-    public function create(Score $score): void;
+    public function normalize(ResultInterface $result): array;
 }
