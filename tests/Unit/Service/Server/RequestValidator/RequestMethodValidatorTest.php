@@ -68,7 +68,7 @@ class RequestMethodValidatorTest extends TestCase
             ->willReturn('toto');
 
         $this->expectException(RequestValidatorException::class);
-        $this->expectExceptionMessage(sprintf('Expected http method is %s', $httpMethod));
+        $this->expectExceptionMessage(sprintf('Expected http method is "%s".', $httpMethod));
         $this->expectExceptionCode(405);
 
         $subject = new RequestMethodValidator($httpMethod);
