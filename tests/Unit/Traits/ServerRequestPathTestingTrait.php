@@ -27,19 +27,21 @@ use Psr\Http\Message\UriInterface;
 
 trait ServerRequestPathTestingTrait
 {
-    private function getMockForServerRequestWithPath(string $path): ServerRequestInterface
+    private function getMockForServerRequestWithPath(string $path, string $method = 'get'): ServerRequestInterface
     {
         $uri = $this->createMock(UriInterface::class);
         $uri
-            ->expects($this->once())
             ->method('getPath')
             ->willReturn($path);
 
         $request = $this->createMock(ServerRequestInterface::class);
         $request
-            ->expects($this->once())
             ->method('getUri')
             ->willReturn($uri);
+
+        $request
+            ->method('getMethod')
+            ->willReturn($method);
 
         return $request;
     }

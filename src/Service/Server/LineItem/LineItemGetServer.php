@@ -89,8 +89,7 @@ class LineItemGetServer implements RequestHandlerInterface
         $this->parser = $parser ?? new UrlParser();
         $this->queryDenormalizer = $queryDenormalizer ?? new LineItemQueryDenormalizer();
         $this->lineItemNormalizer = $lineItemNormalizer ?? new LineItemNormalizer();
-        $this->lineItemContainerNormalizer = $lineItemContainerNormalizer
-            ?? new LineItemContainerNormalizer($this->lineItemNormalizer);
+        $this->lineItemContainerNormalizer = $lineItemContainerNormalizer ?? new LineItemContainerNormalizer($this->lineItemNormalizer);
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
@@ -101,7 +100,7 @@ class LineItemGetServer implements RequestHandlerInterface
             $this->validator->validate($request);
 
             $query = $this->queryDenormalizer->denormalize(
-                $this->getRequestParameters($request)
+                $this->parser->parse($request)
             );
 
             $responseCode = 200;
@@ -143,26 +142,16 @@ class LineItemGetServer implements RequestHandlerInterface
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
 
-            return $this->factory->createResponse(500, null, [], 'Internal server error');
+            return $this->factory->createResponse(500, null, [], 'Internal server error.');
         }
     }
 
     private function aggregateValidator(AccessTokenRequestValidator $accessTokenValidator): RequestValidatorInterface
     {
-        return new RequestValidatorAggregator([
+        return new RequestValidatorAggregator(...[
             new AccessTokenRequestValidatorDecorator($accessTokenValidator),
             new RequestMethodValidator('get'),
             new RequiredContextIdValidator()
         ]);
-    }
-
-    private function getRequestParameters(ServerRequestInterface $request): array
-    {
-        parse_str($request->getUri()->getQuery(), $parameters);
-
-        return array_merge(
-            $parameters,
-            $this->parser->parse($request)
-        );
     }
 }
