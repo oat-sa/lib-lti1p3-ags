@@ -22,26 +22,17 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
 
-use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
+use OAT\Library\Lti1p3Ags\Service\LineItem\Query\LineItemQuery;
 
-class LineItemContainerNormalizer implements LineItemContainerNormalizerInterface
+class LineItemQueryDenormalizer implements LineItemQueryDenormalizerInterface
 {
-    /** @var LineItemNormalizer */
-    private $lineItemNormalizer;
-
-    public function __construct(LineItemNormalizer $lineItemNormalizer)
+    public function denormalize(array $data): LineItemQuery
     {
-        $this->lineItemNormalizer = $lineItemNormalizer;
-    }
+        $contextId = $data['contextId'];
+        $lineItemId = $data['lineItemId'] ?? null;
+        $page = $data['page'] ?? null;
+        $limit = $data['limit'] ?? null;
 
-    public function normalize(LineItemContainer $lineItemContainer): array
-    {
-        $normalizedData = [];
-
-        foreach ($lineItemContainer->getLineItems() as $lineItem) {
-            $normalizedData[] = $this->lineItemNormalizer->normalize($lineItem);
-        }
-
-        return $normalizedData;
+        return new LineItemQuery($contextId, $lineItemId, $page, $limit);
     }
 }

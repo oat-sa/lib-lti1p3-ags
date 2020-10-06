@@ -26,16 +26,20 @@ use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
 use OAT\Library\Lti1p3Ags\Model\PartialLineItemContainer;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Plateform\GetLineItemQueryDenormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Plateform\LineItemQueryDenormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Plateform\LineItemQueryDenormalizerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemContainerNormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemContainerNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizerInterface;
-use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetService;
+use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
+use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
+use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestMethodValidator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorAggregator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequiredContextIdValidator;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -44,22 +48,19 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Throwable;
 
-/**
- * @todo Separate getOneServer and getAllServer?
- *
- * @todo Update current Server to render partial content in case of LineItemContainer not rendering all list e.g. PartialLineItenContainer
- *
- */
 class LineItemGetServer implements RequestHandlerInterface
 {
     /** @var RequestValidatorInterface */
     private $validator;
 
-    /** @var LineItemGetService  */
+    /** @var LineItemGetServiceInterface  */
     private $service;
 
-    /** @var GetLineItemQueryDenormalizer  */
-    private $queryNormalizer;
+    /** @var UrlParserInterface  */
+    private $parser;
+
+    /** @var LineItemQueryDenormalizer  */
+    private $queryDenormalizer;
 
     /** @var LineItemNormalizerInterface  */
     private $lineItemNormalizer;
@@ -75,8 +76,9 @@ class LineItemGetServer implements RequestHandlerInterface
 
     public function __construct(
         AccessTokenRequestValidator $validator,
-        LineItemGetService $service,
-        GetLineItemQueryDenormalizer $queryNormalizer = null,
+        LineItemGetServiceInterface $service,
+        UrlParserInterface $parser = null,
+        LineItemQueryDenormalizerInterface $queryDenormalizer = null,
         LineItemNormalizerInterface $lineItemNormalizer = null,
         LineItemContainerNormalizerInterface $lineItemContainerNormalizer = null,
         ResponseFactory $factory = null,
@@ -84,7 +86,8 @@ class LineItemGetServer implements RequestHandlerInterface
     ) {
         $this->validator = $this->aggregateValidator($validator);
         $this->service = $service;
-        $this->queryNormalizer = $queryNormalizer ?? new GetLineItemQueryDenormalizer();
+        $this->parser = $parser ?? new UrlParser();
+        $this->queryDenormalizer = $queryDenormalizer ?? new LineItemQueryDenormalizer();
         $this->lineItemNormalizer = $lineItemNormalizer ?? new LineItemNormalizer();
         $this->lineItemContainerNormalizer = $lineItemContainerNormalizer
             ?? new LineItemContainerNormalizer($this->lineItemNormalizer);
@@ -97,24 +100,24 @@ class LineItemGetServer implements RequestHandlerInterface
         try {
             $this->validator->validate($request);
 
-            parse_str($request->getUri()->getQuery(), $parameters);
-
-            $query = $this->queryNormalizer->denormalize($parameters);
+            $query = $this->queryDenormalizer->denormalize(
+                $this->getRequestParameters($request)
+            );
 
             $responseCode = 200;
 
             if (!$query->hasLineItemId()) {
-                $lineItemContainer = $this->service->getAll($query);
-
-                $responseBody = $this->lineItemContainerNormalizer->normalize($lineItemContainer);
+                $lineItemContainer = $this->service->findAll($query);
 
                 if ($lineItemContainer instanceof PartialLineItemContainer) {
                     $responseCode = 206;
                 }
 
+                $responseBody = $this->lineItemContainerNormalizer->normalize($lineItemContainer);
+
             } else {
                 $responseBody = $this->lineItemNormalizer->normalize(
-                    $this->service->getOne($query)
+                    $this->service->findOne($query)
                 );
             }
 
@@ -140,7 +143,7 @@ class LineItemGetServer implements RequestHandlerInterface
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
 
-            return $this->factory->createResponse(500, null, [], 'Internal membership service error');
+            return $this->factory->createResponse(500, null, [], 'Internal server error');
         }
     }
 
@@ -149,6 +152,17 @@ class LineItemGetServer implements RequestHandlerInterface
         return new RequestValidatorAggregator([
             new AccessTokenRequestValidatorDecorator($accessTokenValidator),
             new RequestMethodValidator('get'),
+            new RequiredContextIdValidator()
         ]);
+    }
+
+    private function getRequestParameters(ServerRequestInterface $request): array
+    {
+        parse_str($request->getUri()->getQuery(), $parameters);
+
+        return array_merge(
+            $parameters,
+            $this->parser->parse($request)
+        );
     }
 }

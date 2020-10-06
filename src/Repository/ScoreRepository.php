@@ -20,22 +20,12 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model;
+namespace OAT\Library\Lti1p3Ags\Repository;
 
-use IteratorAggregate;
+use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
+use OAT\Library\Lti1p3Ags\Model\Score;
 
-class LineItemContainer implements IteratorAggregate
+interface ScoreRepository
 {
-    /** @var LineItem[] */
-    private $lineItems;
-
-    public function __construct(LineItem ...$lineItems)
-    {
-        $this->lineItems = $lineItems;
-    }
-
-    public function getIterator()
-    {
-        return $this->lineItems;
-    }
+    public function create(Score $score): void;
 }

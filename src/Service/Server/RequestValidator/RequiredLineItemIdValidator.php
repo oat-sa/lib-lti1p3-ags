@@ -20,22 +20,20 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model;
+namespace OAT\Library\Lti1p3Ags\Service\Server\RequestValidator;
 
-use IteratorAggregate;
+use Psr\Http\Message\ServerRequestInterface;
 
-class LineItemContainer implements IteratorAggregate
+class RequiredLineItemIdValidator implements RequestValidatorInterface
 {
-    /** @var LineItem[] */
-    private $lineItems;
-
-    public function __construct(LineItem ...$lineItems)
+    public function validate(ServerRequestInterface $request): void
     {
-        $this->lineItems = $lineItems;
-    }
+        $parsedUrl = explode('/', $request->getUri()->getPath());
 
-    public function getIterator()
-    {
-        return $this->lineItems;
+        $lineItemId = $parsedUrl[2] ?? null;
+
+        if ($lineItemId === null) {
+            throw new RequestValidatorException('Url path must contain lienItemId as third uri path part.', 400);
+        }
     }
 }

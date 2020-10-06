@@ -20,22 +20,28 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\Score;
 
-use IteratorAggregate;
+use OAT\Library\Lti1p3Ags\Service\Server\Score\ScoreCreateServer;
+use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestInterface;
 
-class LineItemContainer implements IteratorAggregate
+class ScoreCreateServerTest extends TestCase
 {
-    /** @var LineItem[] */
-    private $lineItems;
+    /** @var ScoreCreateServer */
+    private $subject;
 
-    public function __construct(LineItem ...$lineItems)
+    public function setUp()
     {
-        $this->lineItems = $lineItems;
+        $this->subject = new ScoreCreateServer();
     }
 
-    public function getIterator()
+    public function testEndpointIsNotImplemented()
     {
-        return $this->lineItems;
+        $response = $this->subject->handle(
+            $this->createMock(ServerRequestInterface::class)
+        );
+
+        $this->assertSame(501, $response->getStatusCode());
     }
 }

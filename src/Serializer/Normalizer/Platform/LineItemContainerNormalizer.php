@@ -20,22 +20,28 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model;
+namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
 
-use IteratorAggregate;
+use OAT\Library\Lti1p3Ags\Model\LineItem;
+use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
 
-class LineItemContainer implements IteratorAggregate
+class LineItemContainerNormalizer implements LineItemContainerNormalizerInterface
 {
-    /** @var LineItem[] */
-    private $lineItems;
+    /** @var LineItemNormalizerInterface */
+    private $lineItemNormalizer;
 
-    public function __construct(LineItem ...$lineItems)
+    public function __construct(LineItemNormalizerInterface $lineItemNormalizer)
     {
-        $this->lineItems = $lineItems;
+        $this->lineItemNormalizer = $lineItemNormalizer;
     }
 
-    public function getIterator()
+    public function normalize(LineItemContainer $lineItemContainer): array
     {
-        return $this->lineItems;
+        return array_map(
+            function (LineItem $lineItem) {
+                return $this->lineItemNormalizer->normalize($lineItem);
+            },
+            $lineItemContainer->getIterator()
+        );
     }
 }

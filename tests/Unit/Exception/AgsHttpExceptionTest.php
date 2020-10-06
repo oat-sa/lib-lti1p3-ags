@@ -20,22 +20,31 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Exception;
 
-use IteratorAggregate;
+use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
+use PHPUnit\Framework\TestCase;
 
-class LineItemContainer implements IteratorAggregate
+class AgsHttpExceptionTest extends TestCase
 {
-    /** @var LineItem[] */
-    private $lineItems;
-
-    public function __construct(LineItem ...$lineItems)
+    /**
+     * @dataProvider getReasonPhraseFor401ExceptionProvider
+     */
+    public function testGetReasonPhrase(int $code, ?string $reasonPhrase): void
     {
-        $this->lineItems = $lineItems;
+        $exception = new AgsHttpException('some message', $code);
+        $this->assertSame($reasonPhrase, $exception->getReasonPhrase());
     }
 
-    public function getIterator()
+    public function getReasonPhraseFor401ExceptionProvider(): array
     {
-        return $this->lineItems;
+        return [
+            [400, 'Bad Request'],
+            [401, 'Unauthorized'],
+            [405, 'Method not allowed'],
+            [422, 'Unprocessable Entity'],
+            [500, 'Internal Error'],
+            [999, null],
+        ];
     }
 }

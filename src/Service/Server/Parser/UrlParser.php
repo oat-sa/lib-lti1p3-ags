@@ -20,22 +20,19 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model;
+namespace OAT\Library\Lti1p3Ags\Service\Server\Parser;
 
-use IteratorAggregate;
+use Psr\Http\Message\ServerRequestInterface;
 
-class LineItemContainer implements IteratorAggregate
+class UrlParser implements UrlParserInterface
 {
-    /** @var LineItem[] */
-    private $lineItems;
-
-    public function __construct(LineItem ...$lineItems)
+    public function parse(ServerRequestInterface $request): array
     {
-        $this->lineItems = $lineItems;
-    }
+        $urlPaths = explode('/', trim($request->getUri()->getPath(), '/'));
 
-    public function getIterator()
-    {
-        return $this->lineItems;
+        return [
+            'contextId' => $urlPaths[0],
+            'lineItemId' => $urlPaths[2] ?? null,
+        ];
     }
 }

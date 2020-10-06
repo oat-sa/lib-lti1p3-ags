@@ -26,7 +26,7 @@ use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
 use OAT\Library\Lti1p3Ags\Model\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepository;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\GetLineItemQuery;
+use OAT\Library\Lti1p3Ags\Service\LineItem\Query\LineItemQuery;
 
 class LineItemGetService implements LineItemGetServiceInterface
 {
@@ -41,30 +41,17 @@ class LineItemGetService implements LineItemGetServiceInterface
     /**
      * @throws AgsHttpException
      */
-    public function getOne(GetLineItemQuery $query): LineItem
+    public function findOne(LineItemQuery $query): LineItem
     {
-        $this->assertQueryHasContextId($query);
+        if (!$query->hasLineItemId()) {
+            throw new AgsHttpException('Missing "LineItemId" parameter.', 400);
+        }
 
         return $this->repository->findOne($query);
     }
 
-    /**
-     * @throws AgsHttpException
-     */
-    public function getAll(GetLineItemQuery $query): LineItemContainer
+    public function findAll(LineItemQuery $query): LineItemContainer
     {
-        $this->assertQueryHasContextId($query);
-
         return $this->repository->findAll($query);
-    }
-
-    /**
-     * @throws AgsHttpException
-     */
-    private function assertQueryHasContextId(GetLineItemQuery $query)
-    {
-        if (!$query->hasContextId()) {
-            throw new AgsHttpException('Missing "contextId" parameter.', 400);
-        }
     }
 }

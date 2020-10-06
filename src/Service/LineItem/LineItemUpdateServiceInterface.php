@@ -20,22 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model;
+namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
-use IteratorAggregate;
+use OAT\Library\Lti1p3Ags\Model\LineItem;
 
-class LineItemContainer implements IteratorAggregate
+interface LineItemUpdateServiceInterface
 {
-    /** @var LineItem[] */
-    private $lineItems;
-
-    public function __construct(LineItem ...$lineItems)
-    {
-        $this->lineItems = $lineItems;
-    }
-
-    public function getIterator()
-    {
-        return $this->lineItems;
-    }
+    public function update(LineItem $lineItem): void;
 }

@@ -24,12 +24,12 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
+use Nyholm\Psr7\Response;
 use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemDenormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemDenormalizerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizerInterface;
-use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemCreateServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestMethodValidator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorAggregator;
@@ -40,7 +40,6 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
-use Throwable;
 
 class LineItemCreateServer implements RequestHandlerInterface
 {

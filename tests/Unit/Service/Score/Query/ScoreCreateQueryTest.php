@@ -20,22 +20,24 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Score\Query;
 
-use IteratorAggregate;
+use OAT\Library\Lti1p3Ags\Model\Score;
+use OAT\Library\Lti1p3Ags\Service\LineItem\Query\ScoreCreateQuery;
+use PHPUnit\Framework\TestCase;
 
-class LineItemContainer implements IteratorAggregate
+class ScoreCreateQueryTest extends TestCase
 {
-    /** @var LineItem[] */
-    private $lineItems;
-
-    public function __construct(LineItem ...$lineItems)
+    public function testScoreCreateQueryGetter()
     {
-        $this->lineItems = $lineItems;
-    }
+        $contextId = 'context-id';
+        $lineItemId = 'line-item-id';
+        $score = $this->createMock(Score::class);
 
-    public function getIterator()
-    {
-        return $this->lineItems;
+        $lineItemQuery = new ScoreCreateQuery($contextId, $lineItemId, $score);
+
+        $this->assertSame($contextId, $lineItemQuery->getContextId());
+        $this->assertSame($lineItemId, $lineItemQuery->getLineItemId());
+        $this->assertSame($score, $lineItemQuery->getScore());
     }
 }

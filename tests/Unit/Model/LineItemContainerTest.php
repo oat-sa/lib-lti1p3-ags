@@ -20,22 +20,23 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model;
 
-use IteratorAggregate;
+use OAT\Library\Lti1p3Ags\Model\LineItem;
+use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
+use PHPUnit\Framework\TestCase;
 
-class LineItemContainer implements IteratorAggregate
+class LineItemContainerTest extends TestCase
 {
-    /** @var LineItem[] */
-    private $lineItems;
-
-    public function __construct(LineItem ...$lineItems)
+    public function testGetIterator(): void
     {
-        $this->lineItems = $lineItems;
-    }
+        $iterator = [
+            $this->createMock(LineItem::class),
+            $this->createMock(LineItem::class)
+        ];
 
-    public function getIterator()
-    {
-        return $this->lineItems;
+        $lineItemContainer = new LineItemContainer(...$iterator);
+
+        $this->assertSame($iterator, $lineItemContainer->getIterator());
     }
 }

@@ -24,13 +24,17 @@ namespace OAT\Library\Lti1p3Ags\Repository;
 
 use OAT\Library\Lti1p3Ags\Model\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\GetLineItemQuery;
+use OAT\Library\Lti1p3Ags\Service\LineItem\Query\LineItemQuery;
 
 interface LineItemRepository
 {
-    public function findOne(GetLineItemQuery $query): LineItem;
+    public function create(LineItem $lineItem): void;
 
-    public function findAll(GetLineItemQuery $query): LineItemContainer;
+    public function findOne(LineItemQuery $query): LineItem;
 
-    public function save(LineItem $query): LineItem;
+    public function findAll(LineItemQuery $query): LineItemContainer;
+
+    public function delete(LineItemQuery $query): void;
+
+    public function update(LineItem $lineItem): void;
 }

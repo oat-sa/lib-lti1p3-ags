@@ -22,20 +22,13 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
-use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
 use OAT\Library\Lti1p3Ags\Model\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\GetLineItemQuery;
+use OAT\Library\Lti1p3Ags\Service\LineItem\Query\LineItemQuery;
 
 interface LineItemGetServiceInterface
 {
-    /**
-     * @throws AgsHttpException
-     */
-    public function getOne(GetLineItemQuery $query): LineItem;
+    public function findAll(LineItemQuery $lineItemQuery): LineItemContainer;
 
-    /**
-     * @throws AgsHttpException
-     */
-    public function getAll(GetLineItemQuery $query): LineItemContainer;
+    public function findOne(LineItemQuery $lineItemQuery): LineItem;
 }

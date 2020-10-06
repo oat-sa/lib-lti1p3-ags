@@ -20,22 +20,18 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model;
+namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 
-use IteratorAggregate;
+use Nyholm\Psr7\Response;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
-class LineItemContainer implements IteratorAggregate
+class LineItemUpdateServer implements RequestHandlerInterface
 {
-    /** @var LineItem[] */
-    private $lineItems;
-
-    public function __construct(LineItem ...$lineItems)
+    /** @todo */
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $this->lineItems = $lineItems;
-    }
-
-    public function getIterator()
-    {
-        return $this->lineItems;
+        return new Response(501);
     }
 }

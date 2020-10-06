@@ -20,19 +20,40 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Plateform;
+namespace OAT\Library\Lti1p3Ags\Service\LineItem\Query;
 
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\GetLineItemQuery;
+use OAT\Library\Lti1p3Ags\Model\Score;
 
-class GetLineItemQueryDenormalizer implements GetLineItemQueryDenormalizerInterface
+class ScoreCreateQuery
 {
-    public function denormalize(array $data): GetLineItemQuery
-    {
-        $contextId = $data['contextId'] ?? null;
-        $lineItemId = $data['lineItemId'] ?? null;
-        $page = $data['page'] ?? null;
-        $limit = $data['limit'] ?? null;
+    /** @var string */
+    private $contextId;
 
-        return new GetLineItemQuery($contextId, $lineItemId, $page, $limit);
+    /** @var string */
+    private $lineItemId;
+
+    /** @var Score */
+    private $score;
+
+    public function __construct(string $contextId, string $lineItemId, Score $score)
+    {
+        $this->contextId = $contextId;
+        $this->lineItemId = $lineItemId;
+        $this->score = $score;
+    }
+
+    public function getContextId(): string
+    {
+        return $this->contextId;
+    }
+
+    public function getLineItemId(): string
+    {
+        return $this->lineItemId;
+    }
+
+    public function getScore(): Score
+    {
+        return $this->score;
     }
 }

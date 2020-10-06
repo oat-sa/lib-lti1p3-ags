@@ -20,22 +20,21 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Result\Query;
 
-use IteratorAggregate;
+use OAT\Library\Lti1p3Ags\Service\LineItem\Query\ResultGetQuery;
+use PHPUnit\Framework\TestCase;
 
-class LineItemContainer implements IteratorAggregate
+class ResultGetQueryTest extends TestCase
 {
-    /** @var LineItem[] */
-    private $lineItems;
-
-    public function __construct(LineItem ...$lineItems)
+    public function testResultGetQueryGetter()
     {
-        $this->lineItems = $lineItems;
-    }
+        $contextId = 'context-id';
+        $lineItemId = 'line-item-id';
 
-    public function getIterator()
-    {
-        return $this->lineItems;
+        $lineItemQuery = new ResultGetQuery($contextId, $lineItemId);
+
+        $this->assertSame($contextId, $lineItemQuery->getContextId());
+        $this->assertSame($lineItemId, $lineItemQuery->getLineItemId());
     }
 }

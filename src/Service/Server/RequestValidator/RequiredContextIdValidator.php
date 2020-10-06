@@ -20,22 +20,18 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model;
+namespace OAT\Library\Lti1p3Ags\Service\Server\RequestValidator;
 
-use IteratorAggregate;
+use Psr\Http\Message\ServerRequestInterface;
 
-class LineItemContainer implements IteratorAggregate
+class RequiredContextIdValidator implements RequestValidatorInterface
 {
-    /** @var LineItem[] */
-    private $lineItems;
-
-    public function __construct(LineItem ...$lineItems)
+    public function validate(ServerRequestInterface $request): void
     {
-        $this->lineItems = $lineItems;
-    }
+        $parsedUrl = explode('/', $request->getUri()->getPath());
 
-    public function getIterator()
-    {
-        return $this->lineItems;
+        if ($parsedUrl === '' || $parsedUrl === '/') {
+            throw new RequestValidatorException('Url path must contain contextId as first uri path part.', 400);
+        }
     }
 }

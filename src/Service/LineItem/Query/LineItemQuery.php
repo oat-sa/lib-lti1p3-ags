@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem\Query;
 
-class GetLineItemQuery
+class LineItemQuery
 {
     /** @var string */
     private $contextId;
@@ -30,13 +30,13 @@ class GetLineItemQuery
     /** @var string|null */
     private $lineItemId;
 
-    /** @var integer */
+    /** @var integer|null */
     private $page;
 
-    /** @var integer */
+    /** @var integer|null */
     private $limit;
 
-    public function __construct(string $contextId = null, string $lineItemId = null, int $page = null, int $limit = null)
+    public function __construct(string $contextId, string $lineItemId = null, int $page = null, int $limit = null)
     {
         $this->contextId = $contextId;
         $this->lineItemId = $lineItemId;
@@ -47,11 +47,6 @@ class GetLineItemQuery
     public function getContextId(): string
     {
         return $this->contextId;
-    }
-
-    public function hasContextId(): bool
-    {
-        return $this->contextId !== null;
     }
 
     public function getLineItemId(): ?string
