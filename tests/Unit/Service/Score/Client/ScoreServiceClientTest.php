@@ -29,6 +29,7 @@ use OAT\Library\Lti1p3Ags\Serializer\Score\Normalizer\ScoreNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Service\Score\Client\ScoreServiceClient;
 use OAT\Library\Lti1p3Ags\Service\Score\ScoreServiceInterface;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
+use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use OAT\Library\Lti1p3Core\Message\Payload\Claim\AgsClaim;
 use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
@@ -208,7 +209,29 @@ class ScoreServiceClientTest extends TestCase
         ];
     }
 
-    public function testItWillThrowsAnExceptionIfLineItemUrlIsNotSet(): void
+    public function testPublishFailureWithMissingAgsClaim(): void
+    {
+        $registration = $this->createTestRegistration();
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->any())
+            ->method('getAgs')
+            ->willReturn(null);
+
+        $score = $this->createScore();
+
+        $this->serviceClientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot publish score for payload: Provided payload does not contain AGS claim');
+
+        $this->subject->publishForPayload($registration, $payload, $score);
+    }
+
+    public function testPublishFailureWithMissingLineItemUrl(): void
     {
         $registration = $this->createTestRegistration();
 
@@ -236,6 +259,70 @@ class ScoreServiceClientTest extends TestCase
 
         $this->expectException(LtiExceptionInterface::class);
         $this->expectExceptionMessage('Cannot publish score for payload: Provided payload AGS claim does not contain a line item url');
+
+        $this->subject->publishForPayload($registration, $payload, $score);
+    }
+
+    public function testPublishFailureWithMissingMandatoryScope(): void
+    {
+        $registration = $this->createTestRegistration();
+
+        $agsClaim = new AgsClaim(
+            [
+                'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+            ],
+            'https://www.myuniv.example.com/2344/lineitems/',
+            'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
+        );
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->any())
+            ->method('getAgs')
+            ->willReturn($agsClaim);
+
+        $score = $this->createScore();
+
+        $this->serviceClientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot publish score: The mandatory scope https://purl.imsglobal.org/spec/lti-ags/scope/score is missing');
+
+        $this->subject->publishForPayload($registration, $payload, $score);
+    }
+
+    public function testPublishFailureWithGenericLtiError(): void
+    {
+        $registration = $this->createTestRegistration();
+
+        $agsClaim = new AgsClaim(
+            [
+                'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem',
+                'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly',
+                'https://purl.imsglobal.org/spec/lti-ags/scope/score'
+            ],
+            'https://www.myuniv.example.com/2344/lineitems/',
+            'https://www.myuniv.example.com/2344/lineitems/1234/lineitem'
+        );
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->any())
+            ->method('getAgs')
+            ->willReturn($agsClaim);
+
+        $score = $this->createScore();
+
+        $this->serviceClientMock
+            ->expects($this->once())
+            ->method('request')
+            ->willThrowException(new LtiException('custom LTI error'));
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('custom LTI error');
 
         $this->subject->publishForPayload($registration, $payload, $score);
     }
