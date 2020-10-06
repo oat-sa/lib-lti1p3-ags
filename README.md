@@ -6,8 +6,13 @@
 
 - [Specifications](#specifications)
 - [Installation](#installation)
-- [Concepts](#concepts)
+- [Tutorials](#tutorials)
 - [Tests](#tests)
+
+## Specifications
+
+- [IMS LTI Assignment and Grade Services](https://www.imsglobal.org/spec/lti-ags/v2p0)
+- [IMS Security](https://www.imsglobal.org/spec/security/v1p0)
 
 ## Installation
 
@@ -15,28 +20,28 @@
 $ composer require oat-sa/lib-lti1p3-ags
 ```
 
-## Specifications
+## Tutorials
 
-- [IMS LTI Assignment and Grade Services](https://www.imsglobal.org/spec/lti-ags/v2p0)
-- [IMS Security](https://www.imsglobal.org/spec/security/v1p0)
+You can then find below usage tutorials, presented by topics.
 
-## Concepts
+### Configuration
 
-You can find below the implementations of the main concepts of the [LTI Assignment and Grade Services](https://www.imsglobal.org/spec/lti-ags/v2p0) specification.
+- how to [configure the underlying LTI 1.3 Core library](https://github.com/oat-sa/lib-lti1p3-core#quick-start).
 
-###  Models
+### Line Item
 
-- [LineItem](src/Model/LineItem/LineItem.php)
-- [Score](src/Model/Score/Score.php)
+- how to [use the AGS library for line items as a platform](doc/lineitem/platform.md)
+- how to [use the AGS library for line items as a tool](doc/lineitem/tool.md)
 
-### Service
+### Result
 
-#### Tool
+- how to [use the AGS library for results as a platform](doc/result/platform.md)
+- how to [use the AGS library for results as a tool](doc/result/tool.md)
 
-##### ScoreServiceClient
-- Code: [ScoreServiceClient](src/Service/Score/Client/ScoreServiceClient.php)
-- Documentation: [Score publish service documentation ](https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service)
-- Openapi POST score contract: [openapi](https://www.imsglobal.org/spec/lti-ags/v2p0/openapi/#/default/Scores.POST)
+### Score
+
+- how to [use the AGS library for scores as a platform](doc/score/platform.md)
+- how to [use the AGS library for scores as a tool](doc/score/tool.md)
 
 ## Tests
 

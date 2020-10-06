@@ -76,6 +76,8 @@ class ScoreServiceClient implements ScoreServiceInterface
                 $payload->getAgs()->getLineItemUrl(),
                 $payload->getAgs()->getScopes()
             );
+        } catch (LtiExceptionInterface $exception) {
+            throw $exception;
         } catch (Throwable $exception) {
             throw new LtiException(
                 sprintf('Cannot publish score for payload: %s', $exception->getMessage()),
@@ -113,6 +115,8 @@ class ScoreServiceClient implements ScoreServiceInterface
                 $scopes ?? [static::AUTHORIZATION_SCOPE_SCORE]
             );
 
+        } catch (LtiExceptionInterface $exception) {
+            throw $exception;
         } catch (Throwable $exception) {
             throw new LtiException(
                 sprintf('Cannot publish score: %s', $exception->getMessage()),
@@ -122,16 +126,9 @@ class ScoreServiceClient implements ScoreServiceInterface
         }
     }
 
-    /**
-     * @throws InvalidArgumentException
-     */
     private function buildEndpointUrl(string $lineItemUrl): string
     {
         $parsedUrl = parse_url($lineItemUrl);
-
-        if (false === $parsedUrl) {
-            throw new InvalidArgumentException('Provided line item url cannot bee parsed');
-        }
 
         $parsedUrl['path'] = rtrim($parsedUrl['path'], '/');
         $parsedUrl['path'] = rtrim($parsedUrl['path'], '/lineitem');
