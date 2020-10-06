@@ -121,14 +121,11 @@ class LineItemCreateServer implements RequestHandlerInterface
                 $exception->getMessage()
             );
         } catch (Throwable $exception) {
-
-            var_dump($exception->getMessage()); //FIXME
-
             return $this->factory->createResponse(
                 500,
                 null,
                 [],
-                'Internal membership service error'
+                'Internal AGS service error'
             );
         } finally {
             if (isset($exception)) {

@@ -67,7 +67,7 @@ class LineItemCreateServerTest extends TestCase
         int $expectedStatusCode,
         $expectedResponseBody,
         string $requestMethod,
-        string $contextId,
+        string $url,
         array $requestBody
     ): void
     {
@@ -76,7 +76,7 @@ class LineItemCreateServerTest extends TestCase
 
         $request = new ServerRequest(
             $requestMethod,
-            sprintf('/%s/lineitems', $contextId),
+            $url,
             [],
             Utils::streamFor(json_encode($requestBody))
         );
@@ -92,19 +92,35 @@ class LineItemCreateServerTest extends TestCase
 
     public function handleProvider(): array
     {
+        $urlWithContext = sprintf('/%s/lineitems', 'myContextId');
+
         return [
-            [
-                'expectedStatusCode' => 500,
-                'expectedResponseBody' => "Internal membership service error",
+            'ContextId not Provided' => [
+                'expectedStatusCode' => 400,
+                'expectedResponseBody' => 'Url path must contain contextId as first uri path part.',
                 'requestMethod' => 'POST',
-                'contextId' => 'myContextId',
+                'url' => '/',
+                'requestBody' => $this->createLineItem()
+            ],
+            'HTTP method not accepted' => [
+                'expectedStatusCode' => 405,
+                'expectedResponseBody' => 'Expected http method is post',
+                'requestMethod' => 'GET',
+                'url' => $urlWithContext,
+                'requestBody' => []
+            ],
+            'Internal error' => [
+                'expectedStatusCode' => 500,
+                'expectedResponseBody' => 'Internal AGS service error',
+                'requestMethod' => 'POST',
+                'contextId' => $urlWithContext,
                 'requestBody' => []
             ],
             'LineItem Created successfully' => [
                 'expectedStatusCode' => 201,
                 'expectedResponseBody' => $this->createLineItem(),
                 'requestMethod' => 'POST',
-                'contextId' => 'myContextId',
+                'contextId' => $urlWithContext,
                 'requestBody' => $this->createLineItem()
             ]
         ];
