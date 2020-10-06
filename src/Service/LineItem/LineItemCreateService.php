@@ -24,12 +24,14 @@ namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
 use OAT\Library\Lti1p3Ags\Model\LineItem;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepository;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorException;
 
 class LineItemCreateService implements LineItemCreateServiceInterface
 {
     /** @var LineItemRepository */
     private $repository;
 
+    //@TODO Rename LineItemRepositoryInterface
     public function __construct(LineItemRepository $repository)
     {
         $this->repository = $repository;
@@ -38,8 +40,32 @@ class LineItemCreateService implements LineItemCreateServiceInterface
     /**
      * @inheritDoc
      */
-    public function create(LineItem $lineItem): void
+    public function create(LineItem $lineItem): void //@TODO Use LineItemInterface instead
     {
+        //@TODO Add extra domain validations here (check specs)
+
+        /*
+        {
+          "startDateTime": "2020-10-06T13:59:10.213Z",
+          "endDateTime": "2020-10-06T13:59:10.213Z",
+          "scoreMaximum": 0,
+          "label": "string",
+          "tag": "string",
+          "resourceId": "string",
+          "resourceLinkId": "string"
+        }
+        */
+
+        if ($lineItem->getStartDateTime() > $lineItem->getEndDateTime()) {
+            throw new RequestValidatorException(
+                sprintf(
+                    'Value of startDateTime (%s) time should be lower or equal than endDateTime (%s)',
+                    $lineItem->getStartDateTime()->format('Y-m-d H:i:s'),
+                    $lineItem->getEndDateTime()->format('Y-m-d H:i:s')
+                )
+            );
+        }
+
         $this->repository->create($lineItem);
     }
 }

@@ -114,7 +114,7 @@ class LineItemCreateServerTest extends TestCase
             ],
             'HTTP method not accepted' => [
                 'expectedStatusCode' => 405,
-                'expectedResponseBody' => 'Expected http method is post',
+                'expectedResponseBody' => 'Expected http method is "post".',
                 'requestMethod' => 'GET',
                 'url' => $urlWithContext,
                 'requestBody' => [],

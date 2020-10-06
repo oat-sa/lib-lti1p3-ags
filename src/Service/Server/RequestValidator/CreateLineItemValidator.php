@@ -43,19 +43,18 @@ class CreateLineItemValidator implements RequestValidatorInterface
             );
         }
 
-        if (!isset(
-            $data['startDateTime'],
-            $data['endDateTime'],
-            $data['scoreMaximum'],
-            $data['label'],
-            $data['tag'],
-            $data['resourceId'],
-            $data['resourceLinkId']
-        )) {
+        if (!isset($data['scoreMaximum'], $data['label'])) {
             throw new RequestValidatorException(
                 'All required fields were not provided',
                 400
             );
         }
+
+        //@TODO Check better way to validate these fields
+        //$data['startDateTime'],
+        //$data['endDateTime'],
+        //$data['tag'],
+        //$data['resourceId'],
+        //$data['resourceLinkId']
     }
 }
