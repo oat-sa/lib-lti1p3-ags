@@ -20,12 +20,12 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Normalizer\Tool;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Score\Normalizer;
 
 use Carbon\Carbon;
-use OAT\Library\Lti1p3Ags\Factory\ScoreFactory;
-use OAT\Library\Lti1p3Ags\Model\Score;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Tool\ScoreNormalizer;
+use OAT\Library\Lti1p3Ags\Factory\Score\ScoreFactory;
+use OAT\Library\Lti1p3Ags\Serializer\Score\Normalizer\ScoreNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\Score\Normalizer\ScoreNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 use PHPUnit\Framework\TestCase;
 
@@ -33,7 +33,7 @@ class ScoreNormalizerTest extends TestCase
 {
     use DateConverterTrait;
 
-    /** @var ScoreNormalizer */
+    /** @var ScoreNormalizerInterface */
     private $subject;
 
     public function setUp(): void

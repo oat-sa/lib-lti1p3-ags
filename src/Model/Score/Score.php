@@ -20,45 +20,16 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model;
+namespace OAT\Library\Lti1p3Ags\Model\Score;
 
 use Carbon\Carbon;
 use DateTimeInterface;
 
-class Score
+/**
+ * @see https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service
+ */
+class Score implements ScoreInterface
 {
-    /**
-     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#activityprogress
-     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#gradingprogress
-     */
-    public const ACTIVITY_PROGRESS_STATUS_INITIALIZED = 'Initialized';
-    public const ACTIVITY_PROGRESS_STATUS_STARTED = 'Started';
-    public const ACTIVITY_PROGRESS_STATUS_IN_PROGRESS = 'InProgress';
-    public const ACTIVITY_PROGRESS_STATUS_SUBMITTED = 'Submitted';
-    public const ACTIVITY_PROGRESS_STATUS_COMPLETED = 'Completed';
-
-    public const GRADING_PROGRESS_STATUS_FULLY_GRADED = 'FullyGraded';
-    public const GRADING_PROGRESS_STATUS_PENDING = 'Pending';
-    public const GRADING_PROGRESS_STATUS_PENDING_MANUAL = 'PendingManual';
-    public const GRADING_PROGRESS_STATUS_FAILED = 'Failed';
-    public const GRADING_PROGRESS_STATUS_NOT_READY = 'NotReady';
-
-    public const SUPPORTED_ACTIVITY_PROGRESS_STATUSES = [
-        self::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
-        self::ACTIVITY_PROGRESS_STATUS_STARTED,
-        self::ACTIVITY_PROGRESS_STATUS_IN_PROGRESS,
-        self::ACTIVITY_PROGRESS_STATUS_SUBMITTED,
-        self::ACTIVITY_PROGRESS_STATUS_COMPLETED
-    ];
-
-    public const SUPPORTED_GRADING_PROGRESS_STATUSES = [
-        self::GRADING_PROGRESS_STATUS_FULLY_GRADED,
-        self::GRADING_PROGRESS_STATUS_PENDING,
-        self::GRADING_PROGRESS_STATUS_PENDING_MANUAL,
-        self::GRADING_PROGRESS_STATUS_FAILED,
-        self::GRADING_PROGRESS_STATUS_NOT_READY
-    ];
-
     /** @var string */
     private $userId;
 

@@ -20,16 +20,17 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model\LineItem;
 
 use Carbon\Carbon;
 use InvalidArgumentException;
-use OAT\Library\Lti1p3Ags\Model\LineItem;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 use PHPUnit\Framework\TestCase;
 
 class LineItemTest extends TestCase
 {
-    /** @var LineItem */
+    /** @var LineItemInterface */
     private $lineItem;
 
     public function setUp(): void
