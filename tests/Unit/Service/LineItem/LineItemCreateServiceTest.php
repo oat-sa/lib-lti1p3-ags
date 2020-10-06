@@ -20,26 +20,36 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Service\LineItem;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\LineItem;
 
 use OAT\Library\Lti1p3Ags\Model\LineItem;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepository;
+use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemCreateService;
+use PHPUnit\Framework\TestCase;
 
-class LineItemCreateService implements LineItemCreateServiceInterface
+class LineItemCreateServiceTest extends TestCase
 {
+    /** @var LineItemCreateService */
+    private $subject;
+
     /** @var LineItemRepository */
     private $repository;
 
-    public function __construct(LineItemRepository $repository)
+    public function setUp()
     {
-        $this->repository = $repository;
+        $this->repository = $this->createMock(LineItemRepository::class);
+        $this->subject = new LineItemCreateService($this->repository);
     }
 
-    /**
-     * @inheritDoc
-     */
-    public function create(LineItem $lineItem): void
+    public function testCreate(): void
     {
-        $this->repository->create($lineItem);
+        $lineItem = $this->createMock(LineItem::class);
+
+        $this->repository
+            ->expects($this->once())
+            ->method('create')
+            ->with($lineItem);
+
+        $this->subject->create($lineItem);
     }
 }
