@@ -98,13 +98,13 @@ class LineItemGetServer implements RequestHandlerInterface
             $page = $data['page'] ?? null;
             $limit = $data['limit'] ?? null;
 
-            if ($lineItemId !== null) {
+            if ($lineItemId === null) {
                 $responseBody = $this->lineItemContainerNormalizer->normalize(
                     $this->service->findAll($contextId, $page, $limit)
                 );
             } else {
                 $responseBody = $this->lineItemNormalizer->normalize(
-                    $this->service->findOne($contextId, $lineItemId)
+                    $this->service->findOne($contextId, (string) $lineItemId)
                 );
             }
 

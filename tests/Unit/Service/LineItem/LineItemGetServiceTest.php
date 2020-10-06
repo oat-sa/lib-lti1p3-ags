@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\LineItem;
 
 use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Repository\LineItemRepository;
+use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetService;
 use OAT\Library\Lti1p3Ags\Service\LineItem\Query\LineItemQuery;
 use PHPUnit\Framework\TestCase;
@@ -33,59 +33,39 @@ class LineItemGetServiceTest extends TestCase
     /** @var LineItemGetService  */
     private $subject;
 
-    /** @var LineItemRepository */
+    /** @var LineItemRepositoryInterface */
     private $repository;
 
     public function setUp(): void
     {
-        $this->repository = $this->createMock(LineItemRepository::class);
+        $this->repository = $this->createMock(LineItemRepositoryInterface::class);
         $this->subject = new LineItemGetService($this->repository);
     }
 
     public function testFindOne(): void
     {
-        $query = $this->createMock(LineItemQuery::class);
-        $query
-            ->expects($this->once())
-            ->method('hasLineItemId')
-            ->willReturn(true);
+        $contextId = 'context-id';
+        $lineItemId = 'lineItem-id';
 
         $this->repository
             ->expects($this->once())
             ->method('findOne')
-            ->with($query);
+            ->with($contextId, $lineItemId);
 
-        $this->subject->findOne($query);
-    }
-
-    public function testFindOneWithoutLineItemId(): void
-    {
-        $query = $this->createMock(LineItemQuery::class);
-        $query
-            ->expects($this->once())
-            ->method('hasLineItemId')
-            ->willReturn(false);
-
-        $this->repository
-            ->expects($this->never())
-            ->method('findOne');
-
-        $this->expectException(AgsHttpException::class);
-        $this->expectExceptionMessage('Missing "LineItemId" parameter.');
-        $this->expectExceptionCode(400);
-
-        $this->subject->findOne($query);
+        $this->subject->findOne($contextId, $lineItemId);
     }
 
     public function testFindAll(): void
     {
-        $query = $this->createMock(LineItemQuery::class);
+        $contextId = 'context-id';
+        $page = 1;
+        $limit = 100;
 
         $this->repository
             ->expects($this->once())
             ->method('findAll')
-            ->with($query);
+            ->with($contextId, $page, $limit);
 
-        $this->subject->findAll($query);
+        $this->subject->findAll($contextId, $page, $limit);
     }
 }
