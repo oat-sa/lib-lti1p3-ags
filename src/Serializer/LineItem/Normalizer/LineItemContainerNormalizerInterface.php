@@ -20,40 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Service\LineItem\Query;
+namespace OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer;
 
-use OAT\Library\Lti1p3Ags\Model\Score;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
 
-class ScoreCreateQuery
+interface LineItemContainerNormalizerInterface
 {
-    /** @var string */
-    private $contextId;
-
-    /** @var string */
-    private $lineItemId;
-
-    /** @var Score */
-    private $score;
-
-    public function __construct(string $contextId, string $lineItemId, Score $score)
-    {
-        $this->contextId = $contextId;
-        $this->lineItemId = $lineItemId;
-        $this->score = $score;
-    }
-
-    public function getContextId(): string
-    {
-        return $this->contextId;
-    }
-
-    public function getLineItemId(): string
-    {
-        return $this->lineItemId;
-    }
-
-    public function getScore(): Score
-    {
-        return $this->score;
-    }
+    public function normalize(LineItemContainerInterface $lineItemContainer): array;
 }

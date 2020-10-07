@@ -20,9 +20,9 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model;
+namespace OAT\Library\Lti1p3Ags\Model\Result;
 
-class Result
+class Result implements ResultInterface
 {
     /** @var string */
     private $id;
@@ -49,8 +49,7 @@ class Result
         int $resultMaximum,
         string $comment,
         string $scoreOf
-    )
-    {
+    ) {
         $this->id = $id;
         $this->userId = $userId;
         $this->resultScore = $resultScore;

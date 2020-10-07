@@ -20,11 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
+namespace OAT\Library\Lti1p3Ags\Repository;
 
-use OAT\Library\Lti1p3Ags\Model\Result;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
 
-interface ResultDenormalizerInterface
+interface ResultRepositoryInterface
 {
-    public function denormalize(Result $result): array;
+    public function findOne(string $contextId, string $lineItemId): ResultInterface;
 }

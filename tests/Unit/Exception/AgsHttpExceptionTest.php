@@ -20,13 +20,31 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Repository;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Exception;
 
 use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Model\Result;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\ResultGetQuery;
+use PHPUnit\Framework\TestCase;
 
-interface ResultRepository
+class AgsHttpExceptionTest extends TestCase
 {
-    public function findOne(ResultGetQuery $resultGetQuery): Result;
+    /**
+     * @dataProvider getReasonPhraseProvider
+     */
+    public function testGetReasonPhrase(int $code, ?string $reasonPhrase): void
+    {
+        $exception = new AgsHttpException('some message', $code);
+        $this->assertSame($reasonPhrase, $exception->getReasonPhrase());
+    }
+
+    public function getReasonPhraseProvider(): array
+    {
+        return [
+            [400, 'Bad Request'],
+            [401, 'Unauthorized'],
+            [405, 'Method not allowed'],
+            [422, 'Unprocessable Entity'],
+            [500, 'Internal Error'],
+            [999, null],
+        ];
+    }
 }
