@@ -32,6 +32,6 @@ class LineItemCreateServer implements RequestHandlerInterface
     /** @todo */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        return new Response(501);
+        return new Response();
     }
 }
