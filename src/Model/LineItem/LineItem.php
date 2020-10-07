@@ -143,6 +143,20 @@ class LineItem implements LineItemInterface
         return $this;
     }
 
+    public function jsonSerialize(): array
+    {
+        return [
+            'id' => $this->getId() ?? '',
+            'startDateTime' => $this->startDateTime ? $this->startDateTime->format(DateTimeInterface::ATOM) : null,
+            'endDateTime' => $this->endDateTime ? $this->endDateTime->format(DateTimeInterface::ATOM) : null,
+            'scoreMaximum' => $this->getScoreMaximum(),
+            'label' => $this->getLabel(),
+            'tag' => $this->getTag() ?? '',
+            'resourceId' => $this->getResourceId() ?? '',
+            'resourceLinkId' => $this->getResourceLinkId() ?? ''
+        ];
+    }
+
     private function checkParameterMaxLength(string $parameter, ?string $value): void
     {
         $length = strlen((string)$value);

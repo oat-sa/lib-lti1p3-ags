@@ -24,7 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\LineItem;
 
 use Exception;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemGetServer;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
@@ -49,7 +49,7 @@ class LineItemGetServerTest extends TestCase
     /** @var UrlParserInterface  */
     private $parser;
 
-    /** @var LineItemNormalizerInterface  */
+    /** @var LineItemSerializerInterface  */
     private $lineItemNormalizer;
 
     public function setUp(): void
@@ -57,7 +57,7 @@ class LineItemGetServerTest extends TestCase
         $this->validator = $this->createMock(AccessTokenRequestValidator::class);
         $this->service = $this->createMock(LineItemGetServiceInterface::class);
         $this->parser = $this->createMock(UrlParserInterface::class);
-        $this->lineItemNormalizer = $this->createMock(LineItemNormalizerInterface::class);
+        $this->lineItemNormalizer = $this->createMock(LineItemSerializerInterface::class);
 
         $this->subject = new LineItemGetServer(
             $this->validator,

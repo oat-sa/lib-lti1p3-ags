@@ -20,21 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Service\LineItem;
+namespace OAT\Library\Lti1p3Ags\Serializer\LineItemContainer;
 
 use OAT\Library\Lti1p3Ags\Model\LineItemContainer\LineItemContainerInterface;
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
-interface LineItemGetServiceInterface
+interface LineItemContainerSerializerInterface
 {
-    public function findAll(
-        string $contextId,
-        int $page = null,
-        int $limit = null,
-        string $resourceLinkId = null,
-        string $tag = null,
-        string $resourceId = null
-    ): LineItemContainerInterface;
-
-    public function findOne(string $contextId, string $lineItemId): LineItemInterface;
+    public function serialize(LineItemContainerInterface $lineItemContainer): string;
 }

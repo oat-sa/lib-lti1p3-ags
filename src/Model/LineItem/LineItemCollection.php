@@ -22,8 +22,25 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
-use IteratorAggregate;
+use ArrayIterator;
 
-interface LineItemContainerInterface extends IteratorAggregate
+class LineItemCollection implements LineItemCollectioninterface
 {
+    /** @var LineItemInterface[] */
+    private $lineItems;
+
+    public function __construct(LineItemInterface ...$lineItems)
+    {
+        $this->lineItems = $lineItems;
+    }
+
+    public function getIterator(): ArrayIterator
+    {
+        return new ArrayIterator($this->lineItems);
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->getIterator()->getArrayCopy();
+    }
 }

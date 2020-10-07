@@ -20,20 +20,23 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model\LineItem;
+namespace OAT\Library\Lti1p3Ags\Model\LineItemContainer;
 
-class LineItemContainer implements LineItemContainerInterface
+use JsonSerializable;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectioninterface;
+
+interface LineItemContainerInterface extends JsonSerializable
 {
-    /** @var LineItemInterface[] */
-    private $lineItems;
+    public const REL_NEXT = 'next';
+    public const REL_DIFFERENCES = 'differences';
 
-    public function __construct(LineItemInterface ...$lineItems)
-    {
-        $this->lineItems = $lineItems;
-    }
+    public function getLineItems(): LineItemCollectioninterface;
 
-    public function getIterator()
-    {
-        return $this->lineItems;
-    }
+    public function getRelationLink(): ?string;
+
+    public function setRelationLink(string $relationLink): LineItemContainerInterface;
+
+    public function hasNext(): bool;
+
+    public function hasDifferences(): bool;
 }

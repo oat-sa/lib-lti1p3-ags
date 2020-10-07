@@ -20,11 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer;
+namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use IteratorAggregate;
+use JsonSerializable;
 
-interface LineItemNormalizerInterface
+interface LineItemCollectionInterface extends IteratorAggregate, JsonSerializable
 {
-    public function normalize(LineItemInterface $lineItem): array;
 }
