@@ -66,12 +66,11 @@ class LineItemNormalizerTest extends TestCase
         );
 
         $values = [
-            'contextId' => $contextId,
-            'scoreMaximum' => $scoreMaximum,
-            'label' => $label,
             'id' => $id,
             'startDateTime' => $this->dateToIso8601($startDateTime),
             'endDateTime' => $this->dateToIso8601($endDateTime),
+            'scoreMaximum' => $scoreMaximum,
+            'label' => $label,
             'tag' => $tag,
             'resourceId' => $resourceId,
             'resourceLinkId' => $resourceLinkId,
@@ -92,12 +91,11 @@ class LineItemNormalizerTest extends TestCase
         $lineItem = new LineItem($contextId, $scoreMaximum, $label);
 
         $values = [
-            'contextId' => $contextId,
-            'scoreMaximum' => $scoreMaximum,
-            'label' => $label,
             'id' => '',
             'startDateTime' => null,
             'endDateTime' => null,
+            'scoreMaximum' => $scoreMaximum,
+            'label' => $label,
             'tag' => '',
             'resourceId' => '',
             'resourceLinkId' => '',

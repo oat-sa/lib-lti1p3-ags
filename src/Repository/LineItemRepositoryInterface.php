@@ -31,7 +31,14 @@ interface LineItemRepositoryInterface
 
     public function findOne(string $contextId, string $lineItemId): LineItemInterface;
 
-    public function findAll(string $contextId, int $page = null, int $limit = null): LineItemContainerInterface;
+    public function findAll(
+        string $contextId,
+        int $page = null,
+        int $limit = null,
+        string $resourceLinkId = null,
+        string $tag = null,
+        string $resourceId = null
+    ): LineItemContainerInterface;
 
     public function delete(string $contextId, string $lineItemId): void;
 

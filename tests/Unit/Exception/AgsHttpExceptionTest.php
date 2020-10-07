@@ -28,7 +28,7 @@ use PHPUnit\Framework\TestCase;
 class AgsHttpExceptionTest extends TestCase
 {
     /**
-     * @dataProvider getReasonPhraseFor401ExceptionProvider
+     * @dataProvider getReasonPhraseProvider
      */
     public function testGetReasonPhrase(int $code, ?string $reasonPhrase): void
     {
@@ -36,7 +36,7 @@ class AgsHttpExceptionTest extends TestCase
         $this->assertSame($reasonPhrase, $exception->getReasonPhrase());
     }
 
-    public function getReasonPhraseFor401ExceptionProvider(): array
+    public function getReasonPhraseProvider(): array
     {
         return [
             [400, 'Bad Request'],

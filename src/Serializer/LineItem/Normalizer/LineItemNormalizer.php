@@ -42,12 +42,11 @@ class LineItemNormalizer implements LineItemNormalizerInterface
         }
 
         return [
-            'contextId' => $lineItem->getContextId(),
-            'scoreMaximum' => $lineItem->getScoreMaximum(),
-            'label' => $lineItem->getLabel(),
             'id' => $lineItem->getId() ?? '',
             'startDateTime' => $startDateTime,
             'endDateTime' => $endDateTime,
+            'scoreMaximum' => $lineItem->getScoreMaximum(),
+            'label' => $lineItem->getLabel(),
             'tag' => $lineItem->getTag() ?? '',
             'resourceId' => $lineItem->getResourceId() ?? '',
             'resourceLinkId' => $lineItem->getResourceLinkId() ?? ''
