@@ -43,8 +43,7 @@ class LineItemGetService implements LineItemGetServiceInterface
         string $resourceLinkId = null,
         string $tag = null,
         string $resourceId = null
-    ): LineItemContainerInterface
-    {
+    ): LineItemContainerInterface {
         return $this->repository->findAll($contextId, $page, $limit, $resourceLinkId, $tag, $resourceId);
     }
 
