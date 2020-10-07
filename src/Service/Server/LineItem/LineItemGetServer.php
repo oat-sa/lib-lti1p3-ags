@@ -102,7 +102,6 @@ class LineItemGetServer implements RequestHandlerInterface
             ];
 
             return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
-
         } catch (AgsHttpException $exception) {
             $this->logger->error($exception->getMessage());
 
@@ -112,7 +111,6 @@ class LineItemGetServer implements RequestHandlerInterface
                 [],
                 $exception->getMessage()
             );
-
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
 

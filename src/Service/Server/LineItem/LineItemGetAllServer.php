@@ -78,7 +78,8 @@ class LineItemGetAllServer implements RequestHandlerInterface
         $this->validator = $this->aggregateValidator($validator);
         $this->service = $service;
         $this->parser = $parser ?? new UrlParser();
-        $this->lineItemContainerNormalizer = $lineItemContainerNormalizer ?? new LineItemContainerNormalizer(new LineItemNormalizer());
+        $this->lineItemContainerNormalizer = $lineItemContainerNormalizer
+            ?? new LineItemContainerNormalizer(new LineItemNormalizer());
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
@@ -107,7 +108,6 @@ class LineItemGetAllServer implements RequestHandlerInterface
             ];
 
             return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
-
         } catch (AgsHttpException $exception) {
             $this->logger->error($exception->getMessage());
 
@@ -117,7 +117,6 @@ class LineItemGetAllServer implements RequestHandlerInterface
                 [],
                 $exception->getMessage()
             );
-
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
 
