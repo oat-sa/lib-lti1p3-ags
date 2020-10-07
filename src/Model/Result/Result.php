@@ -49,8 +49,7 @@ class Result implements ResultInterface
         int $resultMaximum,
         string $comment,
         string $scoreOf
-    )
-    {
+    ) {
         $this->id = $id;
         $this->userId = $userId;
         $this->resultScore = $resultScore;
