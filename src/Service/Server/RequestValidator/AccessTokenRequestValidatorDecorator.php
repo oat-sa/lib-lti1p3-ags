@@ -30,9 +30,13 @@ class AccessTokenRequestValidatorDecorator implements RequestValidatorInterface
     /** @var AccessTokenRequestValidator */
     private $validator;
 
-    public function __construct(AccessTokenRequestValidator $validator)
+    /** @var string */
+    private $allowedScope;
+
+    public function __construct(AccessTokenRequestValidator $validator, string $allowedScope = null)
     {
         $this->validator = $validator;
+        $this->allowedScope = $allowedScope;
     }
 
     /**
@@ -44,6 +48,13 @@ class AccessTokenRequestValidatorDecorator implements RequestValidatorInterface
 
         if ($validationResult->hasError()) {
             throw new RequestValidatorException($validationResult->getError(), 401);
+        }
+
+        if ($this->allowedScope !== null && !in_array($this->allowedScope, $validationResult->getScopes(), true)) {
+            throw new RequestValidatorException(
+                sprintf('Only allowed for scope %s', $this->allowedScope),
+                401
+            );
         }
     }
 }

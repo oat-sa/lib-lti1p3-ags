@@ -27,6 +27,7 @@ use GuzzleHttp\Psr7\ServerRequest;
 use GuzzleHttp\Psr7\Utils;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemCreateServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemCreateServer;
+use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidationResult;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -65,6 +66,20 @@ class LineItemCreateServerTest extends TestCase
         Throwable $unhandledException = null
     ): void
     {
+        $validationResult = $this->createMock(AccessTokenRequestValidationResult::class);
+
+        $validationResult
+            ->method('hasError')
+            ->willReturn(false);
+
+        $validationResult
+            ->method('getScopes')
+            ->willReturn([LineItemCreateServer::ALLOWED_SCOPE]);
+
+        $this->validator
+            ->method('validate')
+            ->willReturn($validationResult);
+
         $this->service
             ->method('create')
             ->willReturnCallback(
