@@ -130,7 +130,7 @@ class LineItemCreateServerTest extends TestCase
             ],
             'LineItem Created successfully' => [
                 'expectedStatusCode' => 201,
-                'expectedResponseBody' => $this->createLineItemResponse(),
+                'expectedResponseBody' => $this->createLineItem(),
                 'requestMethod' => 'POST',
                 'contextId' => $urlWithContext,
                 'requestBody' => $this->createLineItem(),
@@ -142,22 +142,14 @@ class LineItemCreateServerTest extends TestCase
     private function createLineItem(): array
     {
         return [
-            'scoreMaximum' => 100,
-            'label' => 'My Label',
             'id' => 'myId',
             'startDateTime' => '2010-10-10T00:00:00+00:00',
             'endDateTime' => '2010-10-10T00:59:59+00:00',
+            'scoreMaximum' => 100,
+            'label' => 'My Label',
             'tag' => 'My tag',
             'resourceId' => 'myResourceId',
             'resourceLinkId' => 'myResourceLinkId',
         ];
-    }
-
-    private function createLineItemResponse(): array
-    {
-        return array_merge(
-            ['contextId' => 'myContextId'],
-            self::createLineItem()
-        );
     }
 }
