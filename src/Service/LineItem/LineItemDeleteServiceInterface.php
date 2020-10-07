@@ -22,9 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\ResultGetQuery;
-
 interface LineItemDeleteServiceInterface
 {
-    public function delete(ResultGetQuery $lineItemQuery): void;
+    public function delete(string $contextId, string $lineItemId): void;
 }

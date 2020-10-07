@@ -22,19 +22,25 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Repository;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem;
-use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\ResultGetQuery;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
-interface LineItemRepository
+interface LineItemRepositoryInterface
 {
-    public function create(LineItem $lineItem): void;
+    public function create(LineItemInterface $lineItem): void;
 
-    public function findOne(ResultGetQuery $query): LineItem;
+    public function findOne(string $contextId, string $lineItemId): LineItemInterface;
 
-    public function findAll(ResultGetQuery $query): LineItemContainer;
+    public function findAll(
+        string $contextId,
+        int $page = null,
+        int $limit = null,
+        string $resourceLinkId = null,
+        string $tag = null,
+        string $resourceId = null
+    ): LineItemContainerInterface;
 
-    public function delete(ResultGetQuery $query): void;
+    public function delete(string $contextId, string $lineItemId): void;
 
-    public function update(LineItem $lineItem): void;
+    public function update(LineItemInterface $lineItem): void;
 }

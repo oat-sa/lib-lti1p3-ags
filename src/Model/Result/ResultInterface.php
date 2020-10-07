@@ -20,12 +20,19 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Repository;
+namespace OAT\Library\Lti1p3Ags\Model\Result;
 
-use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Model\Score;
-
-interface ScoreRepository
+interface ResultInterface
 {
-    public function create(Score $score): void;
+    public function getId(): string;
+
+    public function getUserId(): string;
+
+    public function getResultScore(): float;
+
+    public function getResultMaximum(): int;
+
+    public function getComment(): string;
+
+    public function getScoreOf(): string;
 }

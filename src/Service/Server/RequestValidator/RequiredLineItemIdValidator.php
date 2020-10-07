@@ -22,18 +22,25 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\Server\RequestValidator;
 
+use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
+use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class RequiredLineItemIdValidator implements RequestValidatorInterface
 {
+    private $parser;
+
+    public function __construct(UrlParserInterface $parser = null)
+    {
+        $this->parser = $parser ?? new UrlParser();
+    }
+
     public function validate(ServerRequestInterface $request): void
     {
-        $parsedUrl = explode('/', $request->getUri()->getPath());
+        $data = $this->parser->parse($request);
 
-        $lineItemId = $parsedUrl[2] ?? null;
-
-        if ($lineItemId === null) {
-            throw new RequestValidatorException('Url path must contain lienItemId as third uri path part.', 400);
+        if ($data['lineItemId'] === null) {
+            throw new RequestValidatorException('Url path must contain lineItemId as third uri path part.', 400);
         }
     }
 }

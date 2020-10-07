@@ -88,12 +88,12 @@ class ScoreTest extends TestCase
 
     public function testGetActivityProgressStatus(): void
     {
-        $this->assertEquals(Score::ACTIVITY_PROGRESS_STATUS_INITIALIZED, $this->score->getActivityProgressStatus());
+        $this->assertEquals(ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED, $this->score->getActivityProgressStatus());
     }
 
     public function testGetGradingProgressStatus(): void
     {
-        $this->assertEquals(Score::GRADING_PROGRESS_STATUS_NOT_READY, $this->score->getGradingProgressStatus());
+        $this->assertEquals(ScoreInterface::GRADING_PROGRESS_STATUS_NOT_READY, $this->score->getGradingProgressStatus());
     }
 
     public function testCreateScoreWhenNoTimestamp(): void

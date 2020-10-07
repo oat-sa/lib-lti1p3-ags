@@ -20,29 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Service\LineItem\Query;
+namespace OAT\Library\Lti1p3Ags\Repository;
 
-class ResultGetQuery
+use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
+
+interface ScoreRepositoryInterface
 {
-    /** @var string */
-    private $contextId;
-
-    /** @var string */
-    private $lineItemId;
-
-    public function __construct(string $contextId, string $lineItemId)
-    {
-        $this->contextId = $contextId;
-        $this->lineItemId = $lineItemId;
-    }
-
-    public function getContextId(): string
-    {
-        return $this->contextId;
-    }
-
-    public function getLineItemId(): string
-    {
-        return $this->lineItemId;
-    }
+    public function create(ScoreInterface $score): void;
 }

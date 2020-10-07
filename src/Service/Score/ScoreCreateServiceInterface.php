@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\Score;
 
-use OAT\Library\Lti1p3Ags\Model\Score;
+use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 
 interface ScoreCreateServiceInterface
 {
-    public function create(Score $score): void;
+    public function create(ScoreInterface $score): void;
 }

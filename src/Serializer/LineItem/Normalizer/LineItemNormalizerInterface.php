@@ -20,11 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
+namespace OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer;
 
-use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
-interface LineItemContainerNormalizerInterface
+interface LineItemNormalizerInterface
 {
-    public function normalize(LineItemContainer $lineItemContainer): array;
+    public function normalize(LineItemInterface $lineItem): array;
 }

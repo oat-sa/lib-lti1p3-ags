@@ -28,7 +28,7 @@ class UrlParser implements UrlParserInterface
 {
     public function parse(ServerRequestInterface $request): array
     {
-        $urlPaths = explode('/', $request->getUri()->getPath());
+        $urlPaths = explode('/', trim($request->getUri()->getPath(), '/'));
 
         return [
             'contextId' => $urlPaths[0],

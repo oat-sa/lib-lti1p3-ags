@@ -20,12 +20,29 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Traits;
 
-use OAT\Library\Lti1p3Ags\Model\Score;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\UriInterface;
 
-interface ScoreNormalizerInterface
+trait ServerRequestPathTestingTrait
 {
-    public function normalize(array $data): Score;
+    private function getMockForServerRequestWithPath(string $path, string $method = 'get'): ServerRequestInterface
+    {
+        $uri = $this->createMock(UriInterface::class);
+        $uri
+            ->method('getPath')
+            ->willReturn($path);
+
+        $request = $this->createMock(ServerRequestInterface::class);
+        $request
+            ->method('getUri')
+            ->willReturn($uri);
+
+        $request
+            ->method('getMethod')
+            ->willReturn($method);
+
+        return $request;
+    }
 }

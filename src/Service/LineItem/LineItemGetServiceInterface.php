@@ -22,13 +22,19 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem;
-use OAT\Library\Lti1p3Ags\Model\LineItemContainer;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Query\ResultGetQuery;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
 interface LineItemGetServiceInterface
 {
-    public function findAll(ResultGetQuery $lineItemQuery): LineItemContainer;
+    public function findAll(
+        string $contextId,
+        int $page = null,
+        int $limit = null,
+        string $resourceLinkId = null,
+        string $tag = null,
+        string $resourceId = null
+    ): LineItemContainerInterface;
 
-    public function findOne(ResultGetQuery $lineItemQuery): LineItem;
+    public function findOne(string $contextId, string $lineItemId): LineItemInterface;
 }
