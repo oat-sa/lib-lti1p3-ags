@@ -36,9 +36,16 @@ class LineItemGetService implements LineItemGetServiceInterface
         $this->repository = $repository;
     }
 
-    public function findAll(string $contextId, int $page = null, int $limit = null): LineItemContainerInterface
+    public function findAll(
+        string $contextId,
+        int $page = null,
+        int $limit = null,
+        string $resourceLinkId = null,
+        string $tag = null,
+        string $resourceId = null
+    ): LineItemContainerInterface
     {
-        return $this->repository->findAll($contextId, $page, $limit);
+        return $this->repository->findAll($contextId, $page, $limit, $resourceLinkId, $tag, $resourceId);
     }
 
     public function findOne(string $contextId, string $lineItemId): LineItemInterface

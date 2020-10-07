@@ -28,7 +28,6 @@ use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemContainerNormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemContainerNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizer;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
@@ -45,6 +44,9 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Throwable;
 
+/**
+ * see https://www.imsglobal.org/spec/lti-ags/v2p0/openapi/#/default/LineItems.GET
+ */
 class LineItemGetAllServer implements RequestHandlerInterface
 {
     /** @var RequestValidatorInterface */
@@ -89,14 +91,15 @@ class LineItemGetAllServer implements RequestHandlerInterface
             $data = $this->parser->parse($request);
 
             $contextId = $data['contextId'];
-            $page = $data['page'] ?? null;
             $limit = $data['limit'] ?? null;
+            $page = $data['page'] ?? null;
+            $resourceLinkId = $data['resource_link_id'] ?? null;
+            $tag = $data['tag'] ?? null;
+            $resourceId = $data['resource_id'] ?? null;
 
-            $responseBody = $this->lineItemContainerNormalizer->normalize(
-                $this->service->findAll($contextId, $page, $limit)
-            );
+            $lineItemContainer = $this->service->findAll($contextId, $page, $limit, $resourceLinkId, $tag, $resourceId);
 
-            $responseBody = json_encode($responseBody);
+            $responseBody = json_encode($this->lineItemContainerNormalizer->normalize($lineItemContainer));
 
             $responseHeaders = [
                 'Content-Type' => 'application/json',

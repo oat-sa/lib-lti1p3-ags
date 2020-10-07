@@ -129,6 +129,11 @@ class LineItemGetAllServerTest extends TestCase
     {
         $requestParameters = [
             'contextId' => 'toto',
+            'page' => 1,
+            'limit' => 50,
+            'resource_link_id' => 'test-resource-link-id',
+            'tag' => 'test-tag',
+            'resource_id' => 'test-resource-id'
         ];
         $normalizedLineItem = ['encoded-line-item'];
 
@@ -144,6 +149,7 @@ class LineItemGetAllServerTest extends TestCase
         $this->service
             ->expects($this->once())
             ->method('findAll')
+            ->with(...array_values($requestParameters))
             ->willReturn($lineItemContainer);
 
         $this->lineItemContainerNormalizer

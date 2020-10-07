@@ -27,7 +27,14 @@ use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
 interface LineItemGetServiceInterface
 {
-    public function findAll(string $contextId, int $page = null, int $limit = null): LineItemContainerInterface;
+    public function findAll(
+        string $contextId,
+        int $page = null,
+        int $limit = null,
+        string $resourceLinkId = null,
+        string $tag = null,
+        string $resourceId = null
+    ): LineItemContainerInterface;
 
     public function findOne(string $contextId, string $lineItemId): LineItemInterface;
 }
