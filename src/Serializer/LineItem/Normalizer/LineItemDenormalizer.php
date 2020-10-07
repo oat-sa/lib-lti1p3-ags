@@ -25,7 +25,6 @@ namespace OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer;
 use DateTimeImmutable;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
-use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 
 class LineItemDenormalizer implements LineItemDenormalizerInterface
 {
