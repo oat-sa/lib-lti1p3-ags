@@ -20,12 +20,12 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Normalizer\Platform;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\LineItem\Normalizer;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemContainerNormalizer;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizerInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemContainerNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizerInterface;
 use PHPUnit\Framework\TestCase;
 
 class LineItemContainerNormalizerTest extends TestCase
@@ -45,8 +45,8 @@ class LineItemContainerNormalizerTest extends TestCase
     public function testNormalize(): void
     {
         $iterator = [
-            $this->createMock(LineItem::class),
-            $this->createMock(LineItem::class)
+            $this->createMock(LineItemInterface::class),
+            $this->createMock(LineItemInterface::class)
         ];
 
         $expected = [

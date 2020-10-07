@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Repository;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
 interface LineItemRepositoryInterface
@@ -31,7 +31,7 @@ interface LineItemRepositoryInterface
 
     public function findOne(string $contextId, string $lineItemId): LineItemInterface;
 
-    public function findAll(string $contextId, int $page = null, int $limit = null): LineItemContainer;
+    public function findAll(string $contextId, int $page = null, int $limit = null): LineItemContainerInterface;
 
     public function delete(string $contextId, string $lineItemId): void;
 

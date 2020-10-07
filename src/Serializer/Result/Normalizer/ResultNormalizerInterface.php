@@ -20,23 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model;
+namespace OAT\Library\Lti1p3Ags\Serializer\Result\Normalizer;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
-use PHPUnit\Framework\TestCase;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
 
-class LineItemContainerTest extends TestCase
+interface ResultNormalizerInterface
 {
-    public function testGetIterator(): void
-    {
-        $iterator = [
-            $this->createMock(LineItem::class),
-            $this->createMock(LineItem::class)
-        ];
-
-        $lineItemContainer = new LineItemContainer(...$iterator);
-
-        $this->assertSame($iterator, $lineItemContainer->getIterator());
-    }
+    public function normalize(ResultInterface $result): array;
 }

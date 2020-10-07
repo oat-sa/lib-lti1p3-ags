@@ -20,28 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
+namespace OAT\Library\Lti1p3Ags\Repository;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
+use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 
-class LineItemContainerNormalizer implements LineItemContainerNormalizerInterface
+interface ScoreRepositoryInterface
 {
-    /** @var LineItemNormalizerInterface */
-    private $lineItemNormalizer;
-
-    public function __construct(LineItemNormalizerInterface $lineItemNormalizer)
-    {
-        $this->lineItemNormalizer = $lineItemNormalizer;
-    }
-
-    public function normalize(LineItemContainer $lineItemContainer): array
-    {
-        return array_map(
-            function (LineItem $lineItem) {
-                return $this->lineItemNormalizer->normalize($lineItem);
-            },
-            $lineItemContainer->getIterator()
-        );
-    }
+    public function create(ScoreInterface $score): void;
 }

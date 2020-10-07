@@ -22,14 +22,12 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
-use IteratorAggregate;
-
-class LineItemContainer implements IteratorAggregate
+class LineItemContainer implements LineItemContainerInterface
 {
-    /** @var LineItem[] */
+    /** @var LineItemInterface[] */
     private $lineItems;
 
-    public function __construct(LineItem ...$lineItems)
+    public function __construct(LineItemInterface ...$lineItems)
     {
         $this->lineItems = $lineItems;
     }

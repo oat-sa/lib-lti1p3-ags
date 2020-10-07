@@ -57,7 +57,7 @@ class RequiredLineItemIdValidatorTest extends TestCase
     public function testInvalidate($path): void
     {
         $this->expectException(RequestValidatorException::class);
-        $this->expectExceptionMessage('Url path must contain lienItemId as third uri path part.');
+        $this->expectExceptionMessage('Url path must contain lineItemId as third uri path part.');
         $this->expectExceptionCode(400);
 
         $this->subject->validate(

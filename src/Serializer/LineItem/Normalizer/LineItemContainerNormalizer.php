@@ -20,29 +20,28 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
+namespace OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer;
 
-use DateTimeImmutable;
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
-use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 
-class LineItemDenormalizer implements LineItemDenormalizerInterface
+class LineItemContainerNormalizer implements LineItemContainerNormalizerInterface
 {
-    use DateConverterTrait;
+    /** @var LineItemNormalizerInterface */
+    private $lineItemNormalizer;
 
-    public function denormalize(array $data): LineItemInterface
+    public function __construct(LineItemNormalizerInterface $lineItemNormalizer)
     {
-        return new LineItem(
-            (string)$data['contextId'],
-            (float)$data['scoreMaximum'],
-            (string)$data['label'],
-            $data['id'] ?? null,
-            $data['startDateTime'] ? new DateTimeImmutable($data['startDateTime']) : null,
-            $data['endDateTime'] ? new DateTimeImmutable($data['endDateTime']) : null,
-            $data['tag'] ?? null,
-            $data['resourceId'] ?? null,
-            $data['resourceLinkId'] ?? null
+        $this->lineItemNormalizer = $lineItemNormalizer;
+    }
+
+    public function normalize(LineItemContainerInterface $lineItemContainer): array
+    {
+        return array_map(
+            function (LineItemInterface $lineItem) {
+                return $this->lineItemNormalizer->normalize($lineItem);
+            },
+            $lineItemContainer->getIterator()
         );
     }
 }

@@ -22,10 +22,9 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Repository;
 
-use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Model\Score;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
 
-interface ScoreRepository
+interface ResultRepositoryInterface
 {
-    public function create(Score $score): void;
+    public function findOne(string $contextId, string $lineItemId): ResultInterface;
 }

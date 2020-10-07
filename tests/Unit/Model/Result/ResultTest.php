@@ -20,14 +20,15 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model\Result;
 
 use OAT\Library\Lti1p3Ags\Model\Result\Result;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
 use PHPUnit\Framework\TestCase;
 
 class ResultTest extends TestCase
 {
-    /** @var Result */
+    /** @var ResultInterface */
     private $subject;
 
     public function setUp(): void

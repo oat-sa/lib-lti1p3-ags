@@ -20,11 +20,27 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform;
+namespace OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer;
 
+use DateTimeImmutable;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 
-interface LineItemDenormalizerInterface
+class LineItemDenormalizer implements LineItemDenormalizerInterface
 {
-    public function denormalize(array $data): LineItemInterface;
+    public function denormalize(array $data): LineItemInterface
+    {
+        return new LineItem(
+            (string)$data['contextId'],
+            (float)$data['scoreMaximum'],
+            (string)$data['label'],
+            $data['id'] ?? null,
+            $data['startDateTime'] ? new DateTimeImmutable($data['startDateTime']) : null,
+            $data['endDateTime'] ? new DateTimeImmutable($data['endDateTime']) : null,
+            $data['tag'] ?? null,
+            $data['resourceId'] ?? null,
+            $data['resourceLinkId'] ?? null
+        );
+    }
 }

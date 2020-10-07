@@ -25,10 +25,8 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemContainerNormalizer;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemContainerNormalizerInterface;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizer;
-use OAT\Library\Lti1p3Ags\Serializer\Normalizer\Platform\LineItemNormalizerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
@@ -37,6 +35,7 @@ use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestMethodValidator
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorAggregator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequiredContextIdValidator;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequiredLineItemIdValidator;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -59,9 +58,6 @@ class LineItemGetServer implements RequestHandlerInterface
     /** @var LineItemNormalizerInterface  */
     private $lineItemNormalizer;
 
-    /** @var LineItemContainerNormalizerInterface  */
-    private $lineItemContainerNormalizer;
-
     /** @var ResponseFactory */
     private $factory;
 
@@ -73,7 +69,6 @@ class LineItemGetServer implements RequestHandlerInterface
         LineItemGetServiceInterface $service,
         UrlParserInterface $parser = null,
         LineItemNormalizerInterface $lineItemNormalizer = null,
-        LineItemContainerNormalizerInterface $lineItemContainerNormalizer = null,
         ResponseFactory $factory = null,
         LoggerInterface $logger = null
     ) {
@@ -81,7 +76,6 @@ class LineItemGetServer implements RequestHandlerInterface
         $this->service = $service;
         $this->parser = $parser ?? new UrlParser();
         $this->lineItemNormalizer = $lineItemNormalizer ?? new LineItemNormalizer();
-        $this->lineItemContainerNormalizer = $lineItemContainerNormalizer ?? new LineItemContainerNormalizer($this->lineItemNormalizer);
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
@@ -94,19 +88,11 @@ class LineItemGetServer implements RequestHandlerInterface
             $data = $this->parser->parse($request);
 
             $contextId = $data['contextId'];
-            $lineItemId = $data['lineItemId'] ?? null;
-            $page = $data['page'] ?? null;
-            $limit = $data['limit'] ?? null;
+            $lineItemId = $data['lineItemId'];
 
-            if ($lineItemId === null) {
-                $responseBody = $this->lineItemContainerNormalizer->normalize(
-                    $this->service->findAll($contextId, $page, $limit)
-                );
-            } else {
-                $responseBody = $this->lineItemNormalizer->normalize(
-                    $this->service->findOne($contextId, (string) $lineItemId)
-                );
-            }
+            $responseBody = $this->lineItemNormalizer->normalize(
+                $this->service->findOne($contextId, (string) $lineItemId)
+            );
 
             $responseBody = json_encode($responseBody);
 
@@ -139,7 +125,8 @@ class LineItemGetServer implements RequestHandlerInterface
         return new RequestValidatorAggregator(...[
             new AccessTokenRequestValidatorDecorator($accessTokenValidator),
             new RequestMethodValidator('get'),
-            new RequiredContextIdValidator()
+            new RequiredContextIdValidator(),
+            new RequiredLineItemIdValidator()
         ]);
     }
 }

@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
 interface LineItemUpdateServiceInterface
 {
-    public function update(LineItem $lineItem): void;
+    public function update(LineItemInterface $lineItem): void;
 }

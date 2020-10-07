@@ -23,21 +23,22 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\LineItem;
 
 use Exception;
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizerInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemContainerNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
-use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemGetServer;
+use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemGetAllServer;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorException;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
 use OAT\Library\Lti1p3Ags\Tests\Unit\Traits\ServerRequestPathTestingTrait;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use PHPUnit\Framework\TestCase;
 
-class LineItemGetServerTest extends TestCase
+class LineItemGetAllServerTest extends TestCase
 {
     use ServerRequestPathTestingTrait;
 
-    /** @var LineItemGetServer */
+    /** @var LineItemGetAllServer */
     private $subject;
 
     /** @var RequestValidatorInterface */
@@ -49,35 +50,39 @@ class LineItemGetServerTest extends TestCase
     /** @var UrlParserInterface  */
     private $parser;
 
-    /** @var LineItemNormalizerInterface  */
-    private $lineItemNormalizer;
+    /** @var LineItemContainerNormalizerInterface  */
+    private $lineItemContainerNormalizer;
 
     public function setUp(): void
     {
         $this->validator = $this->createMock(AccessTokenRequestValidator::class);
         $this->service = $this->createMock(LineItemGetServiceInterface::class);
         $this->parser = $this->createMock(UrlParserInterface::class);
-        $this->lineItemNormalizer = $this->createMock(LineItemNormalizerInterface::class);
+        $this->lineItemContainerNormalizer = $this->createMock(LineItemContainerNormalizerInterface::class);
 
-        $this->subject = new LineItemGetServer(
+        $this->subject = new LineItemGetAllServer(
             $this->validator,
             $this->service,
             $this->parser,
-            $this->lineItemNormalizer
+            $this->lineItemContainerNormalizer
         );
     }
 
-    public function testRequiredLineItemIdValidationFailed(): void
+    public function testAccessTokenValidationFailed(): void
     {
-        $this->validator->method('validate');
+        $bodyContent = 'error-message';
+
+        $this->validator
+            ->method('validate')
+            ->willThrowException(new RequestValidatorException($bodyContent, 401));
 
         $response = $this->subject->handle(
-            $this->getMockForServerRequestWithPath('/without/lineItemId')
+            $this->getMockForServerRequestWithPath('/toto')
         );
 
-        $this->assertSame(400, $response->getStatusCode());
-        $this->assertSame('Bad Request', $response->getReasonPhrase());
-        $this->assertSame('Url path must contain lineItemId as third uri path part.', (string) $response->getBody());
+        $this->assertSame(401, $response->getStatusCode());
+        $this->assertSame('Unauthorized', $response->getReasonPhrase());
+        $this->assertSame($bodyContent, (string) $response->getBody());
     }
 
     public function testInternalError(): void
@@ -94,15 +99,40 @@ class LineItemGetServerTest extends TestCase
         $this->assertSame('Internal server error.', (string) $response->getBody());
     }
 
-    public function testFindOne(): void
+    public function testHttpMethodValidationFailed(): void
+    {
+        $this->validator->method('validate');
+
+        $response = $this->subject->handle(
+            $this->getMockForServerRequestWithPath('/toto', 'post')
+        );
+
+        $this->assertSame(405, $response->getStatusCode());
+        $this->assertSame('Method not allowed', $response->getReasonPhrase());
+        $this->assertSame('Expected http method is "get".', (string) $response->getBody());
+    }
+
+    public function testRequiredContextIdValidationFailed(): void
+    {
+        $this->validator->method('validate');
+
+        $response = $this->subject->handle(
+            $this->getMockForServerRequestWithPath('/')
+        );
+
+        $this->assertSame(400, $response->getStatusCode());
+        $this->assertSame('Bad Request', $response->getReasonPhrase());
+        $this->assertSame('Url path must contain contextId as first uri path part.', (string) $response->getBody());
+    }
+
+    public function testFindAll(): void
     {
         $requestParameters = [
             'contextId' => 'toto',
-            'line-item-id' => 'titi'
         ];
         $normalizedLineItem = ['encoded-line-item'];
 
-        $lineItem = $this->createMock(LineItemInterface::class);
+        $lineItemContainer = $this->createMock(LineItemContainerInterface::class);
         $expectedEncodedLineItem = json_encode($normalizedLineItem);
 
         $this->validator->method('validate');
@@ -113,22 +143,22 @@ class LineItemGetServerTest extends TestCase
 
         $this->service
             ->expects($this->once())
-            ->method('findOne')
-            ->willReturn($lineItem);
+            ->method('findAll')
+            ->willReturn($lineItemContainer);
 
-        $this->lineItemNormalizer
+        $this->lineItemContainerNormalizer
             ->expects($this->once())
             ->method('normalize')
-            ->with($lineItem)
+            ->with($lineItemContainer)
             ->willReturn($normalizedLineItem);
 
         $response = $this->subject->handle(
-            $this->getMockForServerRequestWithPath('/context-id/lineItem/line-item-id')
+            $this->getMockForServerRequestWithPath('/context-id')
         );
 
+        $this->assertSame($expectedEncodedLineItem, (string) $response->getBody());
         $this->assertSame(200, $response->getStatusCode());
         $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
         $this->assertSame((string) strlen($expectedEncodedLineItem), $response->getHeaderLine('Content-length'));
-        $this->assertSame($expectedEncodedLineItem, (string) $response->getBody());
     }
 }

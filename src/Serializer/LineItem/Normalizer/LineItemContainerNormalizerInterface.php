@@ -20,28 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\Score;
+namespace OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer;
 
-use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemCreateServer;
-use PHPUnit\Framework\TestCase;
-use Psr\Http\Message\ServerRequestInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
 
-class LineItemCreateserverTest extends TestCase
+interface LineItemContainerNormalizerInterface
 {
-    /** @var LineItemCreateServer */
-    private $subject;
-
-    public function setUp(): void
-    {
-        $this->subject = new LineItemCreateServer();
-    }
-
-    public function testEndpointIsNotImplemented()
-    {
-        $response = $this->subject->handle(
-            $this->createMock(ServerRequestInterface::class)
-        );
-
-        $this->assertSame(501, $response->getStatusCode());
-    }
+    public function normalize(LineItemContainerInterface $lineItemContainer): array;
 }

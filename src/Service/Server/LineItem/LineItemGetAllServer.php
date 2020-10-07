@@ -25,15 +25,14 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemDenormalizer;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemDenormalizerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemContainerNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemContainerNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizerInterface;
-use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemCreateServiceInterface;
+use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
-use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\CreateLineItemValidator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestMethodValidator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorAggregator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
@@ -46,19 +45,19 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Throwable;
 
-class LineItemCreateServer implements RequestHandlerInterface
+class LineItemGetAllServer implements RequestHandlerInterface
 {
     /** @var RequestValidatorInterface */
     private $validator;
 
-    /** @var LineItemCreateServiceInterface */
+    /** @var LineItemGetServiceInterface  */
     private $service;
 
-    /** @var LineItemDenormalizerInterface */
-    private $lineItemDenormalizer;
+    /** @var UrlParserInterface  */
+    private $parser;
 
-    /** @var LineItemNormalizerInterface */
-    private $lineItemNormalizer;
+    /** @var LineItemContainerNormalizerInterface  */
+    private $lineItemContainerNormalizer;
 
     /** @var ResponseFactory */
     private $factory;
@@ -66,24 +65,18 @@ class LineItemCreateServer implements RequestHandlerInterface
     /** @var LoggerInterface */
     private $logger;
 
-    /** @var UrlParserInterface */
-    private $urlParser;
-
     public function __construct(
         AccessTokenRequestValidator $validator,
-        LineItemCreateServiceInterface $service,
-        LineItemDenormalizerInterface $lineItemDenormalizer = null,
-        LineItemNormalizerInterface $lineItemNormalizer = null,
-        UrlParserInterface $urlParser = null,
+        LineItemGetServiceInterface $service,
+        UrlParserInterface $parser = null,
+        LineItemContainerNormalizerInterface $lineItemContainerNormalizer = null,
         ResponseFactory $factory = null,
         LoggerInterface $logger = null
-    )
-    {
+    ) {
         $this->validator = $this->aggregateValidator($validator);
         $this->service = $service;
-        $this->lineItemDenormalizer = $lineItemDenormalizer ?? new LineItemDenormalizer();
-        $this->lineItemNormalizer = $lineItemNormalizer ?? new LineItemNormalizer();
-        $this->urlParser = $urlParser ?? new UrlParser();
+        $this->parser = $parser ?? new UrlParser();
+        $this->lineItemContainerNormalizer = $lineItemContainerNormalizer ?? new LineItemContainerNormalizer(new LineItemNormalizer());
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
@@ -93,56 +86,48 @@ class LineItemCreateServer implements RequestHandlerInterface
         try {
             $this->validator->validate($request);
 
-            $data = array_merge(
-                json_decode((string)$request->getBody(), true),
-                $this->urlParser->parse($request)
+            $data = $this->parser->parse($request);
+
+            $contextId = $data['contextId'];
+            $page = $data['page'] ?? null;
+            $limit = $data['limit'] ?? null;
+
+            $responseBody = $this->lineItemContainerNormalizer->normalize(
+                $this->service->findAll($contextId, $page, $limit)
             );
 
-            $lineItem = $this->lineItemDenormalizer->denormalize($data);
+            $responseBody = json_encode($responseBody);
 
-            $this->service->create($lineItem);
+            $responseHeaders = [
+                'Content-Type' => 'application/json',
+                'Content-length' => strlen($responseBody),
+            ];
 
-            $responseBody = json_encode($this->lineItemNormalizer->normalize($lineItem));
+            return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
 
-            return $this->factory->createResponse(
-                201,
-                null,
-                [
-                    'Content-Type' => 'application/json',
-                    'Content-length' => strlen($responseBody),
-                ],
-                $responseBody
-            );
         } catch (AgsHttpException $exception) {
+            $this->logger->error($exception->getMessage());
+
             return $this->factory->createResponse(
                 $exception->getCode(),
                 $exception->getReasonPhrase(),
                 [],
                 $exception->getMessage()
             );
+
         } catch (Throwable $exception) {
-            return $this->factory->createResponse(
-                500,
-                null,
-                [],
-                'Internal AGS service error'
-            );
-        } finally {
-            if (isset($exception)) {
-                $this->logger->error($exception->getMessage());
-            }
+            $this->logger->error($exception->getMessage());
+
+            return $this->factory->createResponse(500, null, [], 'Internal server error.');
         }
     }
 
     private function aggregateValidator(AccessTokenRequestValidator $accessTokenValidator): RequestValidatorInterface
     {
-        return new RequestValidatorAggregator(
-            ...[
-                new AccessTokenRequestValidatorDecorator($accessTokenValidator),
-                new RequestMethodValidator('post'),
-                new RequiredContextIdValidator(),
-                new CreateLineItemValidator()
-            ]
-        );
+        return new RequestValidatorAggregator(...[
+            new AccessTokenRequestValidatorDecorator($accessTokenValidator),
+            new RequestMethodValidator('get'),
+            new RequiredContextIdValidator()
+        ]);
     }
 }
