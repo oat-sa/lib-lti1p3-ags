@@ -98,7 +98,7 @@ class LineItemGetServerTest extends TestCase
     {
         $requestParameters = [
             'contextId' => 'toto',
-            'line-item-id' => 'titi'
+            'lineItemId' => 'titi'
         ];
         $normalizedLineItem = ['encoded-line-item'];
 
