@@ -114,7 +114,6 @@ class ScoreServiceClient implements ScoreServiceInterface
                 ],
                 $scopes ?? [static::AUTHORIZATION_SCOPE_SCORE]
             );
-
         } catch (LtiExceptionInterface $exception) {
             throw $exception;
         } catch (Throwable $exception) {
