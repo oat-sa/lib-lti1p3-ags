@@ -77,8 +77,7 @@ class LineItemCreateServer implements RequestHandlerInterface
         UrlParserInterface $urlParser = null,
         ResponseFactory $factory = null,
         LoggerInterface $logger = null
-    )
-    {
+    ) {
         $this->validator = $this->aggregateValidator($validator);
         $this->service = $service;
         $this->lineItemDenormalizer = $lineItemDenormalizer ?? new LineItemDenormalizer();

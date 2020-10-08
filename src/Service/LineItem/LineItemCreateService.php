@@ -41,8 +41,9 @@ class LineItemCreateService implements LineItemCreateServiceInterface
      */
     public function create(LineItemInterface $lineItem): void
     {
-        if ($lineItem->getStartDateTime() && $lineItem->getEndDateTime() &&
-            ($lineItem->getStartDateTime() > $lineItem->getEndDateTime())) {
+        if ($lineItem->getStartDateTime() && $lineItem->getEndDateTime()
+            && ($lineItem->getStartDateTime() > $lineItem->getEndDateTime())
+        ) {
             throw new RequestValidatorException(
                 sprintf(
                     'Value of startDateTime (%s) time should be lower or equal than endDateTime (%s)',
