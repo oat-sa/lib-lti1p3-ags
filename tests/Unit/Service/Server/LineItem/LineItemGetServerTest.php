@@ -30,14 +30,14 @@ use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemGetServer;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
-use OAT\Library\Lti1p3Ags\Tests\Unit\Traits\ServerRequestPathTestingTrait;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidationResult;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
+use OAT\Library\Lti1p3Core\Tests\Traits\NetworkTestingTrait;
 use PHPUnit\Framework\TestCase;
 
 class LineItemGetServerTest extends TestCase
 {
-    use ServerRequestPathTestingTrait;
+    use NetworkTestingTrait;
 
     /** @var LineItemGetServer */
     private $subject;
@@ -74,7 +74,7 @@ class LineItemGetServerTest extends TestCase
         $this->mockValidationWithScopes();
 
         $response = $this->subject->handle(
-            $this->getMockForServerRequest('/without/lineItemId')
+            $this->createServerRequest('GET', '/without/lineItemId')
         );
 
         $this->assertSame(400, $response->getStatusCode());
@@ -89,7 +89,7 @@ class LineItemGetServerTest extends TestCase
             ->willThrowException(new Exception());
 
         $response = $this->subject->handle(
-            $this->getMockForServerRequest('/toto')
+            $this->createServerRequest('GET', '/toto')
         );
 
         $this->assertSame(500, $response->getStatusCode());
@@ -125,7 +125,7 @@ class LineItemGetServerTest extends TestCase
             ->willReturn($expectedEncodedLineItem);
 
         $response = $this->subject->handle(
-            $this->getMockForServerRequest('/context-id/lineItem/line-item-id')
+            $this->createServerRequest('GET', '/context-id/lineItem/line-item-id')
         );
 
         $this->assertSame(200, $response->getStatusCode());

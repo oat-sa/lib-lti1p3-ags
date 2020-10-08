@@ -24,12 +24,12 @@ namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\RequestValidator;
 
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorException;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequiredContextIdValidator;
-use OAT\Library\Lti1p3Ags\Tests\Unit\Traits\ServerRequestPathTestingTrait;
+use OAT\Library\Lti1p3Core\Tests\Traits\NetworkTestingTrait;
 use PHPUnit\Framework\TestCase;
 
 class RequiredContextIdValidatorTest extends TestCase
 {
-    use ServerRequestPathTestingTrait;
+    use NetworkTestingTrait;
 
     /** @var RequiredContextIdValidator  */
     private $subject;
@@ -45,7 +45,7 @@ class RequiredContextIdValidatorTest extends TestCase
     public function testValidate($path): void
     {
         $this->subject->validate(
-            $this->getMockForServerRequest($path)
+            $this->createServerRequest('GET', $path)
         );
 
         $this->assertTrue(true);
@@ -61,7 +61,7 @@ class RequiredContextIdValidatorTest extends TestCase
         $this->expectExceptionCode(400);
 
         $this->subject->validate(
-            $this->getMockForServerRequest($path)
+            $this->createServerRequest('GET', $path)
         );
     }
 
