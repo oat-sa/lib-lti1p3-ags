@@ -27,8 +27,8 @@ use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemDenormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemDenormalizerInterface;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizer;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Serializer\LineItemSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Serializer\LineItemSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemCreateServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
@@ -57,8 +57,8 @@ class LineItemCreateServer implements RequestHandlerInterface
     /** @var LineItemDenormalizerInterface */
     private $lineItemDenormalizer;
 
-    /** @var LineItemNormalizerInterface */
-    private $lineItemNormalizer;
+    /** @var LineItemSerializerInterface */
+    private $lineItemSerializer;
 
     /** @var ResponseFactory */
     private $factory;
@@ -73,7 +73,7 @@ class LineItemCreateServer implements RequestHandlerInterface
         AccessTokenRequestValidator $validator,
         LineItemCreateServiceInterface $service,
         LineItemDenormalizerInterface $lineItemDenormalizer = null,
-        LineItemNormalizerInterface $lineItemNormalizer = null,
+        LineItemSerializerInterface $lineItemSerializer = null,
         UrlParserInterface $urlParser = null,
         ResponseFactory $factory = null,
         LoggerInterface $logger = null
@@ -82,7 +82,7 @@ class LineItemCreateServer implements RequestHandlerInterface
         $this->validator = $this->aggregateValidator($validator);
         $this->service = $service;
         $this->lineItemDenormalizer = $lineItemDenormalizer ?? new LineItemDenormalizer();
-        $this->lineItemNormalizer = $lineItemNormalizer ?? new LineItemNormalizer();
+        $this->lineItemSerializer = $lineItemSerializer ?? new LineItemSerializer();
         $this->urlParser = $urlParser ?? new UrlParser();
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
@@ -102,7 +102,7 @@ class LineItemCreateServer implements RequestHandlerInterface
 
             $this->service->create($lineItem);
 
-            $responseBody = json_encode($this->lineItemNormalizer->normalize($lineItem));
+            $responseBody = $this->lineItemSerializer->serialize($lineItem);
 
             return $this->factory->createResponse(
                 201,
