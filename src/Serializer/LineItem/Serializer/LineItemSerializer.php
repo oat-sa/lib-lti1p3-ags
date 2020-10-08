@@ -20,11 +20,26 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\LineItemContainer;
+namespace OAT\Library\Lti1p3Ags\Serializer\LineItem\Serializer;
 
-use OAT\Library\Lti1p3Ags\Model\LineItemContainer\LineItemContainerInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizerInterface;
 
-interface LineItemContainerSerializerInterface
+class LineItemSerializer implements LineItemSerializerInterface
 {
-    public function serialize(LineItemContainerInterface $lineItemContainer): string;
+    /** @var LineItemNormalizerInterface */
+    private $normalizer;
+
+    public function __construct(LineItemNormalizerInterface $normalizer = null)
+    {
+        $this->normalizer = $normalizer ?? new LineItemNormalizer();
+    }
+
+    public function serialize(LineItemInterface $lineItem): string
+    {
+        return json_encode(
+            $this->normalizer->normalize($lineItem)
+        );
+    }
 }

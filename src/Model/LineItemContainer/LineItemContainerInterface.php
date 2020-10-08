@@ -22,10 +22,9 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\LineItemContainer;
 
-use JsonSerializable;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
 
-interface LineItemContainerInterface extends JsonSerializable
+interface LineItemContainerInterface
 {
     public const REL_NEXT = 'next';
     public const REL_DIFFERENCES = 'differences';

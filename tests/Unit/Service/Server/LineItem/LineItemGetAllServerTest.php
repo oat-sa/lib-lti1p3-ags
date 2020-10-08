@@ -24,20 +24,20 @@ namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\LineItem;
 
 use Exception;
 use OAT\Library\Lti1p3Ags\Model\LineItemContainer\LineItemContainerInterface;
-use OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\LineItemContainerSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\Serializer\LineItemContainerSerializer;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemGetAllServer;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorException;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
-use OAT\Library\Lti1p3Ags\Tests\Unit\Traits\ServerRequestPathTestingTrait;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
+use OAT\Library\Lti1p3Core\Tests\Traits\NetworkTestingTrait;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ServerRequestInterface;
 
 class LineItemGetAllServerTest extends TestCase
 {
-    use ServerRequestPathTestingTrait;
+    use NetworkTestingTrait;
 
     /** @var LineItemGetAllServer */
     private $subject;
@@ -78,7 +78,7 @@ class LineItemGetAllServerTest extends TestCase
             ->willThrowException(new RequestValidatorException($bodyContent, 401));
 
         $response = $this->subject->handle(
-            $this->getMockForServerRequest('/toto')
+            $this->createServerRequest('GET', '/toto')
         );
 
         $this->assertSame(401, $response->getStatusCode());
@@ -93,7 +93,7 @@ class LineItemGetAllServerTest extends TestCase
             ->willThrowException(new Exception());
 
         $response = $this->subject->handle(
-            $this->getMockForServerRequest('/toto')
+            $this->createServerRequest('GET', '/toto')
         );
 
         $this->assertSame(500, $response->getStatusCode());
@@ -105,7 +105,7 @@ class LineItemGetAllServerTest extends TestCase
         $this->validator->method('validate');
 
         $response = $this->subject->handle(
-            $this->getMockForServerRequest('/toto', 'post')
+            $this->createServerRequest('POST', '/toto')
         );
 
         $this->assertSame(405, $response->getStatusCode());
@@ -118,7 +118,7 @@ class LineItemGetAllServerTest extends TestCase
         $this->validator->method('validate');
 
         $response = $this->subject->handle(
-            $this->getMockForServerRequest('/')
+            $this->createServerRequest('GET', '/')
         );
 
         $this->assertSame(400, $response->getStatusCode());
@@ -132,8 +132,8 @@ class LineItemGetAllServerTest extends TestCase
             'contextId' => 'toto',
         ];
 
-        $requestQuery = 'page=1&limit=50&resource_link_id=test-resource-link-id&tag=test-tag&resource_id=test-resource-id';
-        $expectedServiceParameters = ['toto',
+        $expectedServiceParameters = [
+            'toto',
             1,
             50,
             'test-resource-link-id',
@@ -143,7 +143,15 @@ class LineItemGetAllServerTest extends TestCase
 
         $serializedLineItemContainer = json_encode(['encoded-line-item']);
 
-        $request = $this->getMockForServerRequest('/context-id', 'get', $requestQuery);
+        $requestQuery = [
+            'page' => 1,
+            'limit' => 50,
+            'resource_link_id' => 'test-resource-link-id',
+            'tag' => 'test-tag',
+            'resource_id' => 'test-resource-id'
+        ];
+
+        $request = $this->createServerRequest('GET', '/context-id', $requestQuery);
 
         $this->provideMockForFindAll(
             $request,
@@ -171,7 +179,7 @@ class LineItemGetAllServerTest extends TestCase
         $serializedLineItemContainer = json_encode(['encoded-line-item']);
         $relationLink = 'relation-link-string';
 
-        $request = $this->getMockForServerRequest('/context-id');
+        $request = $this->createServerRequest('GET', '/context-id');
 
         $this->provideMockForFindAll(
             $request,

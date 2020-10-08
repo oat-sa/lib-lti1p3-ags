@@ -25,8 +25,8 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\LineItemContainerSerializer;
-use OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\LineItemContainerSerializerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\Serializer\LineItemContainerSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\Serializer\LineItemContainerSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
@@ -137,10 +137,9 @@ class LineItemGetAllServer implements RequestHandlerInterface
 
     private function getServerRequestParameters(ServerRequestInterface $request): array
     {
-        $uriParameters = $this->parser->parse($request);
-
-        parse_str($request->getUri()->getQuery(), $queryParameters);
-
-        return array_merge($queryParameters, $uriParameters);
+        return array_merge(
+            $request->getQueryParams(),
+            $this->parser->parse($request)
+        );
     }
 }

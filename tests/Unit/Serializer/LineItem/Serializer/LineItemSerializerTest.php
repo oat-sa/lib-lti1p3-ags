@@ -20,11 +20,12 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\LineItem;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\LineItem\Serializer;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Serializer\LineItemSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Serializer\LineItemSerializerInterface;
 use PHPUnit\Framework\TestCase;
 
 class LineItemSerializerTest extends TestCase
@@ -32,19 +33,25 @@ class LineItemSerializerTest extends TestCase
     /** @var LineItemSerializerInterface  */
     private $subject;
 
+    /** @var LineItemNormalizerInterface */
+    private $lineItemNormalizer;
+
     public function setUp(): void
     {
-        $this->subject = new LineItemSerializer();
+        $this->lineItemNormalizer = $this->createMock(LineItemNormalizerInterface::class);
+        $this->subject = new LineItemSerializer($this->lineItemNormalizer);
     }
 
-    public function testLineItemIsEncoded(): void
+    public function testSerialize(): void
     {
         $expected = ['toto'];
 
-        $lineItem = $this->createMock(LineItem::class);
-        $lineItem
+        $lineItem = $this->createMock(LineItemInterface::class);
+
+        $this->lineItemNormalizer
             ->expects($this->once())
-            ->method('jsonSerialize')
+            ->method('normalize')
+            ->with($lineItem)
             ->willReturn($expected);
 
         $this->assertSame(
