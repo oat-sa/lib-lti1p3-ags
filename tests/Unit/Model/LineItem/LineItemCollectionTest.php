@@ -22,21 +22,36 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model\LineItem;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollection;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 use PHPUnit\Framework\TestCase;
 
-class LineItemContainerTest extends TestCase
+class LineItemCollectionTest extends TestCase
 {
-    public function testGetIterator(): void
+    /** @var LineItemCollectionInterface */
+    private $subject;
+
+    /** @var LineItemInterface[] */
+    private $iterator;
+
+    public function setUp(): void
     {
-        $iterator = [
+        $this->iterator = [
             $this->createMock(LineItemInterface::class),
             $this->createMock(LineItemInterface::class)
         ];
 
-        $lineItemContainer = new LineItemContainer(...$iterator);
+        $this->subject = new LineItemCollection(...$this->iterator);
+    }
 
-        $this->assertSame($iterator, $lineItemContainer->getIterator());
+    public function testGetIterator(): void
+    {
+        $this->assertSame($this->iterator, $this->subject->getIterator()->getArrayCopy());
+    }
+
+    public function testJsonSerialize(): void
+    {
+        $this->assertSame($this->iterator, $this->subject->jsonSerialize());
     }
 }

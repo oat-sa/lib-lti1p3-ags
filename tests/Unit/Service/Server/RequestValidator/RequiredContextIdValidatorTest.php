@@ -45,7 +45,7 @@ class RequiredContextIdValidatorTest extends TestCase
     public function testValidate($path): void
     {
         $this->subject->validate(
-            $this->getMockForServerRequestWithPath($path)
+            $this->getMockForServerRequest($path)
         );
 
         $this->assertTrue(true);
@@ -61,7 +61,7 @@ class RequiredContextIdValidatorTest extends TestCase
         $this->expectExceptionCode(400);
 
         $this->subject->validate(
-            $this->getMockForServerRequestWithPath($path)
+            $this->getMockForServerRequest($path)
         );
     }
 

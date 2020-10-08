@@ -22,25 +22,25 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\LineItemContainer;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectioninterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
 
 class LineItemContainer implements LineItemContainerInterface
 {
-    /** @var LineItemCollectioninterface */
+    /** @var LineItemCollectionInterface */
     private $lineItems;
 
     /** @var string|null */
     private $relationLink;
 
     public function __construct(
-        LineItemCollectioninterface $lineItems,
+        LineItemCollectionInterface $lineItems,
         string $relationLink = null
     ) {
         $this->lineItems = $lineItems;
         $this->relationLink = $relationLink;
     }
 
-    public function getLineItems(): LineItemCollectioninterface
+    public function getLineItems(): LineItemCollectionInterface
     {
         return $this->lineItems;
     }

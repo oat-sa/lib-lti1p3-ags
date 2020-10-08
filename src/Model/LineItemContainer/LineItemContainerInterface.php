@@ -23,14 +23,14 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Model\LineItemContainer;
 
 use JsonSerializable;
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectioninterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
 
 interface LineItemContainerInterface extends JsonSerializable
 {
     public const REL_NEXT = 'next';
     public const REL_DIFFERENCES = 'differences';
 
-    public function getLineItems(): LineItemCollectioninterface;
+    public function getLineItems(): LineItemCollectionInterface;
 
     public function getRelationLink(): ?string;
 

@@ -24,7 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\LineItem;
 
 use Exception;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemSerializerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemGetServer;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
@@ -50,20 +50,20 @@ class LineItemGetServerTest extends TestCase
     private $parser;
 
     /** @var LineItemSerializerInterface  */
-    private $lineItemNormalizer;
+    private $lineItemSerializer;
 
     public function setUp(): void
     {
         $this->validator = $this->createMock(AccessTokenRequestValidator::class);
         $this->service = $this->createMock(LineItemGetServiceInterface::class);
         $this->parser = $this->createMock(UrlParserInterface::class);
-        $this->lineItemNormalizer = $this->createMock(LineItemSerializerInterface::class);
+        $this->lineItemSerializer = $this->createMock(LineItemSerializerInterface::class);
 
         $this->subject = new LineItemGetServer(
             $this->validator,
             $this->service,
             $this->parser,
-            $this->lineItemNormalizer
+            $this->lineItemSerializer
         );
     }
 
@@ -72,7 +72,7 @@ class LineItemGetServerTest extends TestCase
         $this->validator->method('validate');
 
         $response = $this->subject->handle(
-            $this->getMockForServerRequestWithPath('/without/lineItemId')
+            $this->getMockForServerRequest('/without/lineItemId')
         );
 
         $this->assertSame(400, $response->getStatusCode());
@@ -87,7 +87,7 @@ class LineItemGetServerTest extends TestCase
             ->willThrowException(new Exception());
 
         $response = $this->subject->handle(
-            $this->getMockForServerRequestWithPath('/toto')
+            $this->getMockForServerRequest('/toto')
         );
 
         $this->assertSame(500, $response->getStatusCode());
@@ -100,10 +100,9 @@ class LineItemGetServerTest extends TestCase
             'contextId' => 'toto',
             'lineItemId' => 'titi'
         ];
-        $normalizedLineItem = ['encoded-line-item'];
 
         $lineItem = $this->createMock(LineItemInterface::class);
-        $expectedEncodedLineItem = json_encode($normalizedLineItem);
+        $expectedEncodedLineItem = json_encode(['encoded-line-item']);
 
         $this->validator->method('validate');
         $this->parser
@@ -116,14 +115,14 @@ class LineItemGetServerTest extends TestCase
             ->method('findOne')
             ->willReturn($lineItem);
 
-        $this->lineItemNormalizer
+        $this->lineItemSerializer
             ->expects($this->once())
-            ->method('normalize')
+            ->method('serialize')
             ->with($lineItem)
-            ->willReturn($normalizedLineItem);
+            ->willReturn($expectedEncodedLineItem);
 
         $response = $this->subject->handle(
-            $this->getMockForServerRequestWithPath('/context-id/lineItem/line-item-id')
+            $this->getMockForServerRequest('/context-id/lineItem/line-item-id')
         );
 
         $this->assertSame(200, $response->getStatusCode());

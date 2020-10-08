@@ -90,12 +90,12 @@ class LineItemGetAllServer implements RequestHandlerInterface
             $parameters = $this->getServerRequestParameters($request);
 
             $lineItemContainer = $this->service->findAll(
-                $parameters['contextId'],
-                $parameters['limit'] ?? null,
-                $parameters['page'] ?? null,
-                $parameters['resource_link_id'] ?? null,
-                $parameters['tag'] ?? null,
-                $parameters['resource_id'] ?? null
+                (string) $parameters['contextId'],
+                (int) $parameters['page'] ?? null,
+                (int) $parameters['limit'] ?? null,
+                (string) $parameters['resource_link_id'] ?? null,
+                (string) $parameters['tag'] ?? null,
+                (string) $parameters['resource_id'] ?? null
             );
 
             $responseBody = $this->lineItemContainerSerializer->serialize($lineItemContainer);

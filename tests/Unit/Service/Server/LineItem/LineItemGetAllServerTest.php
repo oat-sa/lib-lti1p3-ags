@@ -23,8 +23,8 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\LineItem;
 
 use Exception;
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemContainerNormalizerInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItemContainer\LineItemContainerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\LineItemContainerSerializer;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemGetAllServer;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
@@ -33,6 +33,7 @@ use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterf
 use OAT\Library\Lti1p3Ags\Tests\Unit\Traits\ServerRequestPathTestingTrait;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use PHPUnit\Framework\TestCase;
+use Psr\Http\Message\ServerRequestInterface;
 
 class LineItemGetAllServerTest extends TestCase
 {
@@ -50,21 +51,21 @@ class LineItemGetAllServerTest extends TestCase
     /** @var UrlParserInterface  */
     private $parser;
 
-    /** @var LineItemContainerNormalizerInterface  */
-    private $lineItemContainerNormalizer;
+    /** @var LineItemContainerSerializer  */
+    private $lineItemContainerSerializer;
 
     public function setUp(): void
     {
         $this->validator = $this->createMock(AccessTokenRequestValidator::class);
         $this->service = $this->createMock(LineItemGetServiceInterface::class);
         $this->parser = $this->createMock(UrlParserInterface::class);
-        $this->lineItemContainerNormalizer = $this->createMock(LineItemContainerNormalizerInterface::class);
+        $this->lineItemContainerSerializer = $this->createMock(LineItemContainerSerializer::class);
 
         $this->subject = new LineItemGetAllServer(
             $this->validator,
             $this->service,
             $this->parser,
-            $this->lineItemContainerNormalizer
+            $this->lineItemContainerSerializer
         );
     }
 
@@ -77,7 +78,7 @@ class LineItemGetAllServerTest extends TestCase
             ->willThrowException(new RequestValidatorException($bodyContent, 401));
 
         $response = $this->subject->handle(
-            $this->getMockForServerRequestWithPath('/toto')
+            $this->getMockForServerRequest('/toto')
         );
 
         $this->assertSame(401, $response->getStatusCode());
@@ -92,7 +93,7 @@ class LineItemGetAllServerTest extends TestCase
             ->willThrowException(new Exception());
 
         $response = $this->subject->handle(
-            $this->getMockForServerRequestWithPath('/toto')
+            $this->getMockForServerRequest('/toto')
         );
 
         $this->assertSame(500, $response->getStatusCode());
@@ -104,7 +105,7 @@ class LineItemGetAllServerTest extends TestCase
         $this->validator->method('validate');
 
         $response = $this->subject->handle(
-            $this->getMockForServerRequestWithPath('/toto', 'post')
+            $this->getMockForServerRequest('/toto', 'post')
         );
 
         $this->assertSame(405, $response->getStatusCode());
@@ -117,7 +118,7 @@ class LineItemGetAllServerTest extends TestCase
         $this->validator->method('validate');
 
         $response = $this->subject->handle(
-            $this->getMockForServerRequestWithPath('/')
+            $this->getMockForServerRequest('/')
         );
 
         $this->assertSame(400, $response->getStatusCode());
@@ -129,42 +130,97 @@ class LineItemGetAllServerTest extends TestCase
     {
         $requestParameters = [
             'contextId' => 'toto',
-            'page' => 1,
-            'limit' => 50,
-            'resource_link_id' => 'test-resource-link-id',
-            'tag' => 'test-tag',
-            'resource_id' => 'test-resource-id'
         ];
-        $normalizedLineItem = ['encoded-line-item'];
+
+        $requestQuery = 'page=1&limit=50&resource_link_id=test-resource-link-id&tag=test-tag&resource_id=test-resource-id';
+        $expectedServiceParameters = ['toto',
+            1,
+            50,
+            'test-resource-link-id',
+            'test-tag',
+            'test-resource-id'
+        ];
+
+        $serializedLineItemContainer = json_encode(['encoded-line-item']);
+
+        $request = $this->getMockForServerRequest('/context-id', 'get', $requestQuery);
+
+        $this->provideMockForFindAll(
+            $request,
+            $serializedLineItemContainer,
+            $requestParameters,
+            $expectedServiceParameters,
+            null
+        );
+
+        $response = $this->subject->handle($request);
+
+        $this->assertSame($serializedLineItemContainer, (string) $response->getBody());
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        $this->assertSame((string) strlen($serializedLineItemContainer), $response->getHeaderLine('Content-length'));
+        $this->assertArrayNotHasKey('Link', $response->getHeaders());
+    }
+
+    public function testFindAllWithRelationLink(): void
+    {
+        $requestParameters = [
+            'contextId' => 'toto',
+        ];
+        $expectedServiceParameters = ['toto'];
+        $serializedLineItemContainer = json_encode(['encoded-line-item']);
+        $relationLink = 'relation-link-string';
+
+        $request = $this->getMockForServerRequest('/context-id');
+
+        $this->provideMockForFindAll(
+            $request,
+            $serializedLineItemContainer,
+            $requestParameters,
+            $expectedServiceParameters,
+            $relationLink
+        );
+
+        $response = $this->subject->handle($request);
+
+        $this->assertSame($serializedLineItemContainer, (string) $response->getBody());
+        $this->assertSame(200, $response->getStatusCode());
+        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
+        $this->assertSame((string) strlen($serializedLineItemContainer), $response->getHeaderLine('Content-length'));
+        $this->assertSame('relation-link-string', $response->getHeaderLine('Link'));
+    }
+
+    private function provideMockForFindAll(
+        ServerRequestInterface $request,
+        string $serializedLineItemContainer,
+        array $requestParameters,
+        array $expectedServiceParameters,
+        string $relationLink = null
+    ): void {
 
         $lineItemContainer = $this->createMock(LineItemContainerInterface::class);
-        $expectedEncodedLineItem = json_encode($normalizedLineItem);
+        $lineItemContainer
+            ->expects($this->exactly($relationLink ? 2 : 1))
+            ->method('getRelationLink')
+            ->willReturn($relationLink);
 
         $this->validator->method('validate');
         $this->parser
             ->expects($this->once())
             ->method('parse')
+            ->with($request)
             ->willReturn($requestParameters);
 
         $this->service
             ->expects($this->once())
             ->method('findAll')
-            ->with(...array_values($requestParameters))
+            ->with(...$expectedServiceParameters)
             ->willReturn($lineItemContainer);
 
-        $this->lineItemContainerNormalizer
+        $this->lineItemContainerSerializer
             ->expects($this->once())
-            ->method('normalize')
+            ->method('serialize')
             ->with($lineItemContainer)
-            ->willReturn($normalizedLineItem);
-
-        $response = $this->subject->handle(
-            $this->getMockForServerRequestWithPath('/context-id')
-        );
-
-        $this->assertSame($expectedEncodedLineItem, (string) $response->getBody());
-        $this->assertSame(200, $response->getStatusCode());
-        $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
-        $this->assertSame((string) strlen($expectedEncodedLineItem), $response->getHeaderLine('Content-length'));
+            ->willReturn($serializedLineItemContainer);
     }
 }

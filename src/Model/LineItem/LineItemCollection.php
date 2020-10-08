@@ -24,7 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
 use ArrayIterator;
 
-class LineItemCollection implements LineItemCollectioninterface
+class LineItemCollection implements LineItemCollectionInterface
 {
     /** @var LineItemInterface[] */
     private $lineItems;
