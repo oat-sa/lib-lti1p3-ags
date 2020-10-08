@@ -129,7 +129,7 @@ class LineItemGetAllServer implements RequestHandlerInterface
     private function aggregateValidator(AccessTokenRequestValidator $accessTokenValidator): RequestValidatorInterface
     {
         return new RequestValidatorAggregator(...[
-            new AccessTokenRequestValidatorDecorator($accessTokenValidator),
+            new AccessTokenRequestValidatorDecorator($accessTokenValidator, AccessTokenRequestValidatorDecorator::SCOPE_LINE_ITEM),
             new RequestMethodValidator('get'),
             new RequiredContextIdValidator()
         ]);
