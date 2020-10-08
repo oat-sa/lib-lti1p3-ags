@@ -90,12 +90,12 @@ class LineItemGetAllServer implements RequestHandlerInterface
             $parameters = $this->getServerRequestParameters($request);
 
             $lineItemContainer = $this->service->findAll(
-                (string) $parameters['contextId'],
-                (int) $parameters['page'] ?? null,
-                (int) $parameters['limit'] ?? null,
-                (string) $parameters['resource_link_id'] ?? null,
-                (string) $parameters['tag'] ?? null,
-                (string) $parameters['resource_id'] ?? null
+                $parameters['contextId'],
+                $parameters['page'],
+                $parameters['limit'],
+                $parameters['resource_link_id'],
+                $parameters['tag'],
+                $parameters['resource_id']
             );
 
             $responseBody = $this->lineItemContainerSerializer->serialize($lineItemContainer);
@@ -137,9 +137,23 @@ class LineItemGetAllServer implements RequestHandlerInterface
 
     private function getServerRequestParameters(ServerRequestInterface $request): array
     {
+        $queryParameters = $request->getQueryParams();
+        $parameters = [
+            'page' => array_key_exists('page' , $queryParameters)
+                ? (int) $queryParameters['page'] : null,
+            'limit' => array_key_exists('limit', $queryParameters)
+                ? (int) $queryParameters['limit'] : null,
+            'resource_link_id' => array_key_exists('resource_link_id', $queryParameters)
+                ? (string) $queryParameters['resource_link_id'] : null,
+            'tag' => array_key_exists('tag', $queryParameters)
+                ? (string) $queryParameters['tag'] : null,
+            'resource_id' => array_key_exists('resource_id', $queryParameters)
+                ? (string) $queryParameters['resource_id'] : null,
+        ];
+
         return array_merge(
-            $request->getQueryParams(),
-            $this->parser->parse($request)
+             $parameters,
+             $this->parser->parse($request)
         );
     }
 }
