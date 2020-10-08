@@ -20,28 +20,33 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model\LineItem;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollection;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use PHPUnit\Framework\TestCase;
 
-class LineItemContainerNormalizer implements LineItemContainerNormalizerInterface
+class LineItemCollectionTest extends TestCase
 {
-    /** @var LineItemNormalizerInterface */
-    private $lineItemNormalizer;
+    /** @var LineItemCollectionInterface */
+    private $subject;
 
-    public function __construct(LineItemNormalizerInterface $lineItemNormalizer)
+    /** @var LineItemInterface[] */
+    private $iterator;
+
+    public function setUp(): void
     {
-        $this->lineItemNormalizer = $lineItemNormalizer;
+        $this->iterator = [
+            $this->createMock(LineItemInterface::class),
+            $this->createMock(LineItemInterface::class)
+        ];
+
+        $this->subject = new LineItemCollection(...$this->iterator);
     }
 
-    public function normalize(LineItemContainerInterface $lineItemContainer): array
+    public function testGetIterator(): void
     {
-        return array_map(
-            function (LineItemInterface $lineItem) {
-                return $this->lineItemNormalizer->normalize($lineItem);
-            },
-            $lineItemContainer->getIterator()
-        );
+        $this->assertSame($this->iterator, $this->subject->getIterator()->getArrayCopy());
     }
 }

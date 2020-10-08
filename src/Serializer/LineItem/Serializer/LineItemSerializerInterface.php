@@ -20,20 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model\LineItem;
+namespace OAT\Library\Lti1p3Ags\Serializer\LineItem\Serializer;
 
-class LineItemContainer implements LineItemContainerInterface
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+
+interface LineItemSerializerInterface
 {
-    /** @var LineItemInterface[] */
-    private $lineItems;
-
-    public function __construct(LineItemInterface ...$lineItems)
-    {
-        $this->lineItems = $lineItems;
-    }
-
-    public function getIterator()
-    {
-        return $this->lineItems;
-    }
+    public function serialize(LineItemInterface $lineItem): string;
 }

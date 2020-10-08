@@ -45,7 +45,7 @@ class UrlParserTest extends TestCase
         $this->assertSame(
             $expected,
             $this->subject->parse(
-                $this->getMockForServerRequestWithPath($path)
+                $this->getMockForServerRequest($path)
             )
         );
     }

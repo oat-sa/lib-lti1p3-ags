@@ -22,24 +22,20 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer;
 
+use DateTimeInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
-use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 
 class LineItemNormalizer implements LineItemNormalizerInterface
 {
-    use DateConverterTrait;
-
     public function normalize(LineItemInterface $lineItem): array
     {
-        $startDateTime = null;
-        if ($lineItem->getStartDateTime() !== null) {
-            $startDateTime = $this->dateToIso8601($lineItem->getStartDateTime());
-        }
+        $startDateTime = $lineItem->getStartDateTime()
+            ? $lineItem->getStartDateTime()->format(DateTimeInterface::ATOM)
+            : null;
 
-        $endDateTime = null;
-        if ($lineItem->getEndDateTime() !== null) {
-            $endDateTime = $this->dateToIso8601($lineItem->getEndDateTime());
-        }
+        $endDateTime = $lineItem->getEndDateTime()
+            ? $lineItem->getEndDateTime()->format(DateTimeInterface::ATOM)
+            : null;
 
         return [
             'id' => $lineItem->getId() ?? '',

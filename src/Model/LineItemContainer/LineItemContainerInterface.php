@@ -20,11 +20,22 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer;
+namespace OAT\Library\Lti1p3Ags\Model\LineItemContainer;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
 
-interface LineItemContainerNormalizerInterface
+interface LineItemContainerInterface
 {
-    public function normalize(LineItemContainerInterface $lineItemContainer): array;
+    public const REL_NEXT = 'next';
+    public const REL_DIFFERENCES = 'differences';
+
+    public function getLineItems(): LineItemCollectionInterface;
+
+    public function getRelationLink(): ?string;
+
+    public function setRelationLink(string $relationLink): LineItemContainerInterface;
+
+    public function hasNext(): bool;
+
+    public function hasDifferences(): bool;
 }

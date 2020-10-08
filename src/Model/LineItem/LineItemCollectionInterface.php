@@ -20,21 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Service\LineItem;
+namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
-use OAT\Library\Lti1p3Ags\Model\LineItemContainer\LineItemContainerInterface;
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use IteratorAggregate;
 
-interface LineItemGetServiceInterface
+interface LineItemCollectionInterface extends IteratorAggregate
 {
-    public function findAll(
-        string $contextId,
-        int $page = null,
-        int $limit = null,
-        string $resourceLinkId = null,
-        string $tag = null,
-        string $resourceId = null
-    ): LineItemContainerInterface;
-
-    public function findOne(string $contextId, string $lineItemId): LineItemInterface;
 }

@@ -25,8 +25,8 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Serializer\LineItemSerializer;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Serializer\LineItemSerializerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\Serializer\LineItemContainerSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\Serializer\LineItemContainerSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
@@ -35,7 +35,6 @@ use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestMethodValidator
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorAggregator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequiredContextIdValidator;
-use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequiredLineItemIdValidator;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -44,7 +43,10 @@ use Psr\Log\LoggerInterface;
 use Psr\Log\NullLogger;
 use Throwable;
 
-class LineItemGetServer implements RequestHandlerInterface
+/**
+ * see https://www.imsglobal.org/spec/lti-ags/v2p0/openapi/#/default/LineItems.GET
+ */
+class LineItemGetAllServer implements RequestHandlerInterface
 {
     /** @var RequestValidatorInterface */
     private $validator;
@@ -55,8 +57,8 @@ class LineItemGetServer implements RequestHandlerInterface
     /** @var UrlParserInterface  */
     private $parser;
 
-    /** @var LineItemSerializerInterface  */
-    private $lineItemSerializer;
+    /** @var LineItemContainerSerializerInterface  */
+    private $lineItemContainerSerializer;
 
     /** @var ResponseFactory */
     private $factory;
@@ -68,14 +70,14 @@ class LineItemGetServer implements RequestHandlerInterface
         AccessTokenRequestValidator $validator,
         LineItemGetServiceInterface $service,
         UrlParserInterface $parser = null,
-        LineItemSerializerInterface $lineItemSerializer = null,
+        LineItemContainerSerializerInterface $lineItemContainerSerializer = null,
         ResponseFactory $factory = null,
         LoggerInterface $logger = null
     ) {
         $this->validator = $this->aggregateValidator($validator);
         $this->service = $service;
         $this->parser = $parser ?? new UrlParser();
-        $this->lineItemSerializer = $lineItemSerializer ?? new LineItemSerializer();
+        $this->lineItemContainerSerializer = $lineItemContainerSerializer ?? new LineItemContainerSerializer();
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
@@ -85,19 +87,27 @@ class LineItemGetServer implements RequestHandlerInterface
         try {
             $this->validator->validate($request);
 
-            $data = $this->parser->parse($request);
+            $parameters = $this->getServerRequestParameters($request);
 
-            $contextId = $data['contextId'];
-            $lineItemId = $data['lineItemId'];
+            $lineItemContainer = $this->service->findAll(
+                $parameters['contextId'],
+                $parameters['page'],
+                $parameters['limit'],
+                $parameters['resource_link_id'],
+                $parameters['tag'],
+                $parameters['resource_id']
+            );
 
-            $lineItem =  $this->service->findOne($contextId, $lineItemId);
-
-            $responseBody = $this->lineItemSerializer->serialize($lineItem);
+            $responseBody = $this->lineItemContainerSerializer->serialize($lineItemContainer);
 
             $responseHeaders = [
                 'Content-Type' => 'application/json',
                 'Content-length' => strlen($responseBody),
             ];
+
+            if (null !== $lineItemContainer->getRelationLink()) {
+                $responseHeaders['Link'] = $lineItemContainer->getRelationLink();
+            }
 
             return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
         } catch (AgsHttpException $exception) {
@@ -121,8 +131,29 @@ class LineItemGetServer implements RequestHandlerInterface
         return new RequestValidatorAggregator(...[
             new AccessTokenRequestValidatorDecorator($accessTokenValidator),
             new RequestMethodValidator('get'),
-            new RequiredContextIdValidator(),
-            new RequiredLineItemIdValidator()
+            new RequiredContextIdValidator()
         ]);
+    }
+
+    private function getServerRequestParameters(ServerRequestInterface $request): array
+    {
+        $queryParameters = $request->getQueryParams();
+        $parameters = [
+            'page' => array_key_exists('page', $queryParameters)
+                ? (int) $queryParameters['page'] : null,
+            'limit' => array_key_exists('limit', $queryParameters)
+                ? (int) $queryParameters['limit'] : null,
+            'resource_link_id' => array_key_exists('resource_link_id', $queryParameters)
+                ? (string) $queryParameters['resource_link_id'] : null,
+            'tag' => array_key_exists('tag', $queryParameters)
+                ? (string) $queryParameters['tag'] : null,
+            'resource_id' => array_key_exists('resource_id', $queryParameters)
+                ? (string) $queryParameters['resource_id'] : null,
+        ];
+
+        return array_merge(
+            $parameters,
+            $this->parser->parse($request)
+        );
     }
 }

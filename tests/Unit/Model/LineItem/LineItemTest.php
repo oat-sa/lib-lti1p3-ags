@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model\LineItem;
 
 use Carbon\Carbon;
+use DateTimeInterface;
 use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;

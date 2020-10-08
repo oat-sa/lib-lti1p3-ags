@@ -20,23 +20,16 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model\LineItem;
+namespace OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\Serializer;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
-use PHPUnit\Framework\TestCase;
+use OAT\Library\Lti1p3Ags\Model\LineItemContainer\LineItemContainerInterface;
 
-class LineItemContainerTest extends TestCase
+class LineItemContainerSerializer implements LineItemContainerSerializerInterface
 {
-    public function testGetIterator(): void
+    public function serialize(LineItemContainerInterface $lineItemContainer): string
     {
-        $iterator = [
-            $this->createMock(LineItemInterface::class),
-            $this->createMock(LineItemInterface::class)
-        ];
-
-        $lineItemContainer = new LineItemContainer(...$iterator);
-
-        $this->assertSame($iterator, $lineItemContainer->getIterator());
+        return json_encode(
+            $lineItemContainer->getLineItems()->getIterator()->getArrayCopy()
+        );
     }
 }

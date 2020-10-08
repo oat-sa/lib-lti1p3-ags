@@ -20,17 +20,17 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\LineItem\Normalizer;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\LineItem\Serializer;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemContainerNormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Serializer\LineItemSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Serializer\LineItemSerializerInterface;
 use PHPUnit\Framework\TestCase;
 
-class LineItemContainerNormalizerTest extends TestCase
+class LineItemSerializerTest extends TestCase
 {
-    /** @var LineItemContainerNormalizer  */
+    /** @var LineItemSerializerInterface  */
     private $subject;
 
     /** @var LineItemNormalizerInterface */
@@ -39,49 +39,24 @@ class LineItemContainerNormalizerTest extends TestCase
     public function setUp(): void
     {
         $this->lineItemNormalizer = $this->createMock(LineItemNormalizerInterface::class);
-        $this->subject = new LineItemContainerNormalizer($this->lineItemNormalizer);
+        $this->subject = new LineItemSerializer($this->lineItemNormalizer);
     }
 
-    public function testNormalize(): void
+    public function testSerialize(): void
     {
-        $iterator = [
-            $this->createMock(LineItemInterface::class),
-            $this->createMock(LineItemInterface::class)
-        ];
+        $expected = ['toto'];
 
-        $expected = [
-            ['id' => 2],
-            ['id' => 4],
-        ];
-
-        $lineItemContainer = new LineItemContainer(...$iterator);
+        $lineItem = $this->createMock(LineItemInterface::class);
 
         $this->lineItemNormalizer
-            ->expects($this->exactly(2))
+            ->expects($this->once())
             ->method('normalize')
-            ->willReturnOnConsecutiveCalls(...$expected);
+            ->with($lineItem)
+            ->willReturn($expected);
 
         $this->assertSame(
-            $expected,
-            $this->subject->normalize($lineItemContainer)
-        );
-    }
-
-    public function testNormalizeWithEmptyLineItemContainer(): void
-    {
-        $iterator = [];
-
-        $expected = [];
-
-        $lineItemContainer = new LineItemContainer(...$iterator);
-
-        $this->lineItemNormalizer
-            ->expects($this->never())
-            ->method('normalize');
-
-        $this->assertSame(
-            $expected,
-            $this->subject->normalize($lineItemContainer)
+            json_encode($expected),
+            $this->subject->serialize($lineItem)
         );
     }
 }

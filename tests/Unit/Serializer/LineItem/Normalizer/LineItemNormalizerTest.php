@@ -23,17 +23,13 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\LineItem\Normalizer;
 
 use Carbon\Carbon;
+use DateTimeInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizer;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizerInterface;
-use OAT\Library\Lti1p3Ags\Traits\DateConverterTrait;
 use PHPUnit\Framework\TestCase;
 
 class LineItemNormalizerTest extends TestCase
 {
-    use DateConverterTrait;
-
-    /** @var LineItemNormalizerInterface  */
     private $subject;
 
     public function setUp(): void
@@ -41,7 +37,7 @@ class LineItemNormalizerTest extends TestCase
         $this->subject = new LineItemNormalizer();
     }
 
-    public function testNormalizeWithAllValues(): void
+    public function testJsonSerializeWithAllValues(): void
     {
         $contextId = 'line-item-context-id';
         $scoreMaximum = 0.5;
@@ -67,8 +63,8 @@ class LineItemNormalizerTest extends TestCase
 
         $values = [
             'id' => $id,
-            'startDateTime' => $this->dateToIso8601($startDateTime),
-            'endDateTime' => $this->dateToIso8601($endDateTime),
+            'startDateTime' => $startDateTime->format(DateTimeInterface::ATOM),
+            'endDateTime' => $endDateTime->format(DateTimeInterface::ATOM),
             'scoreMaximum' => $scoreMaximum,
             'label' => $label,
             'tag' => $tag,
@@ -82,7 +78,7 @@ class LineItemNormalizerTest extends TestCase
         );
     }
 
-    public function testNormalizeWithRequiredValuesOnly(): void
+    public function testJsonSerializeWithRequiredValuesOnly(): void
     {
         $contextId = 'line-item-context-id';
         $scoreMaximum = 0.5;
