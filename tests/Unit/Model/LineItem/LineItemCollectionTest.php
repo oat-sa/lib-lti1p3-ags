@@ -49,9 +49,4 @@ class LineItemCollectionTest extends TestCase
     {
         $this->assertSame($this->iterator, $this->subject->getIterator()->getArrayCopy());
     }
-
-    public function testJsonSerialize(): void
-    {
-        $this->assertSame($this->iterator, $this->subject->jsonSerialize());
-    }
 }

@@ -24,7 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\LineItem;
 
 use Exception;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\Serializer\LineItemSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemGetServer;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;

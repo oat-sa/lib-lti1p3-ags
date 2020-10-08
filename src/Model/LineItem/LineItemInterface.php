@@ -23,12 +23,11 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
 use DateTimeInterface;
-use JsonSerializable;
 
 /**
  * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
  */
-interface LineItemInterface extends JsonSerializable
+interface LineItemInterface
 {
     public function getId(): ?string;
 

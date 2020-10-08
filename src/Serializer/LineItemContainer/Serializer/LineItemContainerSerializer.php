@@ -20,14 +20,16 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\LineItem;
+namespace OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\Serializer;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItemContainer\LineItemContainerInterface;
 
-class LineItemSerializer implements LineItemSerializerInterface
+class LineItemContainerSerializer implements LineItemContainerSerializerInterface
 {
-    public function serialize(LineItemInterface $lineItem): string
+    public function serialize(LineItemContainerInterface $lineItemContainer): string
     {
-        return json_encode($lineItem);
+        return json_encode(
+            $lineItemContainer->getLineItems()->getIterator()->getArrayCopy()
+        );
     }
 }
