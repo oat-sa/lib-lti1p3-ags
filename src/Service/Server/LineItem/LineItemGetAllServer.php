@@ -139,7 +139,7 @@ class LineItemGetAllServer implements RequestHandlerInterface
     {
         $queryParameters = $request->getQueryParams();
         $parameters = [
-            'page' => array_key_exists('page' , $queryParameters)
+            'page' => array_key_exists('page', $queryParameters)
                 ? (int) $queryParameters['page'] : null,
             'limit' => array_key_exists('limit', $queryParameters)
                 ? (int) $queryParameters['limit'] : null,
@@ -152,8 +152,8 @@ class LineItemGetAllServer implements RequestHandlerInterface
         ];
 
         return array_merge(
-             $parameters,
-             $this->parser->parse($request)
+            $parameters,
+            $this->parser->parse($request)
         );
     }
 }

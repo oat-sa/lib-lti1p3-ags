@@ -43,7 +43,7 @@ class LineItemContainerTest extends TestCase
         $this->subject = new LineItemContainer($this->lineItemCollection);
     }
 
-    public function testGetLineItems():void
+    public function testGetLineItems(): void
     {
         $this->assertSame($this->lineItemCollection, $this->subject->getLineItems());
     }
@@ -55,7 +55,7 @@ class LineItemContainerTest extends TestCase
         $this->assertFalse($this->subject->hasNext());
     }
 
-    public function testSetNextRelationLink()
+    public function testSetNextRelationLink(): void
     {
         $relationUrl = 'http://next-url.org?rel=next';
         $this->subject->setRelationLink($relationUrl);
@@ -65,7 +65,7 @@ class LineItemContainerTest extends TestCase
         $this->assertTrue($this->subject->hasNext());
     }
 
-    public function testSetDifferencesRelationLink()
+    public function testSetDifferencesRelationLink(): void
     {
         $relationUrl = 'http://next-url.org?rel=differences';
         $this->subject->setRelationLink($relationUrl);
@@ -75,7 +75,7 @@ class LineItemContainerTest extends TestCase
         $this->assertFalse($this->subject->hasNext());
     }
 
-    public function testSetNextAndDifferencesRelationLink()
+    public function testSetNextAndDifferencesRelationLink(): void
     {
         $relationUrl = 'http://next-url.org?rel=next$rel=differences';
         $this->subject->setRelationLink($relationUrl);

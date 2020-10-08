@@ -29,11 +29,11 @@ class LineItemNormalizer implements LineItemNormalizerInterface
 {
     public function normalize(LineItemInterface $lineItem): array
     {
-        $startDateTime= $lineItem->getStartDateTime()
+        $startDateTime = $lineItem->getStartDateTime()
             ? $lineItem->getStartDateTime()->format(DateTimeInterface::ATOM)
             : null;
 
-        $endDateTime= $lineItem->getEndDateTime()
+        $endDateTime = $lineItem->getEndDateTime()
             ? $lineItem->getEndDateTime()->format(DateTimeInterface::ATOM)
             : null;
 
