@@ -25,8 +25,8 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizer;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
@@ -55,8 +55,8 @@ class LineItemGetServer implements RequestHandlerInterface
     /** @var UrlParserInterface  */
     private $parser;
 
-    /** @var LineItemNormalizerInterface  */
-    private $lineItemNormalizer;
+    /** @var LineItemSerializerInterface  */
+    private $lineItemSerializer;
 
     /** @var ResponseFactory */
     private $factory;
@@ -68,14 +68,14 @@ class LineItemGetServer implements RequestHandlerInterface
         AccessTokenRequestValidator $validator,
         LineItemGetServiceInterface $service,
         UrlParserInterface $parser = null,
-        LineItemNormalizerInterface $lineItemNormalizer = null,
+        LineItemSerializerInterface $lineItemSerializer = null,
         ResponseFactory $factory = null,
         LoggerInterface $logger = null
     ) {
         $this->validator = $this->aggregateValidator($validator);
         $this->service = $service;
         $this->parser = $parser ?? new UrlParser();
-        $this->lineItemNormalizer = $lineItemNormalizer ?? new LineItemNormalizer();
+        $this->lineItemSerializer = $lineItemSerializer ?? new LineItemSerializer();
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
@@ -90,11 +90,9 @@ class LineItemGetServer implements RequestHandlerInterface
             $contextId = $data['contextId'];
             $lineItemId = $data['lineItemId'];
 
-            $responseBody = $this->lineItemNormalizer->normalize(
-                $this->service->findOne($contextId, (string) $lineItemId)
-            );
+            $lineItem =  $this->service->findOne($contextId, $lineItemId);
 
-            $responseBody = json_encode($responseBody);
+            $responseBody = $this->lineItemSerializer->serialize($lineItem);
 
             $responseHeaders = [
                 'Content-Type' => 'application/json',

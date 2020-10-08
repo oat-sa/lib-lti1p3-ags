@@ -25,9 +25,8 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemContainerNormalizer;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemContainerNormalizerInterface;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer\LineItemNormalizer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\LineItemContainerSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\LineItemContainerSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
@@ -58,8 +57,8 @@ class LineItemGetAllServer implements RequestHandlerInterface
     /** @var UrlParserInterface  */
     private $parser;
 
-    /** @var LineItemContainerNormalizerInterface  */
-    private $lineItemContainerNormalizer;
+    /** @var LineItemContainerSerializerInterface  */
+    private $lineItemContainerSerializer;
 
     /** @var ResponseFactory */
     private $factory;
@@ -71,15 +70,14 @@ class LineItemGetAllServer implements RequestHandlerInterface
         AccessTokenRequestValidator $validator,
         LineItemGetServiceInterface $service,
         UrlParserInterface $parser = null,
-        LineItemContainerNormalizerInterface $lineItemContainerNormalizer = null,
+        LineItemContainerSerializerInterface $lineItemContainerSerializer = null,
         ResponseFactory $factory = null,
         LoggerInterface $logger = null
     ) {
         $this->validator = $this->aggregateValidator($validator);
         $this->service = $service;
         $this->parser = $parser ?? new UrlParser();
-        $this->lineItemContainerNormalizer = $lineItemContainerNormalizer
-            ?? new LineItemContainerNormalizer(new LineItemNormalizer());
+        $this->lineItemContainerSerializer = $lineItemContainerSerializer ?? new LineItemContainerSerializer();
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
@@ -89,23 +87,27 @@ class LineItemGetAllServer implements RequestHandlerInterface
         try {
             $this->validator->validate($request);
 
-            $data = $this->parser->parse($request);
+            $parameters = $this->getServerRequestParameters($request);
 
-            $contextId = $data['contextId'];
-            $limit = $data['limit'] ?? null;
-            $page = $data['page'] ?? null;
-            $resourceLinkId = $data['resource_link_id'] ?? null;
-            $tag = $data['tag'] ?? null;
-            $resourceId = $data['resource_id'] ?? null;
+            $lineItemContainer = $this->service->findAll(
+                (string) $parameters['contextId'],
+                (int) $parameters['page'] ?? null,
+                (int) $parameters['limit'] ?? null,
+                (string) $parameters['resource_link_id'] ?? null,
+                (string) $parameters['tag'] ?? null,
+                (string) $parameters['resource_id'] ?? null
+            );
 
-            $lineItemContainer = $this->service->findAll($contextId, $page, $limit, $resourceLinkId, $tag, $resourceId);
-
-            $responseBody = json_encode($this->lineItemContainerNormalizer->normalize($lineItemContainer));
+            $responseBody = $this->lineItemContainerSerializer->serialize($lineItemContainer);
 
             $responseHeaders = [
                 'Content-Type' => 'application/json',
                 'Content-length' => strlen($responseBody),
             ];
+
+            if (null !== $lineItemContainer->getRelationLink()) {
+                $responseHeaders['Link'] = $lineItemContainer->getRelationLink();
+            }
 
             return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
         } catch (AgsHttpException $exception) {
@@ -131,5 +133,14 @@ class LineItemGetAllServer implements RequestHandlerInterface
             new RequestMethodValidator('get'),
             new RequiredContextIdValidator()
         ]);
+    }
+
+    private function getServerRequestParameters(ServerRequestInterface $request): array
+    {
+        $uriParameters = $this->parser->parse($request);
+
+        parse_str($request->getUri()->getQuery(), $queryParameters);
+
+        return array_merge($queryParameters, $uriParameters);
     }
 }

@@ -20,23 +20,23 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model\LineItem;
+namespace OAT\Library\Lti1p3Ags\Model\LineItemContainer;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
-use PHPUnit\Framework\TestCase;
+use JsonSerializable;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
 
-class LineItemContainerTest extends TestCase
+interface LineItemContainerInterface extends JsonSerializable
 {
-    public function testGetIterator(): void
-    {
-        $iterator = [
-            $this->createMock(LineItemInterface::class),
-            $this->createMock(LineItemInterface::class)
-        ];
+    public const REL_NEXT = 'next';
+    public const REL_DIFFERENCES = 'differences';
 
-        $lineItemContainer = new LineItemContainer(...$iterator);
+    public function getLineItems(): LineItemCollectionInterface;
 
-        $this->assertSame($iterator, $lineItemContainer->getIterator());
-    }
+    public function getRelationLink(): ?string;
+
+    public function setRelationLink(string $relationLink): LineItemContainerInterface;
+
+    public function hasNext(): bool;
+
+    public function hasDifferences(): bool;
 }

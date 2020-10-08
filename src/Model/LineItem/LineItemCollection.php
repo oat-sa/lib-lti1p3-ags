@@ -20,21 +20,27 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Service\LineItem;
+namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
-use OAT\Library\Lti1p3Ags\Model\LineItemContainer\LineItemContainerInterface;
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use ArrayIterator;
 
-interface LineItemGetServiceInterface
+class LineItemCollection implements LineItemCollectionInterface
 {
-    public function findAll(
-        string $contextId,
-        int $page = null,
-        int $limit = null,
-        string $resourceLinkId = null,
-        string $tag = null,
-        string $resourceId = null
-    ): LineItemContainerInterface;
+    /** @var LineItemInterface[] */
+    private $lineItems;
 
-    public function findOne(string $contextId, string $lineItemId): LineItemInterface;
+    public function __construct(LineItemInterface ...$lineItems)
+    {
+        $this->lineItems = $lineItems;
+    }
+
+    public function getIterator(): ArrayIterator
+    {
+        return new ArrayIterator($this->lineItems);
+    }
+
+    public function jsonSerialize(): array
+    {
+        return $this->getIterator()->getArrayCopy();
+    }
 }
