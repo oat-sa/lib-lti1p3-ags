@@ -28,8 +28,10 @@ use OAT\Library\Lti1p3Ags\Serializer\LineItem\Serializer\LineItemSerializerInter
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemGetServer;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
 use OAT\Library\Lti1p3Ags\Tests\Unit\Traits\ServerRequestPathTestingTrait;
+use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidationResult;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use PHPUnit\Framework\TestCase;
 
@@ -69,7 +71,7 @@ class LineItemGetServerTest extends TestCase
 
     public function testRequiredLineItemIdValidationFailed(): void
     {
-        $this->validator->method('validate');
+        $this->mockValidationWithScopes();
 
         $response = $this->subject->handle(
             $this->getMockForServerRequest('/without/lineItemId')
@@ -104,7 +106,8 @@ class LineItemGetServerTest extends TestCase
         $lineItem = $this->createMock(LineItemInterface::class);
         $expectedEncodedLineItem = json_encode(['encoded-line-item']);
 
-        $this->validator->method('validate');
+        $this->mockValidationWithScopes();
+
         $this->parser
             ->expects($this->once())
             ->method('parse')
@@ -129,5 +132,22 @@ class LineItemGetServerTest extends TestCase
         $this->assertSame('application/json', $response->getHeaderLine('Content-Type'));
         $this->assertSame((string) strlen($expectedEncodedLineItem), $response->getHeaderLine('Content-length'));
         $this->assertSame($expectedEncodedLineItem, (string) $response->getBody());
+    }
+
+    private function mockValidationWithScopes(): void
+    {
+        $validationResult = $this->createMock(AccessTokenRequestValidationResult::class);
+
+        $validationResult
+            ->method('hasError')
+            ->willReturn(false);
+
+        $validationResult
+            ->method('getScopes')
+            ->willReturn([AccessTokenRequestValidatorDecorator::SCOPE_LINE_ITEM]);
+
+        $this->validator
+            ->method('validate')
+            ->willReturn($validationResult);
     }
 }

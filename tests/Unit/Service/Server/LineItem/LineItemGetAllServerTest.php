@@ -28,8 +28,10 @@ use OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\Serializer\LineItemContai
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemGetAllServer;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorException;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorInterface;
+use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidationResult;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use OAT\Library\Lti1p3Core\Tests\Traits\NetworkTestingTrait;
 use PHPUnit\Framework\TestCase;
@@ -102,7 +104,7 @@ class LineItemGetAllServerTest extends TestCase
 
     public function testHttpMethodValidationFailed(): void
     {
-        $this->validator->method('validate');
+        $this->mockValidationWithScopes();
 
         $response = $this->subject->handle(
             $this->createServerRequest('POST', '/toto')
@@ -115,7 +117,7 @@ class LineItemGetAllServerTest extends TestCase
 
     public function testRequiredContextIdValidationFailed(): void
     {
-        $this->validator->method('validate');
+        $this->mockValidationWithScopes();
 
         $response = $this->subject->handle(
             $this->createServerRequest('GET', '/')
@@ -160,6 +162,8 @@ class LineItemGetAllServerTest extends TestCase
             $expectedServiceParameters,
             null
         );
+
+        $this->mockValidationWithScopes();
 
         $response = $this->subject->handle($request);
 
@@ -212,7 +216,8 @@ class LineItemGetAllServerTest extends TestCase
             ->method('getRelationLink')
             ->willReturn($relationLink);
 
-        $this->validator->method('validate');
+        $this->mockValidationWithScopes();
+
         $this->parser
             ->expects($this->once())
             ->method('parse')
@@ -230,5 +235,22 @@ class LineItemGetAllServerTest extends TestCase
             ->method('serialize')
             ->with($lineItemContainer)
             ->willReturn($serializedLineItemContainer);
+    }
+
+    private function mockValidationWithScopes(): void
+    {
+        $validationResult = $this->createMock(AccessTokenRequestValidationResult::class);
+
+        $validationResult
+            ->method('hasError')
+            ->willReturn(false);
+
+        $validationResult
+            ->method('getScopes')
+            ->willReturn([AccessTokenRequestValidatorDecorator::SCOPE_LINE_ITEM]);
+
+        $this->validator
+            ->method('validate')
+            ->willReturn($validationResult);
     }
 }

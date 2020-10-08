@@ -27,6 +27,7 @@ use GuzzleHttp\Psr7\ServerRequest;
 use GuzzleHttp\Psr7\Utils;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemCreateServiceInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemCreateServer;
+use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidationResult;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -74,7 +75,7 @@ class LineItemCreateServerTest extends TestCase
 
         $validationResult
             ->method('getScopes')
-            ->willReturn([LineItemCreateServer::ALLOWED_SCOPE]);
+            ->willReturn([AccessTokenRequestValidatorDecorator::SCOPE_LINE_ITEM]);
 
         $this->validator
             ->method('validate')

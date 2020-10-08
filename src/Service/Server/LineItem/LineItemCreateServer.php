@@ -48,8 +48,6 @@ use Throwable;
 
 class LineItemCreateServer implements RequestHandlerInterface
 {
-    public const ALLOWED_SCOPE = 'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem';
-
     /** @var RequestValidatorInterface */
     private $validator;
 
@@ -140,7 +138,7 @@ class LineItemCreateServer implements RequestHandlerInterface
     {
         return new RequestValidatorAggregator(
             ...[
-                new AccessTokenRequestValidatorDecorator($accessTokenValidator, self::ALLOWED_SCOPE),
+                new AccessTokenRequestValidatorDecorator($accessTokenValidator, AccessTokenRequestValidatorDecorator::SCOPE_LINE_ITEM),
                 new RequestMethodValidator('post'),
                 new RequiredContextIdValidator(),
                 new CreateLineItemValidator()

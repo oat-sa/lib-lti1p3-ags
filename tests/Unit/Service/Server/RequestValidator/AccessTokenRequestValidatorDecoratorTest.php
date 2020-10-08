@@ -40,12 +40,23 @@ class AccessTokenRequestValidatorDecoratorTest extends TestCase
     public function setUp(): void
     {
         $this->validator = $this->createMock(AccessTokenRequestValidator::class);
-        $this->subject = new AccessTokenRequestValidatorDecorator($this->validator);
+        $this->subject = new AccessTokenRequestValidatorDecorator($this->validator, AccessTokenRequestValidatorDecorator::SCOPE_LINE_ITEM);
     }
 
     public function testValidateWithNoErrorOnAccessTokenValidator(): void
     {
         $this->setupAccessTokenValidator(false);
+
+        $this->subject->validate($this->createMock(ServerRequestInterface::class));
+    }
+
+    public function testValidateWithUnAllowedScoreWillThrowException(): void
+    {
+        $this->setupAccessTokenValidator(false, null, ['invalidScope']);
+
+        $this->expectException(RequestValidatorException::class);
+        $this->expectExceptionMessage('Only allowed for scope ' . AccessTokenRequestValidatorDecorator::SCOPE_LINE_ITEM);
+        $this->expectExceptionCode(401);
 
         $this->subject->validate($this->createMock(ServerRequestInterface::class));
     }
@@ -63,9 +74,10 @@ class AccessTokenRequestValidatorDecoratorTest extends TestCase
         $this->subject->validate($this->createMock(ServerRequestInterface::class));
     }
 
-    private function setupAccessTokenValidator(bool $hasError, ?string $error = null): void
+    private function setupAccessTokenValidator(bool $hasError, ?string $error = null, array $scopes = []): void
     {
         $validatorResult = $this->createMock(AccessTokenRequestValidationResult::class);
+
         $validatorResult
             ->expects($this->once())
             ->method('hasError')
@@ -77,6 +89,10 @@ class AccessTokenRequestValidatorDecoratorTest extends TestCase
                 ->method('getError')
                 ->willReturn($error);
         }
+
+        $validatorResult
+            ->method('getScopes')
+            ->willReturn(empty($scopes) ? [AccessTokenRequestValidatorDecorator::SCOPE_LINE_ITEM] : $scopes);
 
         $this->validator
             ->expects($this->once())

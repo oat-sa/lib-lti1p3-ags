@@ -27,6 +27,8 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class AccessTokenRequestValidatorDecorator implements RequestValidatorInterface
 {
+    public const SCOPE_LINE_ITEM = 'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem';
+
     /** @var AccessTokenRequestValidator */
     private $validator;
 
