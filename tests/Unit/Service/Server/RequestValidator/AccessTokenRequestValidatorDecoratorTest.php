@@ -56,7 +56,7 @@ class AccessTokenRequestValidatorDecoratorTest extends TestCase
 
         $this->expectException(RequestValidatorException::class);
         $this->expectExceptionMessage('Only allowed for scope ' . AccessTokenRequestValidatorDecorator::SCOPE_LINE_ITEM);
-        $this->expectExceptionCode(401);
+        $this->expectExceptionCode(403);
 
         $this->subject->validate($this->createMock(ServerRequestInterface::class));
     }

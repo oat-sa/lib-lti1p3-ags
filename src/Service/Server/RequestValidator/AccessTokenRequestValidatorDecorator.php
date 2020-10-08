@@ -55,7 +55,7 @@ class AccessTokenRequestValidatorDecorator implements RequestValidatorInterface
         if ($this->allowedScope !== null && !in_array($this->allowedScope, $validationResult->getScopes(), true)) {
             throw new RequestValidatorException(
                 sprintf('Only allowed for scope %s', $this->allowedScope),
-                401
+                403
             );
         }
     }
