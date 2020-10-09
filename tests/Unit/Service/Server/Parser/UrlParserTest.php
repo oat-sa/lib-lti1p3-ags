@@ -23,12 +23,12 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\Parser;
 
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
-use OAT\Library\Lti1p3Ags\Tests\Unit\Traits\ServerRequestPathTestingTrait;
+use OAT\Library\Lti1p3Core\Tests\Traits\NetworkTestingTrait;
 use PHPUnit\Framework\TestCase;
 
 class UrlParserTest extends TestCase
 {
-    use ServerRequestPathTestingTrait;
+    use NetworkTestingTrait;
 
     private $subject;
 
@@ -45,7 +45,7 @@ class UrlParserTest extends TestCase
         $this->assertSame(
             $expected,
             $this->subject->parse(
-                $this->getMockForServerRequest($path)
+                $this->createServerRequest('GET', $path)
             )
         );
     }
