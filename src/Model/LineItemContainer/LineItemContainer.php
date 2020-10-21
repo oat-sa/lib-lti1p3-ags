@@ -65,13 +65,4 @@ class LineItemContainer implements LineItemContainerInterface
 
         return (bool) strpos($this->relationLink, sprintf('rel=%s', static::REL_NEXT));
     }
-
-    public function hasDifferences(): bool
-    {
-        if (null === $this->relationLink) {
-            return false;
-        }
-
-        return (bool) strpos($this->relationLink, sprintf('rel=%s', static::REL_DIFFERENCES));
-    }
 }

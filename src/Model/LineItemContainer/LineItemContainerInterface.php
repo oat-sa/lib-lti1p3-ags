@@ -36,6 +36,4 @@ interface LineItemContainerInterface
     public function setRelationLink(string $relationLink): LineItemContainerInterface;
 
     public function hasNext(): bool;
-
-    public function hasDifferences(): bool;
 }
