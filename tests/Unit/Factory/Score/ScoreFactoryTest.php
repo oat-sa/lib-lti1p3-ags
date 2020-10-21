@@ -20,17 +20,18 @@
 
 declare(strict_types=1);
 
-namespace Unit\Factory;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Factory\Score;
 
 use Carbon\Carbon;
 use InvalidArgumentException;
-use OAT\Library\Lti1p3Ags\Factory\ScoreFactory;
-use OAT\Library\Lti1p3Ags\Model\Score;
+use OAT\Library\Lti1p3Ags\Factory\Score\ScoreFactory;
+use OAT\Library\Lti1p3Ags\Factory\Score\ScoreFactoryInterface;
+use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 use PHPUnit\Framework\TestCase;
 
 class ScoreFactoryTest extends TestCase
 {
-    /** @var ScoreFactory */
+    /** @var ScoreFactoryInterface */
     private $subject;
 
     protected function setUp(): void
@@ -75,13 +76,13 @@ class ScoreFactoryTest extends TestCase
         $this->assertSame($comment, $score->getComment());
 
         if ($activityProgressStatus === null) {
-            $this->assertSame(Score::ACTIVITY_PROGRESS_STATUS_INITIALIZED, $score->getActivityProgressStatus());
+            $this->assertSame(ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED, $score->getActivityProgressStatus());
         } else {
             $this->assertSame($activityProgressStatus, $score->getActivityProgressStatus());
         }
 
         if ($gradingProgressStatus === null) {
-            $this->assertSame(Score::GRADING_PROGRESS_STATUS_NOT_READY, $score->getGradingProgressStatus());
+            $this->assertSame(ScoreInterface::GRADING_PROGRESS_STATUS_NOT_READY, $score->getGradingProgressStatus());
         } else {
             $this->assertSame($gradingProgressStatus, $score->getGradingProgressStatus());
         }
@@ -110,7 +111,7 @@ class ScoreFactoryTest extends TestCase
                 56.78,
                 'comment',
                 Carbon::now(),
-                Score::ACTIVITY_PROGRESS_STATUS_IN_PROGRESS,
+                ScoreInterface::ACTIVITY_PROGRESS_STATUS_IN_PROGRESS,
                 null,
             ],
             [
@@ -122,8 +123,8 @@ class ScoreFactoryTest extends TestCase
                 56.78,
                 'comment',
                 Carbon::now(),
-                Score::ACTIVITY_PROGRESS_STATUS_IN_PROGRESS,
-                Score::GRADING_PROGRESS_STATUS_NOT_READY,
+                ScoreInterface::ACTIVITY_PROGRESS_STATUS_IN_PROGRESS,
+                ScoreInterface::GRADING_PROGRESS_STATUS_NOT_READY,
             ],
         ];
     }
@@ -175,7 +176,7 @@ class ScoreFactoryTest extends TestCase
             'comment',
             Carbon::create(1988, 12, 22),
             'wrong',
-            Score::GRADING_PROGRESS_STATUS_NOT_READY
+            ScoreInterface::GRADING_PROGRESS_STATUS_NOT_READY
         );
     }
 
@@ -199,7 +200,7 @@ class ScoreFactoryTest extends TestCase
             1.0,
             'comment',
             Carbon::create(1988, 12, 22),
-            Score::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
+            ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
             'wrong'
         );
     }

@@ -20,13 +20,14 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Factory;
+namespace OAT\Library\Lti1p3Ags\Factory\Score;
 
 use DateTimeInterface;
 use InvalidArgumentException;
-use OAT\Library\Lti1p3Ags\Model\Score;
+use OAT\Library\Lti1p3Ags\Model\Score\Score;
+use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 
-class ScoreFactory
+class ScoreFactory implements ScoreFactoryInterface
 {
     public function create(
         string $userId,
@@ -37,11 +38,11 @@ class ScoreFactory
         ?float $scoreMaximum = null,
         ?string $comment = null,
         ?DateTimeInterface $timestamp = null,
-        ?string $activityProgressStatus = Score::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
-        ?string $gradingProgressStatus = Score::GRADING_PROGRESS_STATUS_NOT_READY
-    ): Score {
-        $activityProgressStatus = $activityProgressStatus ?? Score::ACTIVITY_PROGRESS_STATUS_INITIALIZED;
-        $gradingProgressStatus = $gradingProgressStatus ?? Score::GRADING_PROGRESS_STATUS_NOT_READY;
+        ?string $activityProgressStatus = ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
+        ?string $gradingProgressStatus = ScoreInterface::GRADING_PROGRESS_STATUS_NOT_READY
+    ): ScoreInterface {
+        $activityProgressStatus = $activityProgressStatus ?? ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED;
+        $gradingProgressStatus = $gradingProgressStatus ?? ScoreInterface::GRADING_PROGRESS_STATUS_NOT_READY;
 
         $this->validateActivityProgressStatus($activityProgressStatus);
         $this->validateGradingProgressStatus($gradingProgressStatus);
@@ -72,7 +73,7 @@ class ScoreFactory
             && $scoreMaximum >= 0;
     }
 
-    public function validateActivityProgressStatus(string $activityProgressStatus): void
+    private function validateActivityProgressStatus(string $activityProgressStatus): void
     {
         if (!in_array($activityProgressStatus, Score::SUPPORTED_ACTIVITY_PROGRESS_STATUSES, true)) {
             throw new InvalidArgumentException(
@@ -85,7 +86,7 @@ class ScoreFactory
         }
     }
 
-    public function validateGradingProgressStatus(string $gradingProgressStatus): void
+    private function validateGradingProgressStatus(string $gradingProgressStatus): void
     {
         if (!in_array($gradingProgressStatus, Score::SUPPORTED_GRADING_PROGRESS_STATUSES, true)) {
             throw new InvalidArgumentException(
