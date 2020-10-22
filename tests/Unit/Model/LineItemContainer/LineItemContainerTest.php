@@ -61,4 +61,9 @@ class LineItemContainerTest extends TestCase
         $this->assertSame($relationUrl, $this->subject->getRelationLink());
         $this->assertTrue($this->subject->hasNext());
     }
+
+    public function testJsonSerialize(): void
+    {
+        $this->assertSame($this->lineItemCollection, $this->subject->jsonSerialize());
+    }
 }

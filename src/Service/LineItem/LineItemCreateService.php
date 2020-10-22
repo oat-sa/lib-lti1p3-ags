@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem;
 
+use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
-use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\RequestValidatorException;
 
 class LineItemCreateService implements LineItemCreateServiceInterface
 {
@@ -44,7 +44,7 @@ class LineItemCreateService implements LineItemCreateServiceInterface
         if ($lineItem->getStartDateTime() && $lineItem->getEndDateTime()
             && ($lineItem->getStartDateTime() > $lineItem->getEndDateTime())
         ) {
-            throw new RequestValidatorException(
+            throw new InvalidArgumentException(
                 sprintf(
                     'Value of startDateTime (%s) time should be lower or equal than endDateTime (%s)',
                     $lineItem->getStartDateTime()->format('Y-m-d H:i:s'),

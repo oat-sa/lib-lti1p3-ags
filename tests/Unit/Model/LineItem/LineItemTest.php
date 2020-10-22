@@ -192,6 +192,4 @@ class LineItemTest extends TestCase
             $lineItem->jsonSerialize()
         );
     }
-
-
 }
