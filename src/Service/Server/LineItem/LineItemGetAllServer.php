@@ -25,9 +25,7 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\Serializer\LineItemContainerSerializer;
-use OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\Serializer\LineItemContainerSerializerInterface;
-use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
+use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
@@ -51,14 +49,11 @@ class LineItemGetAllServer implements RequestHandlerInterface
     /** @var RequestValidatorInterface */
     private $validator;
 
-    /** @var LineItemGetServiceInterface  */
-    private $service;
+    /** @var LineItemRepositoryInterface  */
+    private $repository;
 
     /** @var UrlParserInterface  */
     private $parser;
-
-    /** @var LineItemContainerSerializerInterface  */
-    private $lineItemContainerSerializer;
 
     /** @var ResponseFactory */
     private $factory;
@@ -68,16 +63,14 @@ class LineItemGetAllServer implements RequestHandlerInterface
 
     public function __construct(
         AccessTokenRequestValidator $validator,
-        LineItemGetServiceInterface $service,
+        LineItemRepositoryInterface $repository,
         UrlParserInterface $parser = null,
-        LineItemContainerSerializerInterface $lineItemContainerSerializer = null,
         ResponseFactory $factory = null,
         LoggerInterface $logger = null
     ) {
         $this->validator = $this->aggregateValidator($validator);
-        $this->service = $service;
+        $this->repository = $repository;
         $this->parser = $parser ?? new UrlParser();
-        $this->lineItemContainerSerializer = $lineItemContainerSerializer ?? new LineItemContainerSerializer();
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
@@ -89,7 +82,7 @@ class LineItemGetAllServer implements RequestHandlerInterface
 
             $parameters = $this->getServerRequestParameters($request);
 
-            $lineItemContainer = $this->service->findAll(
+            $lineItemContainer = $this->repository->findAll(
                 $parameters['contextId'],
                 $parameters['page'],
                 $parameters['limit'],
@@ -98,7 +91,7 @@ class LineItemGetAllServer implements RequestHandlerInterface
                 $parameters['resource_id']
             );
 
-            $responseBody = $this->lineItemContainerSerializer->serialize($lineItemContainer);
+            $responseBody = json_encode($lineItemContainer);
 
             $responseHeaders = [
                 'Content-Type' => 'application/json',
@@ -140,15 +133,20 @@ class LineItemGetAllServer implements RequestHandlerInterface
         $queryParameters = $request->getQueryParams();
         $parameters = [
             'page' => array_key_exists('page', $queryParameters)
-                ? (int) $queryParameters['page'] : null,
+                ? (int) $queryParameters['page']
+                : null,
             'limit' => array_key_exists('limit', $queryParameters)
-                ? (int) $queryParameters['limit'] : null,
+                ? (int) $queryParameters['limit']
+                : null,
             'resource_link_id' => array_key_exists('resource_link_id', $queryParameters)
-                ? (string) $queryParameters['resource_link_id'] : null,
+                ? (string) $queryParameters['resource_link_id']
+                : null,
             'tag' => array_key_exists('tag', $queryParameters)
-                ? (string) $queryParameters['tag'] : null,
+                ? (string) $queryParameters['tag']
+                : null,
             'resource_id' => array_key_exists('resource_id', $queryParameters)
-                ? (string) $queryParameters['resource_id'] : null,
+                ? (string) $queryParameters['resource_id']
+                : null,
         ];
 
         return array_merge(

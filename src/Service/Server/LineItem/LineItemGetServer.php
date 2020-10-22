@@ -25,9 +25,7 @@ namespace OAT\Library\Lti1p3Ags\Service\Server\LineItem;
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Exception\AgsHttpException;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Serializer\LineItemSerializer;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Serializer\LineItemSerializerInterface;
-use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
+use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParser;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
@@ -51,14 +49,11 @@ class LineItemGetServer implements RequestHandlerInterface
     /** @var RequestValidatorInterface */
     private $validator;
 
-    /** @var LineItemGetServiceInterface  */
-    private $service;
+    /** @var LineItemRepositoryInterface  */
+    private $repository;
 
     /** @var UrlParserInterface  */
     private $parser;
-
-    /** @var LineItemSerializerInterface  */
-    private $lineItemSerializer;
 
     /** @var ResponseFactory */
     private $factory;
@@ -68,16 +63,14 @@ class LineItemGetServer implements RequestHandlerInterface
 
     public function __construct(
         AccessTokenRequestValidator $validator,
-        LineItemGetServiceInterface $service,
+        LineItemRepositoryInterface $repository,
         UrlParserInterface $parser = null,
-        LineItemSerializerInterface $lineItemSerializer = null,
         ResponseFactory $factory = null,
         LoggerInterface $logger = null
     ) {
         $this->validator = $this->aggregateValidator($validator);
-        $this->service = $service;
+        $this->repository = $repository;
         $this->parser = $parser ?? new UrlParser();
-        $this->lineItemSerializer = $lineItemSerializer ?? new LineItemSerializer();
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
@@ -92,9 +85,9 @@ class LineItemGetServer implements RequestHandlerInterface
             $contextId = $data['contextId'];
             $lineItemId = $data['lineItemId'];
 
-            $lineItem =  $this->service->findOne($contextId, $lineItemId);
+            $lineItem =  $this->repository->find($contextId, $lineItemId);
 
-            $responseBody = $this->lineItemSerializer->serialize($lineItem);
+            $responseBody = json_encode($lineItem);
 
             $responseHeaders = [
                 'Content-Type' => 'application/json',

@@ -126,4 +126,72 @@ class LineItemTest extends TestCase
             'resourceId_too_long                                                                                                                                                                                                                                              '
         );
     }
+
+    public function testJsonSerializeWithAllValues(): void
+    {
+        $contextId = 'line-item-context-id';
+        $scoreMaximum = 0.5;
+        $label = 'line-item-label';
+        $id = 'line-item-id';
+        $startDateTime = Carbon::create(1988, 12, 22);
+        $endDateTime = Carbon::create(2020, 03, 31);
+        $tag = 'line-item-tag';
+        $resourceId = 'line-item-resource-id';
+        $resourceLinkId = 'line-item-resource-link-id';
+
+        $lineItem = new LineItem(
+            $contextId,
+            $scoreMaximum,
+            $label,
+            $id,
+            $startDateTime,
+            $endDateTime,
+            $tag,
+            $resourceId,
+            $resourceLinkId
+        );
+
+        $values = [
+            'id' => $id,
+            'startDateTime' => $startDateTime->format(DateTimeInterface::ATOM),
+            'endDateTime' => $endDateTime->format(DateTimeInterface::ATOM),
+            'scoreMaximum' => $scoreMaximum,
+            'label' => $label,
+            'tag' => $tag,
+            'resourceId' => $resourceId,
+            'resourceLinkId' => $resourceLinkId,
+        ];
+
+        $this->assertSame(
+            $values,
+            $lineItem->jsonSerialize()
+        );
+    }
+
+    public function testJsonSerializeWithRequiredValuesOnly(): void
+    {
+        $contextId = 'line-item-context-id';
+        $scoreMaximum = 0.5;
+        $label = 'line-item-label';
+
+        $lineItem = new LineItem($contextId, $scoreMaximum, $label);
+
+        $values = [
+            'id' => '',
+            'startDateTime' => null,
+            'endDateTime' => null,
+            'scoreMaximum' => $scoreMaximum,
+            'label' => $label,
+            'tag' => '',
+            'resourceId' => '',
+            'resourceLinkId' => '',
+        ];
+
+        $this->assertSame(
+            $values,
+            $lineItem->jsonSerialize()
+        );
+    }
+
+
 }

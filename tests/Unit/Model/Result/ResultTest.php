@@ -45,22 +45,22 @@ class ResultTest extends TestCase
 
     public function testGetId(): void
     {
-        $this->assertSame('id', $this->subject->getId());
+        $this->assertSame('id', $this->subject->getIdentifier());
     }
 
     public function testGetUserId(): void
     {
-        $this->assertSame('userId', $this->subject->getUserId());
+        $this->assertSame('userId', $this->subject->getUserIdentifier());
     }
 
     public function testGetResultScore(): void
     {
-        $this->assertSame(0.5, $this->subject->getResultScore());
+        $this->assertSame(0.5, $this->subject->getScore());
     }
 
     public function testGetResultMaximum(): void
     {
-        $this->assertSame(10, $this->subject->getResultMaximum());
+        $this->assertSame(10, $this->subject->getMaximum());
     }
 
     public function testGetComment(): void

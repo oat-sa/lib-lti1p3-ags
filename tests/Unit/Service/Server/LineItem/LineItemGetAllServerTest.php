@@ -24,8 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\LineItem;
 
 use Exception;
 use OAT\Library\Lti1p3Ags\Model\LineItemContainer\LineItemContainerInterface;
-use OAT\Library\Lti1p3Ags\Serializer\LineItemContainer\Serializer\LineItemContainerSerializer;
-use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
+use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemGetAllServer;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
@@ -47,27 +46,22 @@ class LineItemGetAllServerTest extends TestCase
     /** @var RequestValidatorInterface */
     private $validator;
 
-    /** @var LineItemGetServiceInterface  */
-    private $service;
+    /** @var LineItemRepositoryInterface  */
+    private $repository;
 
     /** @var UrlParserInterface  */
     private $parser;
 
-    /** @var LineItemContainerSerializer  */
-    private $lineItemContainerSerializer;
-
     public function setUp(): void
     {
         $this->validator = $this->createMock(AccessTokenRequestValidator::class);
-        $this->service = $this->createMock(LineItemGetServiceInterface::class);
+        $this->repository = $this->createMock(LineItemRepositoryInterface::class);
         $this->parser = $this->createMock(UrlParserInterface::class);
-        $this->lineItemContainerSerializer = $this->createMock(LineItemContainerSerializer::class);
 
         $this->subject = new LineItemGetAllServer(
             $this->validator,
-            $this->service,
-            $this->parser,
-            $this->lineItemContainerSerializer
+            $this->repository,
+            $this->parser
         );
     }
 
@@ -143,7 +137,8 @@ class LineItemGetAllServerTest extends TestCase
             'test-resource-id'
         ];
 
-        $serializedLineItemContainer = json_encode(['encoded-line-item']);
+        $lineItemContainer = ['encoded-line-item'];
+        $serializedLineItemContainer = json_encode($lineItemContainer);
 
         $requestQuery = [
             'page' => 1,
@@ -157,7 +152,7 @@ class LineItemGetAllServerTest extends TestCase
 
         $this->provideMockForFindAll(
             $request,
-            $serializedLineItemContainer,
+            $lineItemContainer,
             $requestParameters,
             $expectedServiceParameters,
             null
@@ -180,14 +175,15 @@ class LineItemGetAllServerTest extends TestCase
             'contextId' => 'toto',
         ];
         $expectedServiceParameters = ['toto'];
-        $serializedLineItemContainer = json_encode(['encoded-line-item']);
+        $lineItemContainer = ['encoded-line-item'];
+        $serializedLineItemContainer = json_encode($lineItemContainer);
         $relationLink = 'relation-link-string';
 
         $request = $this->createServerRequest('GET', '/context-id');
 
         $this->provideMockForFindAll(
             $request,
-            $serializedLineItemContainer,
+            $lineItemContainer,
             $requestParameters,
             $expectedServiceParameters,
             $relationLink
@@ -204,7 +200,7 @@ class LineItemGetAllServerTest extends TestCase
 
     private function provideMockForFindAll(
         ServerRequestInterface $request,
-        string $serializedLineItemContainer,
+        array $serializedLineItemContainer,
         array $requestParameters,
         array $expectedServiceParameters,
         string $relationLink = null
@@ -216,6 +212,11 @@ class LineItemGetAllServerTest extends TestCase
             ->method('getRelationLink')
             ->willReturn($relationLink);
 
+        $lineItemContainer
+            ->expects($this->once())
+            ->method('jsonSerialize')
+            ->willReturn($serializedLineItemContainer);
+
         $this->mockValidationWithScopes();
 
         $this->parser
@@ -224,17 +225,11 @@ class LineItemGetAllServerTest extends TestCase
             ->with($request)
             ->willReturn($requestParameters);
 
-        $this->service
+        $this->repository
             ->expects($this->once())
             ->method('findAll')
             ->with(...$expectedServiceParameters)
             ->willReturn($lineItemContainer);
-
-        $this->lineItemContainerSerializer
-            ->expects($this->once())
-            ->method('serialize')
-            ->with($lineItemContainer)
-            ->willReturn($serializedLineItemContainer);
     }
 
     private function mockValidationWithScopes(): void

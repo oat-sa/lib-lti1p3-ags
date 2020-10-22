@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Serializer\LineItem\Normalizer;
 
+use Carbon\Carbon;
 use DateTimeImmutable;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
@@ -35,8 +36,8 @@ class LineItemDenormalizer implements LineItemDenormalizerInterface
             (float)$data['scoreMaximum'],
             (string)$data['label'],
             $data['id'] ?? null,
-            $data['startDateTime'] ? new DateTimeImmutable($data['startDateTime']) : null,
-            $data['endDateTime'] ? new DateTimeImmutable($data['endDateTime']) : null,
+            $data['startDateTime'] ? new Carbon($data['startDateTime']) : null,
+            $data['endDateTime'] ? new Carbon($data['endDateTime']) : null,
             $data['tag'] ?? null,
             $data['resourceId'] ?? null,
             $data['resourceLinkId'] ?? null

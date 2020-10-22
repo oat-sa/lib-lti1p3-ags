@@ -33,7 +33,7 @@ class LineItem implements LineItemInterface
     public const PARAMETER_MAX_LENGTH = 256;
 
     /** @var string */
-    private $contextId;
+    private $contextIdentifier;
 
     /**  @var float */
     private $scoreMaximum;
@@ -42,7 +42,7 @@ class LineItem implements LineItemInterface
     private $label;
 
     /** @var string|null */
-    private $id;
+    private $identifier;
 
     /** @var DateTimeInterface|null */
     private $startDateTime;
@@ -54,42 +54,42 @@ class LineItem implements LineItemInterface
     private $tag;
 
     /** @var string|null */
-    private $resourceId;
+    private $resourceIdentifier;
 
     /** @var string|null */
-    private $resourceLinkId;
+    private $resourceLinkIdentifier;
 
     public function __construct(
-        string $contextId,
+        string $contextIdentifier,
         float $scoreMaximum,
         string $label,
-        ?string $id = null,
+        ?string $identifier = null,
         ?DateTimeInterface $startDateTime = null,
         ?DateTimeInterface $endDateTime = null,
         ?string $tag = null,
-        ?string $resourceId = null,
-        ?string $resourceLinkId = null
+        ?string $resourceIdentifier = null,
+        ?string $resourceLinkIdentifier = null
     ) {
-        $this->contextId = $contextId;
+        $this->contextIdentifier = $contextIdentifier;
         $this->scoreMaximum = $scoreMaximum;
         $this->label = $label;
-        $this->id = $id;
+        $this->identifier = $identifier;
         $this->startDateTime = $startDateTime;
         $this->endDateTime = $endDateTime;
-        $this->resourceLinkId = $resourceLinkId;
+        $this->resourceLinkIdentifier = $resourceLinkIdentifier;
 
         $this->setTag($tag);
-        $this->setResourceId($resourceId);
+        $this->setResourceId($resourceIdentifier);
     }
 
     public function getId(): ?string
     {
-        return $this->id;
+        return $this->identifier;
     }
 
     public function getContextId(): string
     {
-        return $this->contextId;
+        return $this->contextIdentifier;
     }
 
     public function getScoreMaximum(): float
@@ -119,12 +119,12 @@ class LineItem implements LineItemInterface
 
     public function getResourceId(): ?string
     {
-        return $this->resourceId;
+        return $this->resourceIdentifier;
     }
 
     public function getResourceLinkId(): ?string
     {
-        return $this->resourceLinkId;
+        return $this->resourceLinkIdentifier;
     }
 
     public function setTag(?string $tag): LineItemInterface
@@ -138,9 +138,31 @@ class LineItem implements LineItemInterface
     public function setResourceId(?string $resourceId): LineItemInterface
     {
         $this->checkParameterMaxLength('resourceId', $resourceId);
-        $this->resourceId = $resourceId;
+        $this->resourceIdentifier = $resourceId;
 
         return $this;
+    }
+
+    public function jsonSerialize()
+    {
+        $startDateTime = $this->startDateTime
+            ? $this->startDateTime->format(DateTimeInterface::ATOM)
+            : null;
+
+        $endDateTime = $this->endDateTime
+            ? $this->endDateTime->format(DateTimeInterface::ATOM)
+            : null;
+
+        return [
+            'id' => $this->identifier ?? '',
+            'startDateTime' => $startDateTime,
+            'endDateTime' => $endDateTime,
+            'scoreMaximum' => $this->scoreMaximum,
+            'label' => $this->label,
+            'tag' => $this->tag ?? '',
+            'resourceId' => $this->resourceIdentifier ?? '',
+            'resourceLinkId' => $this->resourceLinkIdentifier ?? ''
+        ];
     }
 
     private function checkParameterMaxLength(string $parameter, ?string $value): void

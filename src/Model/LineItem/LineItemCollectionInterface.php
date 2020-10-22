@@ -23,7 +23,9 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
 use IteratorAggregate;
+use Countable;
+use JsonSerializable;
 
-interface LineItemCollectionInterface extends IteratorAggregate
+interface LineItemCollectionInterface extends IteratorAggregate, Countable, JsonSerializable
 {
 }

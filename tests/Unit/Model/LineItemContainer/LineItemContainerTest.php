@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model\LineItemContainer;
 
-use ArrayIterator;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollection;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItemContainer\LineItemContainer;
@@ -51,7 +50,6 @@ class LineItemContainerTest extends TestCase
     public function testGetEmptyRelationLink(): void
     {
         $this->assertNull($this->subject->getRelationLink());
-        $this->assertFalse($this->subject->hasDifferences());
         $this->assertFalse($this->subject->hasNext());
     }
 
@@ -61,27 +59,6 @@ class LineItemContainerTest extends TestCase
         $this->subject->setRelationLink($relationUrl);
 
         $this->assertSame($relationUrl, $this->subject->getRelationLink());
-        $this->assertFalse($this->subject->hasDifferences());
-        $this->assertTrue($this->subject->hasNext());
-    }
-
-    public function testSetDifferencesRelationLink(): void
-    {
-        $relationUrl = 'http://next-url.org?rel=differences';
-        $this->subject->setRelationLink($relationUrl);
-
-        $this->assertSame($relationUrl, $this->subject->getRelationLink());
-        $this->assertTrue($this->subject->hasDifferences());
-        $this->assertFalse($this->subject->hasNext());
-    }
-
-    public function testSetNextAndDifferencesRelationLink(): void
-    {
-        $relationUrl = 'http://next-url.org?rel=next$rel=differences';
-        $this->subject->setRelationLink($relationUrl);
-
-        $this->assertSame($relationUrl, $this->subject->getRelationLink());
-        $this->assertTrue($this->subject->hasDifferences());
         $this->assertTrue($this->subject->hasNext());
     }
 }

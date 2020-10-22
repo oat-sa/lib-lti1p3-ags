@@ -24,8 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Server\LineItem;
 
 use Exception;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\Serializer\LineItemSerializerInterface;
-use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemGetServiceInterface;
+use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\LineItem\LineItemGetServer;
 use OAT\Library\Lti1p3Ags\Service\Server\Parser\UrlParserInterface;
 use OAT\Library\Lti1p3Ags\Service\Server\RequestValidator\AccessTokenRequestValidatorDecorator;
@@ -45,27 +44,22 @@ class LineItemGetServerTest extends TestCase
     /** @var RequestValidatorInterface */
     private $validator;
 
-    /** @var LineItemGetServiceInterface  */
-    private $service;
+    /** @var LineItemRepositoryInterface  */
+    private $repository;
 
     /** @var UrlParserInterface  */
     private $parser;
 
-    /** @var LineItemSerializerInterface  */
-    private $lineItemSerializer;
-
     public function setUp(): void
     {
         $this->validator = $this->createMock(AccessTokenRequestValidator::class);
-        $this->service = $this->createMock(LineItemGetServiceInterface::class);
+        $this->repository = $this->createMock(LineItemRepositoryInterface::class);
         $this->parser = $this->createMock(UrlParserInterface::class);
-        $this->lineItemSerializer = $this->createMock(LineItemSerializerInterface::class);
 
         $this->subject = new LineItemGetServer(
             $this->validator,
-            $this->service,
-            $this->parser,
-            $this->lineItemSerializer
+            $this->repository,
+            $this->parser
         );
     }
 
@@ -102,9 +96,14 @@ class LineItemGetServerTest extends TestCase
             'contextId' => 'toto',
             'lineItemId' => 'titi'
         ];
+        $lineItemContent = ['encoded-line-item'];
+        $expectedEncodedLineItem = json_encode($lineItemContent);
 
         $lineItem = $this->createMock(LineItemInterface::class);
-        $expectedEncodedLineItem = json_encode(['encoded-line-item']);
+        $lineItem
+            ->expects($this->once())
+            ->method('jsonSerialize')
+            ->willReturn($lineItemContent);
 
         $this->mockValidationWithScopes();
 
@@ -113,16 +112,10 @@ class LineItemGetServerTest extends TestCase
             ->method('parse')
             ->willReturn($requestParameters);
 
-        $this->service
+        $this->repository
             ->expects($this->once())
-            ->method('findOne')
+            ->method('find')
             ->willReturn($lineItem);
-
-        $this->lineItemSerializer
-            ->expects($this->once())
-            ->method('serialize')
-            ->with($lineItem)
-            ->willReturn($expectedEncodedLineItem);
 
         $response = $this->subject->handle(
             $this->createServerRequest('GET', '/context-id/lineItem/line-item-id')

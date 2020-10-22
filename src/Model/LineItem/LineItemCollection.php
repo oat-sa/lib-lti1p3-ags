@@ -38,4 +38,14 @@ class LineItemCollection implements LineItemCollectionInterface
     {
         return new ArrayIterator($this->lineItems);
     }
+
+    public function count(): int
+    {
+        return $this->getIterator()->count();
+    }
+
+    public function jsonSerialize()
+    {
+        return $this->lineItems;
+    }
 }
