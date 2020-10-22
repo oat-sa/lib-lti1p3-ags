@@ -65,8 +65,7 @@ class LineItemGetServerTest extends TestCase
         string $url,
         Throwable $unhandledException = null,
         string $scope = LineItemServiceInterface::SCOPE_LINE_ITEM
-    ): void
-    {
+    ): void {
         $validationResult = $this->createMock(AccessTokenRequestValidationResult::class);
 
         $validationResult
