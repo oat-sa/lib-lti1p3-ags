@@ -29,7 +29,7 @@ interface LineItemRepositoryInterface
 {
     public function create(LineItemInterface $lineItem): void;
 
-    public function findOne(string $contextId, string $lineItemId): LineItemInterface;
+    public function find(string $contextId, string $lineItemId): LineItemInterface;
 
     public function findAll(
         string $contextId,

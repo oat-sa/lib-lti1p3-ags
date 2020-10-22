@@ -49,6 +49,6 @@ class LineItemGetService implements LineItemGetServiceInterface
 
     public function findOne(string $contextId, string $lineItemId): LineItemInterface
     {
-        return $this->repository->findOne($contextId, $lineItemId);
+        return $this->repository->find($contextId, $lineItemId);
     }
 }

@@ -24,13 +24,13 @@ namespace OAT\Library\Lti1p3Ags\Model\Result;
 
 interface ResultInterface
 {
-    public function getId(): string;
+    public function getIdentifier(): string;
 
-    public function getUserId(): string;
+    public function getUserIdentifier(): string;
 
-    public function getResultScore(): float;
+    public function getScore(): float;
 
-    public function getResultMaximum(): int;
+    public function getMaximum(): int;
 
     public function getComment(): string;
 

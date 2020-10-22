@@ -26,5 +26,5 @@ use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
 
 interface ResultRepositoryInterface
 {
-    public function findOne(string $contextId, string $lineItemId): ResultInterface;
+    public function find(string $contextId, string $lineItemId): ResultInterface;
 }

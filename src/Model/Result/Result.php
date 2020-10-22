@@ -25,16 +25,16 @@ namespace OAT\Library\Lti1p3Ags\Model\Result;
 class Result implements ResultInterface
 {
     /** @var string */
-    private $id;
+    private $identifier;
 
     /** @var string */
-    private $userId;
+    private $userIdentifier;
 
     /** @var float */
-    private $resultScore;
+    private $score;
 
     /** @var int */
-    private $resultMaximum;
+    private $maximum;
 
     /** @var string */
     private $comment;
@@ -43,39 +43,39 @@ class Result implements ResultInterface
     private $scoreOf;
 
     public function __construct(
-        string $id,
-        string $userId,
-        float $resultScore,
-        int $resultMaximum,
+        string $identifier,
+        string $userIdentifier,
+        float $score,
+        int $maximum,
         string $comment,
         string $scoreOf
     ) {
-        $this->id = $id;
-        $this->userId = $userId;
-        $this->resultScore = $resultScore;
-        $this->resultMaximum = $resultMaximum;
+        $this->identifier = $identifier;
+        $this->userIdentifier = $userIdentifier;
+        $this->score = $score;
+        $this->maximum = $maximum;
         $this->comment = $comment;
         $this->scoreOf = $scoreOf;
     }
 
-    public function getId(): string
+    public function getIdentifier(): string
     {
-        return $this->id;
+        return $this->identifier;
     }
 
-    public function getUserId(): string
+    public function getUserIdentifier(): string
     {
-        return $this->userId;
+        return $this->userIdentifier;
     }
 
-    public function getResultScore(): float
+    public function getScore(): float
     {
-        return $this->resultScore;
+        return $this->score;
     }
 
-    public function getResultMaximum(): int
+    public function getMaximum(): int
     {
-        return $this->resultMaximum;
+        return $this->maximum;
     }
 
     public function getComment(): string
