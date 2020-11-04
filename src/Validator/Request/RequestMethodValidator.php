@@ -20,35 +20,28 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model\LineItem;
+namespace OAT\Library\Lti1p3Ags\Validator\Request;
 
-use DateTimeInterface;
-use JsonSerializable;
+use Exception;
+use Psr\Http\Message\ServerRequestInterface;
 
-/**
- * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
- */
-interface LineItemInterface extends JsonSerializable
+class RequestMethodValidator implements RequestValidatorInterface
 {
-    public function getId(): ?string;
+    /** @var string */
+    private $httpMethod;
 
-    public function getContextId(): string;
+    public function __construct(string $httpMethod)
+    {
+        $this->httpMethod = $httpMethod;
+    }
 
-    public function getScoreMaximum(): float;
-
-    public function getLabel(): string;
-
-    public function getStartDateTime(): ?DateTimeInterface;
-
-    public function getEndDateTime(): ?DateTimeInterface;
-
-    public function getTag(): ?string;
-
-    public function getResourceId(): ?string;
-
-    public function getResourceLinkId(): ?string;
-
-    public function setTag(?string $tag): LineItemInterface;
-
-    public function setResourceId(?string $resourceId): LineItemInterface;
+    /**
+     * @throws Exception
+     */
+    public function validate(ServerRequestInterface $request): void
+    {
+        if (strtolower($request->getMethod()) !== strtolower($this->httpMethod)) {
+            throw new Exception(sprintf('Expected http method is "%s".', $this->httpMethod));
+        }
+    }
 }

@@ -22,33 +22,30 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
-use DateTimeInterface;
-use JsonSerializable;
+use ArrayIterator;
 
-/**
- * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
- */
-interface LineItemInterface extends JsonSerializable
+class LineItemCollection implements LineItemCollectionInterface
 {
-    public function getId(): ?string;
+    /** @var LineItemInterface[] */
+    private $lineItems;
 
-    public function getContextId(): string;
+    public function __construct(LineItemInterface ...$lineItems)
+    {
+        $this->lineItems = $lineItems;
+    }
 
-    public function getScoreMaximum(): float;
+    public function getIterator(): ArrayIterator
+    {
+        return new ArrayIterator($this->lineItems);
+    }
 
-    public function getLabel(): string;
+    public function count(): int
+    {
+        return $this->getIterator()->count();
+    }
 
-    public function getStartDateTime(): ?DateTimeInterface;
-
-    public function getEndDateTime(): ?DateTimeInterface;
-
-    public function getTag(): ?string;
-
-    public function getResourceId(): ?string;
-
-    public function getResourceLinkId(): ?string;
-
-    public function setTag(?string $tag): LineItemInterface;
-
-    public function setResourceId(?string $resourceId): LineItemInterface;
+    public function jsonSerialize()
+    {
+        return $this->lineItems;
+    }
 }

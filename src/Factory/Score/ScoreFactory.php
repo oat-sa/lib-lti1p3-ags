@@ -75,12 +75,12 @@ class ScoreFactory implements ScoreFactoryInterface
 
     private function validateActivityProgressStatus(string $activityProgressStatus): void
     {
-        if (!in_array($activityProgressStatus, Score::SUPPORTED_ACTIVITY_PROGRESS_STATUSES, true)) {
+        if (!in_array($activityProgressStatus, ScoreInterface::SUPPORTED_ACTIVITY_PROGRESS_STATUSES, true)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Cannot create a new Score: Activity progress status provided %s is not allowed. Allowed statuses: %s',
                     $activityProgressStatus,
-                    implode(', ', Score::SUPPORTED_ACTIVITY_PROGRESS_STATUSES)
+                    implode(', ', ScoreInterface::SUPPORTED_ACTIVITY_PROGRESS_STATUSES)
                 )
             );
         }
@@ -88,12 +88,12 @@ class ScoreFactory implements ScoreFactoryInterface
 
     private function validateGradingProgressStatus(string $gradingProgressStatus): void
     {
-        if (!in_array($gradingProgressStatus, Score::SUPPORTED_GRADING_PROGRESS_STATUSES, true)) {
+        if (!in_array($gradingProgressStatus, ScoreInterface::SUPPORTED_GRADING_PROGRESS_STATUSES, true)) {
             throw new InvalidArgumentException(
                 sprintf(
                     'Cannot create a new Score: Grading progress status provided %s is not allowed. Allowed statuses: %s',
                     $gradingProgressStatus,
-                    implode(', ', Score::SUPPORTED_GRADING_PROGRESS_STATUSES)
+                    implode(', ', ScoreInterface::SUPPORTED_GRADING_PROGRESS_STATUSES)
                 )
             );
         }

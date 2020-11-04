@@ -20,35 +20,28 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model\LineItem;
+namespace OAT\Library\Lti1p3Ags\Validator\Request;
 
-use DateTimeInterface;
-use JsonSerializable;
+use InvalidArgumentException;
+use OAT\Library\Lti1p3Ags\Parser\UrlParser;
+use OAT\Library\Lti1p3Ags\Parser\UrlParserInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
-/**
- * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
- */
-interface LineItemInterface extends JsonSerializable
+class RequiredLineItemIdValidator implements RequestValidatorInterface
 {
-    public function getId(): ?string;
+    private $parser;
 
-    public function getContextId(): string;
+    public function __construct(UrlParserInterface $parser = null)
+    {
+        $this->parser = $parser ?? new UrlParser();
+    }
 
-    public function getScoreMaximum(): float;
+    public function validate(ServerRequestInterface $request): void
+    {
+        $data = $this->parser->parse($request);
 
-    public function getLabel(): string;
-
-    public function getStartDateTime(): ?DateTimeInterface;
-
-    public function getEndDateTime(): ?DateTimeInterface;
-
-    public function getTag(): ?string;
-
-    public function getResourceId(): ?string;
-
-    public function getResourceLinkId(): ?string;
-
-    public function setTag(?string $tag): LineItemInterface;
-
-    public function setResourceId(?string $resourceId): LineItemInterface;
+        if ($data['lineItemId'] === null) {
+            throw new InvalidArgumentException('Url path must contain lineItemId as third uri path part.');
+        }
+    }
 }

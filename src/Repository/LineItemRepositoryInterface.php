@@ -20,35 +20,27 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model\LineItem;
+namespace OAT\Library\Lti1p3Ags\Repository;
 
-use DateTimeInterface;
-use JsonSerializable;
+use OAT\Library\Lti1p3Ags\Model\LineItemContainer\LineItemContainerInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
-/**
- * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
- */
-interface LineItemInterface extends JsonSerializable
+interface LineItemRepositoryInterface
 {
-    public function getId(): ?string;
+    public function create(LineItemInterface $lineItem): void;
 
-    public function getContextId(): string;
+    public function find(string $contextId, string $lineItemId): LineItemInterface;
 
-    public function getScoreMaximum(): float;
+    public function findAll(
+        string $contextId,
+        int $page = null,
+        int $limit = null,
+        string $resourceLinkId = null,
+        string $tag = null,
+        string $resourceId = null
+    ): LineItemContainerInterface;
 
-    public function getLabel(): string;
+    public function delete(string $contextId, string $lineItemId): void;
 
-    public function getStartDateTime(): ?DateTimeInterface;
-
-    public function getEndDateTime(): ?DateTimeInterface;
-
-    public function getTag(): ?string;
-
-    public function getResourceId(): ?string;
-
-    public function getResourceLinkId(): ?string;
-
-    public function setTag(?string $tag): LineItemInterface;
-
-    public function setResourceId(?string $resourceId): LineItemInterface;
+    public function update(LineItemInterface $lineItem): void;
 }

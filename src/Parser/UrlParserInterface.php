@@ -20,35 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model\LineItem;
+namespace OAT\Library\Lti1p3Ags\Parser;
 
-use DateTimeInterface;
-use JsonSerializable;
+use Psr\Http\Message\ServerRequestInterface;
 
-/**
- * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
- */
-interface LineItemInterface extends JsonSerializable
+interface UrlParserInterface
 {
-    public function getId(): ?string;
-
-    public function getContextId(): string;
-
-    public function getScoreMaximum(): float;
-
-    public function getLabel(): string;
-
-    public function getStartDateTime(): ?DateTimeInterface;
-
-    public function getEndDateTime(): ?DateTimeInterface;
-
-    public function getTag(): ?string;
-
-    public function getResourceId(): ?string;
-
-    public function getResourceLinkId(): ?string;
-
-    public function setTag(?string $tag): LineItemInterface;
-
-    public function setResourceId(?string $resourceId): LineItemInterface;
+    public function parse(ServerRequestInterface $request): array;
 }

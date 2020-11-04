@@ -20,35 +20,20 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model\LineItem;
+namespace OAT\Library\Lti1p3Ags\Model\LineItemContainer;
 
-use DateTimeInterface;
 use JsonSerializable;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
 
-/**
- * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
- */
-interface LineItemInterface extends JsonSerializable
+interface LineItemContainerInterface extends JsonSerializable
 {
-    public function getId(): ?string;
+    public const REL_NEXT = 'next';
 
-    public function getContextId(): string;
+    public function getLineItems(): LineItemCollectionInterface;
 
-    public function getScoreMaximum(): float;
+    public function getRelationLink(): ?string;
 
-    public function getLabel(): string;
+    public function setRelationLink(string $relationLink): LineItemContainerInterface;
 
-    public function getStartDateTime(): ?DateTimeInterface;
-
-    public function getEndDateTime(): ?DateTimeInterface;
-
-    public function getTag(): ?string;
-
-    public function getResourceId(): ?string;
-
-    public function getResourceLinkId(): ?string;
-
-    public function setTag(?string $tag): LineItemInterface;
-
-    public function setResourceId(?string $resourceId): LineItemInterface;
+    public function hasNext(): bool;
 }

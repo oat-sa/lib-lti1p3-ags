@@ -20,35 +20,15 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model\LineItem;
+namespace OAT\Library\Lti1p3Ags\Validator\Request;
 
-use DateTimeInterface;
-use JsonSerializable;
+use Psr\Http\Message\ServerRequestInterface;
+use Throwable;
 
-/**
- * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
- */
-interface LineItemInterface extends JsonSerializable
+interface RequestValidatorInterface
 {
-    public function getId(): ?string;
-
-    public function getContextId(): string;
-
-    public function getScoreMaximum(): float;
-
-    public function getLabel(): string;
-
-    public function getStartDateTime(): ?DateTimeInterface;
-
-    public function getEndDateTime(): ?DateTimeInterface;
-
-    public function getTag(): ?string;
-
-    public function getResourceId(): ?string;
-
-    public function getResourceLinkId(): ?string;
-
-    public function setTag(?string $tag): LineItemInterface;
-
-    public function setResourceId(?string $resourceId): LineItemInterface;
+    /**
+     * @throws Throwable
+     */
+    public function validate(ServerRequestInterface $request): void;
 }
