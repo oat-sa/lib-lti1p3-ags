@@ -20,28 +20,38 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Validator\Request;
+namespace OAT\Library\Lti1p3Ags\Parser;
 
-use InvalidArgumentException;
-use OAT\Library\Lti1p3Ags\Parser\RequestUrlParser;
-use OAT\Library\Lti1p3Ags\Parser\RequestUrlParserInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class RequiredLineItemIdValidator implements RequestValidatorInterface
+class RequestUrlParser implements RequestUrlParserInterface
 {
-    private $parser;
+    private const SPLIT_PATTERN = '/lineitems';
 
-    public function __construct(RequestUrlParserInterface $parser = null)
+    /** @var string */
+    private $splitPattern;
+
+    public function __construct(string $splitPattern = self::SPLIT_PATTERN)
     {
-        $this->parser = $parser ?? new RequestUrlParser();
+        $this->splitPattern = $splitPattern;
     }
 
-    public function validate(ServerRequestInterface $request): void
+    public function parse(ServerRequestInterface $request): RequestUrlParserResult
     {
-        $data = $this->parser->parse($request);
+        $path = trim($request->getUri()->getPath(), '/');
 
-        if ($data['lineItemId'] === null) {
-            throw new InvalidArgumentException('Url path must contain lineItemId as third uri path part.');
+        if (false === strpos($path, $this->splitPattern)){
+            return new RequestUrlParserResult();
         }
+
+        $parts = explode($this->splitPattern, $path);
+
+        $contextParts = explode('/', $parts[0]);
+        $lineItemParts = explode('/', trim($parts[1] ?? '', '/'));
+
+        return new RequestUrlParserResult(
+            end($contextParts),
+            current($lineItemParts)
+        );
     }
 }

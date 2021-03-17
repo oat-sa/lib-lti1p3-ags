@@ -23,19 +23,15 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
 use DateTimeInterface;
-use InvalidArgumentException;
+use OAT\Library\Lti1p3Core\Util\Collection\Collection;
+use OAT\Library\Lti1p3Core\Util\Collection\CollectionInterface;
 
 /**
  * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
  */
 class LineItem implements LineItemInterface
 {
-    public const PARAMETER_MAX_LENGTH = 256;
-
-    /** @var string */
-    private $contextIdentifier;
-
-    /**  @var float */
+    /** @var float */
     private $scoreMaximum;
 
     /** @var string */
@@ -44,14 +40,8 @@ class LineItem implements LineItemInterface
     /** @var string|null */
     private $identifier;
 
-    /** @var DateTimeInterface|null */
-    private $startDateTime;
-
-    /** @var DateTimeInterface|null */
-    private $endDateTime;
-
     /** @var string|null */
-    private $tag;
+    private $contextIdentifier;
 
     /** @var string|null */
     private $resourceIdentifier;
@@ -59,37 +49,40 @@ class LineItem implements LineItemInterface
     /** @var string|null */
     private $resourceLinkIdentifier;
 
+    /** @var string|null */
+    private $tag;
+
+    /** @var DateTimeInterface|null */
+    private $startDateTime;
+
+    /** @var DateTimeInterface|null */
+    private $endDateTime;
+
+    /** @var CollectionInterface */
+    private $additionalProperties;
+
     public function __construct(
-        string $contextIdentifier,
         float $scoreMaximum,
         string $label,
         ?string $identifier = null,
+        ?string $contextIdentifier = null,
+        ?string $resourceIdentifier = null,
+        ?string $resourceLinkIdentifier = null,
+        ?string $tag = null,
         ?DateTimeInterface $startDateTime = null,
         ?DateTimeInterface $endDateTime = null,
-        ?string $tag = null,
-        ?string $resourceIdentifier = null,
-        ?string $resourceLinkIdentifier = null
+        array $additionalProperties = []
     ) {
-        $this->contextIdentifier = $contextIdentifier;
         $this->scoreMaximum = $scoreMaximum;
         $this->label = $label;
         $this->identifier = $identifier;
+        $this->contextIdentifier = $contextIdentifier;
+        $this->resourceIdentifier = $resourceIdentifier;
+        $this->resourceLinkIdentifier = $resourceLinkIdentifier;
+        $this->tag = $tag;
         $this->startDateTime = $startDateTime;
         $this->endDateTime = $endDateTime;
-        $this->resourceLinkIdentifier = $resourceLinkIdentifier;
-
-        $this->setTag($tag);
-        $this->setResourceId($resourceIdentifier);
-    }
-
-    public function getId(): ?string
-    {
-        return $this->identifier;
-    }
-
-    public function getContextId(): string
-    {
-        return $this->contextIdentifier;
+        $this->additionalProperties = (new Collection())->add($additionalProperties);
     }
 
     public function getScoreMaximum(): float
@@ -97,19 +90,71 @@ class LineItem implements LineItemInterface
         return $this->scoreMaximum;
     }
 
+    public function setScoreMaximum(float $scoreMaximum): LineItemInterface
+    {
+        $this->scoreMaximum = $scoreMaximum;
+
+        return $this;
+    }
+
     public function getLabel(): string
     {
         return $this->label;
     }
 
-    public function getStartDateTime(): ?DateTimeInterface
+    public function setLabel(string $label): LineItemInterface
     {
-        return $this->startDateTime;
+        $this->label = $label;
+
+        return $this;
     }
 
-    public function getEndDateTime(): ?DateTimeInterface
+    public function getIdentifier(): ?string
     {
-        return $this->endDateTime;
+        return $this->identifier;
+    }
+
+    public function setIdentifier(?string $identifier): LineItemInterface
+    {
+        $this->identifier = $identifier;
+
+        return $this;
+    }
+
+    public function getContextIdentifier(): ?string
+    {
+        return $this->contextIdentifier;
+    }
+
+    public function setContextIdentifier(?string $contextIdentifier): LineItemInterface
+    {
+        $this->contextIdentifier = $contextIdentifier;
+
+        return $this;
+    }
+
+    public function getResourceIdentifier(): ?string
+    {
+        return $this->resourceIdentifier;
+    }
+
+    public function setResourceIdentifier(?string $resourceIdentifier): LineItemInterface
+    {
+        $this->resourceIdentifier = $resourceIdentifier;
+
+        return $this;
+    }
+
+    public function getResourceLinkIdentifier(): ?string
+    {
+        return $this->resourceLinkIdentifier;
+    }
+
+    public function setResourceLinkIdentifier(?string $resourceLinkIdentifier): LineItemInterface
+    {
+        $this->resourceLinkIdentifier = $resourceLinkIdentifier;
+
+        return $this;
     }
 
     public function getTag(): ?string
@@ -117,33 +162,43 @@ class LineItem implements LineItemInterface
         return $this->tag;
     }
 
-    public function getResourceId(): ?string
-    {
-        return $this->resourceIdentifier;
-    }
-
-    public function getResourceLinkId(): ?string
-    {
-        return $this->resourceLinkIdentifier;
-    }
-
     public function setTag(?string $tag): LineItemInterface
     {
-        $this->checkParameterMaxLength('tag', $tag);
         $this->tag = $tag;
 
         return $this;
     }
 
-    public function setResourceId(?string $resourceId): LineItemInterface
+    public function getStartDateTime(): ?DateTimeInterface
     {
-        $this->checkParameterMaxLength('resourceId', $resourceId);
-        $this->resourceIdentifier = $resourceId;
+        return $this->startDateTime;
+    }
+
+    public function setStartDateTime(?DateTimeInterface $startDateTime): LineItemInterface
+    {
+        $this->startDateTime = $startDateTime;
 
         return $this;
     }
 
-    public function jsonSerialize()
+    public function getEndDateTime(): ?DateTimeInterface
+    {
+        return $this->endDateTime;
+    }
+
+    public function setEndDateTime(?DateTimeInterface $endDateTime): LineItemInterface
+    {
+        $this->endDateTime = $endDateTime;
+
+        return $this;
+    }
+
+    public function getAdditionalProperties(): CollectionInterface
+    {
+        return $this->additionalProperties;
+    }
+
+    public function jsonSerialize(): array
     {
         $startDateTime = $this->startDateTime
             ? $this->startDateTime->format(DateTimeInterface::ATOM)
@@ -154,30 +209,14 @@ class LineItem implements LineItemInterface
             : null;
 
         return [
-            'id' => $this->identifier ?? '',
+            'id' => $this->identifier,
             'startDateTime' => $startDateTime,
             'endDateTime' => $endDateTime,
             'scoreMaximum' => $this->scoreMaximum,
             'label' => $this->label,
-            'tag' => $this->tag ?? '',
-            'resourceId' => $this->resourceIdentifier ?? '',
-            'resourceLinkId' => $this->resourceLinkIdentifier ?? ''
+            'tag' => $this->tag,
+            'resourceId' => $this->resourceIdentifier,
+            'resourceLinkId' => $this->resourceLinkIdentifier
         ];
-    }
-
-    private function checkParameterMaxLength(string $parameter, ?string $value): void
-    {
-        $length = strlen((string)$value);
-
-        if ($length > self::PARAMETER_MAX_LENGTH) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Cannot create a new LineItem: Parameter %s provided is %d characters long and cannot exceed %s',
-                    $parameter,
-                    $length,
-                    self::PARAMETER_MAX_LENGTH
-                )
-            );
-        }
     }
 }

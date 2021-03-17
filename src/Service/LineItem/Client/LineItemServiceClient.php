@@ -1,0 +1,224 @@
+<?php
+
+/**
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; under version 2
+ * of the License (non-upgradable).
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ *
+ * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ */
+
+declare(strict_types=1);
+
+namespace OAT\Library\Lti1p3Ags\Service\LineItem\Client;
+
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
+use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
+use OAT\Library\Lti1p3Core\Exception\LtiException;
+use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
+use OAT\Library\Lti1p3Core\Service\Client\ServiceClient;
+use OAT\Library\Lti1p3Core\Service\Client\ServiceClientInterface;
+use Psr\Http\Message\ResponseInterface;
+use Throwable;
+
+class LineItemServiceClient implements LineItemServiceInterface
+{
+    /** @var ServiceClientInterface */
+    private $client;
+
+    /** @var LineItemSerializerInterface */
+    private $serializer;
+
+    public function __construct(
+        ServiceClientInterface $client = null,
+        LineItemSerializerInterface $serializer = null
+    ) {
+        $this->client = $client ?? new ServiceClient();
+        $this->serializer = $serializer ?? new LineItemSerializer();
+    }
+
+    /**
+     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#creating-a-new-line-item
+     * @throws LtiExceptionInterface
+     */
+    public function createLineItem(
+        RegistrationInterface $registration,
+        LineItemInterface $lineItem,
+        string $lineItemContainerUrl
+    ): ResponseInterface {
+        try {
+            return $this->client->request(
+                $registration,
+                'POST',
+                $lineItemContainerUrl,
+                [
+                    'headers' => ['Accept' => static::CONTENT_TYPE_LINE_ITEM],
+                    'body' => $this->serializer->serialize($lineItem)
+                ],
+                [
+                    static::AUTHORIZATION_SCOPE_LINE_ITEM
+                ]
+            );
+        } catch (LtiExceptionInterface $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot create line item: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#example-getting-a-single-line-item
+     * @throws LtiExceptionInterface
+     */
+    public function getLineItem(RegistrationInterface $registration, string $lineItemUrl): LineItemInterface
+    {
+        try {
+            $response = $this->client->request(
+                $registration,
+                'GET',
+                $lineItemUrl,
+                [
+                    'headers' => ['Accept' => static::CONTENT_TYPE_LINE_ITEM],
+                ],
+                [
+                    static::AUTHORIZATION_SCOPE_LINE_ITEM,
+                    static::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY
+                ]
+            );
+
+            return $this->serializer->deserialize($response->getBody()->__toString());
+        } catch (LtiExceptionInterface $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot get line item: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#example-getting-a-single-line-item
+     * @throws LtiExceptionInterface
+     */
+    public function listLineItems(
+        RegistrationInterface $registration,
+        string $lineItemContainerUrl
+    ): LineItemContainerInterface {
+        try {
+            $response = $this->client->request(
+                $registration,
+                'GET',
+                $lineItemContainerUrl,
+                [
+                    'headers' => ['Accept' => static::CONTENT_TYPE_LINE_ITEM_CONTAINER],
+                ],
+                [
+                    static::AUTHORIZATION_SCOPE_LINE_ITEM,
+                    static::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY
+                ]
+            );
+
+            $lineItemContainer = new LineItemContainer(
+                $this->serializer->deserializeCollection($response->getBody()->__toString())
+            );
+
+            $relationLink = $response->getHeaderLine(static::HEADER_LINK);
+            if (!empty($relationLink)) {
+                $lineItemContainer->setRelationLink($relationLink);
+            }
+
+            return $lineItemContainer;
+        } catch (LtiExceptionInterface $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot list line items: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#creating-a-new-line-item
+     * @throws LtiExceptionInterface
+     */
+    public function updateLineItem(
+        RegistrationInterface $registration,
+        LineItemInterface $lineItem,
+        string $lineItemUrl
+    ): ResponseInterface {
+        try {
+            return $this->client->request(
+                $registration,
+                'PUT',
+                $lineItemUrl,
+                [
+                    'headers' => ['Accept' => static::CONTENT_TYPE_LINE_ITEM],
+                    'body' => $this->serializer->serialize($lineItem)
+                ],
+                [
+                    static::AUTHORIZATION_SCOPE_LINE_ITEM
+                ]
+            );
+        } catch (LtiExceptionInterface $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot update line item: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#example-getting-a-single-line-item
+     * @throws LtiExceptionInterface
+     */
+    public function deleteLineItem(RegistrationInterface $registration, string $lineItemUrl): ResponseInterface
+    {
+        try {
+            return $this->client->request(
+                $registration,
+                'DELETE',
+                $lineItemUrl,
+                [],
+                [
+                    static::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY
+                ]
+            );
+        } catch (LtiExceptionInterface $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot delete line item: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+
+}

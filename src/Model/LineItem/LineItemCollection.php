@@ -22,30 +22,66 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
-use ArrayIterator;
+use OAT\Library\Lti1p3Core\Util\Collection\Collection;
+use OAT\Library\Lti1p3Core\Util\Collection\CollectionInterface;
 
+/**
+ * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
+ */
 class LineItemCollection implements LineItemCollectionInterface
 {
-    /** @var LineItemInterface[] */
+    /** @var LineItemInterface[]|CollectionInterface */
     private $lineItems;
 
-    public function __construct(LineItemInterface ...$lineItems)
+    /** @var bool */
+    private $hasNext;
+
+    public function __construct(array $lineItems = [], bool $hasNext = false)
     {
-        $this->lineItems = $lineItems;
+        $this->lineItems = new Collection();
+        $this->hasNext = $hasNext;
+
+        foreach ($lineItems as $lineItem) {
+            $this->add($lineItem);
+        }
     }
 
-    public function getIterator(): ArrayIterator
+    public function all(): array
     {
-        return new ArrayIterator($this->lineItems);
+        return $this->lineItems->all();
     }
 
-    public function count(): int
+    public function has(string $lineItemIdentifier): bool
     {
-        return $this->getIterator()->count();
+        return $this->lineItems->has($lineItemIdentifier);
     }
 
-    public function jsonSerialize()
+    public function get(string $lineItemIdentifier): ?LineItemInterface
     {
-        return $this->lineItems;
+        return $this->lineItems->get($lineItemIdentifier);
+    }
+
+    public function add(LineItemInterface $lineItem): LineItemCollectionInterface
+    {
+        $this->lineItems->set($lineItem->getIdentifier(), $lineItem);
+
+        return $this;
+    }
+
+    public function remove(string $lineItemIdentifier): LineItemCollectionInterface
+    {
+        $this->lineItems->remove($lineItemIdentifier);
+
+        return $this;
+    }
+
+    public function hasNext(): bool
+    {
+        return $this->hasNext;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return array_values($this->all());
     }
 }

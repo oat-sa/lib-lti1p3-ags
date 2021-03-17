@@ -20,28 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Validator\Request;
+namespace OAT\Library\Lti1p3Ags\Factory\LineItem;
 
-use InvalidArgumentException;
-use OAT\Library\Lti1p3Ags\Parser\RequestUrlParser;
-use OAT\Library\Lti1p3Ags\Parser\RequestUrlParserInterface;
-use Psr\Http\Message\ServerRequestInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
-class RequiredLineItemIdValidator implements RequestValidatorInterface
+interface LineItemFactoryInterface
 {
-    private $parser;
-
-    public function __construct(RequestUrlParserInterface $parser = null)
-    {
-        $this->parser = $parser ?? new RequestUrlParser();
-    }
-
-    public function validate(ServerRequestInterface $request): void
-    {
-        $data = $this->parser->parse($request);
-
-        if ($data['lineItemId'] === null) {
-            throw new InvalidArgumentException('Url path must contain lineItemId as third uri path part.');
-        }
-    }
+    public function create(array $data): LineItemInterface;
 }

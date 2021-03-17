@@ -20,28 +20,22 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Validator\Request;
+namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
-use InvalidArgumentException;
-use OAT\Library\Lti1p3Ags\Parser\RequestUrlParser;
-use OAT\Library\Lti1p3Ags\Parser\RequestUrlParserInterface;
-use Psr\Http\Message\ServerRequestInterface;
-
-class RequiredLineItemIdValidator implements RequestValidatorInterface
+/**
+ * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
+ */
+interface LineItemContainerInterface
 {
-    private $parser;
+    public const REL_NEXT = 'next';
 
-    public function __construct(RequestUrlParserInterface $parser = null)
-    {
-        $this->parser = $parser ?? new RequestUrlParser();
-    }
+    public function getLineItems(): LineItemCollectionInterface;
 
-    public function validate(ServerRequestInterface $request): void
-    {
-        $data = $this->parser->parse($request);
+    public function getRelationLink(): ?string;
 
-        if ($data['lineItemId'] === null) {
-            throw new InvalidArgumentException('Url path must contain lineItemId as third uri path part.');
-        }
-    }
+    public function setRelationLink(?string $relationLink): LineItemContainerInterface;
+
+    public function getRelationLinkUrl(): ?string;
+
+    public function hasNext(): bool;
 }
