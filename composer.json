@@ -4,14 +4,15 @@
     "type": "library",
     "license": "GPL-2.0-only",
     "require": {
-        "ext-json": "*",
         "php": ">=7.2.0",
-        "oat-sa/lib-lti1p3-core": "^4.0",
-        "psr/http-server-handler": "^1.0"
+        "ext-json": "*",
+        "oat-sa/lib-lti1p3-core": "^5.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.5.14",
-        "php-coveralls/php-coveralls": "^2.4"
+        "php-coveralls/php-coveralls": "^2.4",
+        "vimeo/psalm": "^4.6",
+        "psalm/plugin-phpunit": "^0.15.1"
     },
     "autoload": {
         "psr-4": {
@@ -23,5 +24,8 @@
             "OAT\\Library\\Lti1p3Ags\\Tests\\": "tests/",
             "OAT\\Library\\Lti1p3Core\\Tests\\": "vendor/oat-sa/lib-lti1p3-core/tests/"
         }
+    },
+    "config": {
+        "sort-packages": true
     }
 }

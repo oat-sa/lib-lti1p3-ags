@@ -20,14 +20,13 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Service\LineItem;
+namespace OAT\Library\Lti1p3Ags\Serializer\LineItem;
 
-interface LineItemServiceInterface
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
+
+interface LineItemCollectionSerializerInterface
 {
-    public const NAME = 'AGS line item';
-    public const AUTHORIZATION_SCOPE_LINE_ITEM = 'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem';
-    public const AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY = 'https://purl.imsglobal.org/spec/lti-ags/scope/lineitem.readonly';
-    public const CONTENT_TYPE_LINE_ITEM = 'application/vnd.ims.lis.v2.lineitem+json';
-    public const CONTENT_TYPE_LINE_ITEM_CONTAINER = 'application/vnd.ims.lis.v2.lineitemcontainer+json';
-    public const HEADER_LINK = 'Link';
+    public function serialize(LineItemCollectionInterface $collection): string;
+
+    public function deserialize(string $data): LineItemCollectionInterface;
 }

@@ -25,31 +25,38 @@ namespace OAT\Library\Lti1p3Ags\Service\LineItem\Client;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemCollectionSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemCollectionSerializerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
-use OAT\Library\Lti1p3Core\Service\Client\ServiceClient;
-use OAT\Library\Lti1p3Core\Service\Client\ServiceClientInterface;
+use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClient;
+use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
 class LineItemServiceClient implements LineItemServiceInterface
 {
-    /** @var ServiceClientInterface */
+    /** @var LtiServiceClientInterface */
     private $client;
 
     /** @var LineItemSerializerInterface */
     private $serializer;
 
+    /** @var LineItemCollectionSerializerInterface */
+    private $collectionSerializer;
+
     public function __construct(
-        ServiceClientInterface $client = null,
-        LineItemSerializerInterface $serializer = null
+        ?LtiServiceClientInterface $client = null,
+        ?LineItemSerializerInterface $serializer = null,
+        ?LineItemCollectionSerializerInterface $collectionSerializer = null
     ) {
-        $this->client = $client ?? new ServiceClient();
+        $this->client = $client ?? new LtiServiceClient();
         $this->serializer = $serializer ?? new LineItemSerializer();
+        $this->collectionSerializer = $collectionSerializer ?? new LineItemCollectionSerializer();
     }
 
     /**
@@ -67,15 +74,15 @@ class LineItemServiceClient implements LineItemServiceInterface
                 'POST',
                 $lineItemContainerUrl,
                 [
-                    'headers' => ['Accept' => static::CONTENT_TYPE_LINE_ITEM],
+                    'headers' => [
+                        'Accept' => static::CONTENT_TYPE_LINE_ITEM,
+                    ],
                     'body' => $this->serializer->serialize($lineItem)
                 ],
                 [
-                    static::AUTHORIZATION_SCOPE_LINE_ITEM
+                    static::AUTHORIZATION_SCOPE_LINE_ITEM,
                 ]
             );
-        } catch (LtiExceptionInterface $exception) {
-            throw $exception;
         } catch (Throwable $exception) {
             throw new LtiException(
                 sprintf('Cannot create line item: %s', $exception->getMessage()),
@@ -97,17 +104,17 @@ class LineItemServiceClient implements LineItemServiceInterface
                 'GET',
                 $lineItemUrl,
                 [
-                    'headers' => ['Accept' => static::CONTENT_TYPE_LINE_ITEM],
+                    'headers' => [
+                        'Accept' => static::CONTENT_TYPE_LINE_ITEM,
+                    ],
                 ],
                 [
                     static::AUTHORIZATION_SCOPE_LINE_ITEM,
-                    static::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY
+                    static::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY,
                 ]
             );
 
             return $this->serializer->deserialize($response->getBody()->__toString());
-        } catch (LtiExceptionInterface $exception) {
-            throw $exception;
         } catch (Throwable $exception) {
             throw new LtiException(
                 sprintf('Cannot get line item: %s', $exception->getMessage()),
@@ -118,7 +125,7 @@ class LineItemServiceClient implements LineItemServiceInterface
     }
 
     /**
-     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#example-getting-a-single-line-item
+     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#example-getting-all-line-items-for-a-given-container
      * @throws LtiExceptionInterface
      */
     public function listLineItems(
@@ -131,16 +138,18 @@ class LineItemServiceClient implements LineItemServiceInterface
                 'GET',
                 $lineItemContainerUrl,
                 [
-                    'headers' => ['Accept' => static::CONTENT_TYPE_LINE_ITEM_CONTAINER],
+                    'headers' => [
+                        'Accept' => static::CONTENT_TYPE_LINE_ITEM_CONTAINER,
+                    ],
                 ],
                 [
                     static::AUTHORIZATION_SCOPE_LINE_ITEM,
-                    static::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY
+                    static::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY,
                 ]
             );
 
             $lineItemContainer = new LineItemContainer(
-                $this->serializer->deserializeCollection($response->getBody()->__toString())
+                $this->collectionSerializer->deserialize($response->getBody()->__toString())
             );
 
             $relationLink = $response->getHeaderLine(static::HEADER_LINK);
@@ -149,8 +158,6 @@ class LineItemServiceClient implements LineItemServiceInterface
             }
 
             return $lineItemContainer;
-        } catch (LtiExceptionInterface $exception) {
-            throw $exception;
         } catch (Throwable $exception) {
             throw new LtiException(
                 sprintf('Cannot list line items: %s', $exception->getMessage()),
@@ -161,7 +168,7 @@ class LineItemServiceClient implements LineItemServiceInterface
     }
 
     /**
-     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#creating-a-new-line-item
+     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#updating-a-line-item
      * @throws LtiExceptionInterface
      */
     public function updateLineItem(
@@ -175,11 +182,13 @@ class LineItemServiceClient implements LineItemServiceInterface
                 'PUT',
                 $lineItemUrl,
                 [
-                    'headers' => ['Accept' => static::CONTENT_TYPE_LINE_ITEM],
+                    'headers' => [
+                        'Accept' => static::CONTENT_TYPE_LINE_ITEM,
+                    ],
                     'body' => $this->serializer->serialize($lineItem)
                 ],
                 [
-                    static::AUTHORIZATION_SCOPE_LINE_ITEM
+                    static::AUTHORIZATION_SCOPE_LINE_ITEM,
                 ]
             );
         } catch (LtiExceptionInterface $exception) {
@@ -194,7 +203,7 @@ class LineItemServiceClient implements LineItemServiceInterface
     }
 
     /**
-     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#example-getting-a-single-line-item
+     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service-scope-and-allowed-http-methods
      * @throws LtiExceptionInterface
      */
     public function deleteLineItem(RegistrationInterface $registration, string $lineItemUrl): ResponseInterface
@@ -206,7 +215,7 @@ class LineItemServiceClient implements LineItemServiceInterface
                 $lineItemUrl,
                 [],
                 [
-                    static::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY
+                    static::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY,
                 ]
             );
         } catch (LtiExceptionInterface $exception) {

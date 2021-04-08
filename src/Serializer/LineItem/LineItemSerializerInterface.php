@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Serializer\LineItem;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
 interface LineItemSerializerInterface
@@ -30,8 +29,4 @@ interface LineItemSerializerInterface
     public function serialize(LineItemInterface $lineItem): string;
 
     public function deserialize(string $data): LineItemInterface;
-
-    public function serializeCollection(LineItemCollectionInterface $collection): string;
-
-    public function deserializeCollection(string $data): LineItemCollectionInterface;
 }

@@ -24,11 +24,12 @@ namespace OAT\Library\Lti1p3Ags\Serializer\LineItem;
 
 use OAT\Library\Lti1p3Ags\Factory\LineItem\LineItemFactory;
 use OAT\Library\Lti1p3Ags\Factory\LineItem\LineItemFactoryInterface;
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollection;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 
-class LineItemSerializer implements LineItemSerializerInterface
+class LineItemCollectionSerializer implements LineItemCollectionSerializerInterface
 {
     /** @var LineItemFactoryInterface */
     private $factory;
@@ -38,7 +39,7 @@ class LineItemSerializer implements LineItemSerializerInterface
         $this->factory = $factory ?? new LineItemFactory();
     }
 
-    public function serialize(LineItemInterface $lineItem): string
+    public function serialize(LineItemCollectionInterface $lineItem): string
     {
         return json_encode($lineItem);
     }
@@ -46,16 +47,22 @@ class LineItemSerializer implements LineItemSerializerInterface
     /**
      * @throws LtiExceptionInterface
      */
-    public function deserialize(string $data): LineItemInterface
+    public function deserialize(string $data): LineItemCollectionInterface
     {
         $data = json_decode($data, true);
 
         if (JSON_ERROR_NONE !== json_last_error()) {
             throw new LtiException(
-                sprintf('Error during line item deserialization: %s', json_last_error_msg())
+                sprintf('Error during line item collection deserialization: %s', json_last_error_msg())
             );
         }
 
-        return $this->factory->create($data);
+        $collection = new LineItemCollection();
+
+        foreach ($data as $lineItemData) {
+            $collection->add($this->factory->create($lineItemData));
+        }
+
+        return $collection;
     }
 }
