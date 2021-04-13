@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\Score\Client;
 
-use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Score\Normalizer\ScoreNormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\Score\Normalizer\ScoreNormalizerInterface;
@@ -33,7 +32,7 @@ use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use OAT\Library\Lti1p3Core\Message\Payload\Claim\AgsClaim;
 use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
-use OAT\Library\Lti1p3Core\Service\Client\ServiceClientInterface;
+use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -41,7 +40,7 @@ class ScoreServiceClientTest extends TestCase
 {
     use AgsDomainTestingTrait;
 
-    /** @var ServiceClientInterface|MockObject */
+    /** @var LtiServiceClientInterface|MockObject */
     private $serviceClientMock;
 
     /** @var ScoreNormalizerInterface */
@@ -52,7 +51,7 @@ class ScoreServiceClientTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->serviceClientMock = $this->createMock(ServiceClientInterface::class);
+        $this->serviceClientMock = $this->createMock(LtiServiceClientInterface::class);
         $this->scoreNormalizer = new ScoreNormalizer();
 
         $this->subject = new ScoreServiceClient($this->serviceClientMock, $this->scoreNormalizer);
