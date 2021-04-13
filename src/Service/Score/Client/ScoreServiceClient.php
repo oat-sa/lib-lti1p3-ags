@@ -31,24 +31,24 @@ use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
-use OAT\Library\Lti1p3Core\Service\Client\ServiceClient;
-use OAT\Library\Lti1p3Core\Service\Client\ServiceClientInterface;
+use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClient;
+use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
 class ScoreServiceClient implements ScoreServiceInterface
 {
-    /** @var ServiceClientInterface */
+    /** @var LtiServiceClientInterface */
     private $client;
 
     /** @var ScoreNormalizerInterface */
     private $normalizer;
 
     public function __construct(
-        ServiceClientInterface $client = null,
+        LtiServiceClientInterface $client = null,
         ScoreNormalizerInterface $normalizer = null
     ) {
-        $this->client = $client ?? new ServiceClient();
+        $this->client = $client ?? new LtiServiceClient();
         $this->normalizer = $normalizer ?? new ScoreNormalizer();
     }
 
