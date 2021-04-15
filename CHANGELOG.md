@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+0.6.0
+-----
+
+* Upgraded for oat-sa/lib-lti1p3-core version 6.0.0
+
 0.5.0
 -----
 
