@@ -131,7 +131,10 @@ class ScoreServiceClient implements ScoreServiceInterface
         $parsedUrl = parse_url($lineItemUrl);
 
         $parsedUrl['path'] = rtrim($parsedUrl['path'], '/');
-        $parsedUrl['path'] = rtrim($parsedUrl['path'], '/lineitem');
+
+        if (str_ends_with($parsedUrl['path'], '/lineitem')) {
+            $parsedUrl['path'] = substr($parsedUrl['path'], 0, -9);
+        }
 
         $username = $parsedUrl['user'] ?? '';
         $password = isset($parsedUrl['pass']) ? ':' . $parsedUrl['pass']  : '';
