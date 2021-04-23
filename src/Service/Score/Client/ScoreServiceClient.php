@@ -132,8 +132,9 @@ class ScoreServiceClient implements ScoreServiceInterface
 
         $parsedUrl['path'] = rtrim($parsedUrl['path'], '/');
 
-        if (str_ends_with($parsedUrl['path'], '/lineitem')) {
-            $parsedUrl['path'] = substr($parsedUrl['path'], 0, -9);
+        $endStringToRemove = '/lineitem';
+        if (str_ends_with($parsedUrl['path'], $endStringToRemove)) {
+            $parsedUrl['path'] = substr($parsedUrl['path'], 0, -1 * strlen($endStringToRemove));
         }
 
         $username = $parsedUrl['user'] ?? '';
