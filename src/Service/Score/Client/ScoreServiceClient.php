@@ -129,10 +129,10 @@ class ScoreServiceClient implements ScoreServiceInterface
     private function buildEndpointUrl(string $lineItemUrl): string
     {
         $parsedUrl = parse_url($lineItemUrl);
-
         $parsedUrl['path'] = rtrim($parsedUrl['path'], '/');
 
         $endStringToRemove = '/lineitem';
+
         if (str_ends_with($parsedUrl['path'], $endStringToRemove)) {
             $parsedUrl['path'] = substr($parsedUrl['path'], 0, -1 * strlen($endStringToRemove));
         }
