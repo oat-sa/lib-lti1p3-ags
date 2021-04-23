@@ -129,9 +129,13 @@ class ScoreServiceClient implements ScoreServiceInterface
     private function buildEndpointUrl(string $lineItemUrl): string
     {
         $parsedUrl = parse_url($lineItemUrl);
-
         $parsedUrl['path'] = rtrim($parsedUrl['path'], '/');
-        $parsedUrl['path'] = rtrim($parsedUrl['path'], '/lineitem');
+
+        $endStringToRemove = '/lineitem';
+
+        if (str_ends_with($parsedUrl['path'], $endStringToRemove)) {
+            $parsedUrl['path'] = substr($parsedUrl['path'], 0, -1 * strlen($endStringToRemove));
+        }
 
         $username = $parsedUrl['user'] ?? '';
         $password = isset($parsedUrl['pass']) ? ':' . $parsedUrl['pass']  : '';
