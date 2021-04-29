@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+0.4.1
+-----
+
+* Fixed buildEndpointUrl of ScoreServiceClient when trimming line item URL provided by AGS claims
+
 0.4.0
 -----
 
