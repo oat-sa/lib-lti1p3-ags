@@ -27,7 +27,7 @@ use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Parser\RequestUrlParser;
 use OAT\Library\Lti1p3Ags\Parser\RequestUrlParserInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemCollectionSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemCollectionSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
@@ -59,7 +59,7 @@ class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequest
         ?ResponseFactory $factory = null
     ) {
         $this->repository = $repository;
-        $this->serializer = $serializer ?? new LineItemSerializer();
+        $this->serializer = $serializer ?? new LineItemCollectionSerializer();
         $this->parser = $parser ?? new RequestUrlParser();
         $this->factory = $factory ?? new HttplugFactory();
     }
