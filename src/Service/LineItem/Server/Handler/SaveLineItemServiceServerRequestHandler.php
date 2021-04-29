@@ -30,7 +30,7 @@ use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
-use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
+use OAT\Library\Lti1p3Core\Security\OAuth2\Validator\Result\RequestAccessTokenValidationResultInterface;
 use OAT\Library\Lti1p3Core\Service\Server\Handler\LtiServiceServerRequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -90,9 +90,10 @@ class SaveLineItemServiceServerRequestHandler implements LtiServiceServerRequest
         ];
     }
 
-    public function handleServiceRequest(
-        RegistrationInterface $registration,
-        ServerRequestInterface $request
+    public function handleValidatedServiceRequest(
+        RequestAccessTokenValidationResultInterface $validationResult,
+        ServerRequestInterface $request,
+        array $options = []
     ): ResponseInterface {
         $lineItem = $this->serializer->deserialize((string)$request->getBody());
 
