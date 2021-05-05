@@ -24,8 +24,8 @@ namespace OAT\Library\Lti1p3Ags\Service\LineItem\Server\Handler;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
-use OAT\Library\Lti1p3Ags\Parser\RequestUrlParser;
-use OAT\Library\Lti1p3Ags\Parser\RequestUrlParserInterface;
+use OAT\Library\Lti1p3Ags\Extractor\RequestUriParameterExtractor;
+use OAT\Library\Lti1p3Ags\Extractor\RequestUriParameterExtractorInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemCollectionSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemCollectionSerializerInterface;
@@ -46,8 +46,8 @@ class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequest
     /** @var LineItemCollectionSerializerInterface */
     private $serializer;
 
-    /** @var RequestUrlParserInterface */
-    private $parser;
+    /** @var RequestUriParameterExtractorInterface */
+    private $extractor;
 
     /** @var ResponseFactory */
     private $factory;
@@ -55,12 +55,12 @@ class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequest
     public function __construct(
         LineItemRepositoryInterface $repository,
         ?LineItemCollectionSerializerInterface $serializer = null,
-        ?RequestUrlParserInterface $parser = null,
+        ?RequestUriParameterExtractorInterface $extractor = null,
         ?ResponseFactory $factory = null
     ) {
         $this->repository = $repository;
         $this->serializer = $serializer ?? new LineItemCollectionSerializer();
-        $this->parser = $parser ?? new RequestUrlParser();
+        $this->extractor = $extractor ?? new RequestUriParameterExtractor();
         $this->factory = $factory ?? new HttplugFactory();
     }
 
@@ -94,12 +94,14 @@ class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequest
         ServerRequestInterface $request,
         array $options = []
     ): ResponseInterface {
-        $parsingResult = $this->parser->parse($request);
+        $extractedUriParameters = $this->extractor->extract($request);
+
+        $contextIdentifier = $options['contextIdentifier'] ?? $extractedUriParameters->getContextIdentifier();
 
         parse_str($request->getUri()->getQuery(), $parameters);
 
         $lineItemCollection = $this->repository->findBy(
-            $parsingResult->getContextIdentifier(),
+            $contextIdentifier,
             $parameters['resource_link_id'] ?? null,
             $parameters['resource_id'] ?? null,
             $parameters['tag'] ?? null,

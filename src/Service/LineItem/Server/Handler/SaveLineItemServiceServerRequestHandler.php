@@ -24,8 +24,8 @@ namespace OAT\Library\Lti1p3Ags\Service\LineItem\Server\Handler;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
-use OAT\Library\Lti1p3Ags\Parser\RequestUrlParser;
-use OAT\Library\Lti1p3Ags\Parser\RequestUrlParserInterface;
+use OAT\Library\Lti1p3Ags\Extractor\RequestUriParameterExtractor;
+use OAT\Library\Lti1p3Ags\Extractor\RequestUriParameterExtractorInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
@@ -47,8 +47,8 @@ class SaveLineItemServiceServerRequestHandler implements LtiServiceServerRequest
     /** @var LineItemSerializerInterface */
     private $serializer;
 
-    /** @var RequestUrlParserInterface */
-    private $parser;
+    /** @var RequestUriParameterExtractorInterface */
+    private $extractor;
 
     /** @var ResponseFactory */
     private $factory;
@@ -56,12 +56,12 @@ class SaveLineItemServiceServerRequestHandler implements LtiServiceServerRequest
     public function __construct(
         LineItemRepositoryInterface $repository,
         ?LineItemSerializerInterface $serializer = null,
-        ?RequestUrlParserInterface $parser = null,
+        ?RequestUriParameterExtractorInterface $extractor = null,
         ?ResponseFactory $factory = null
     ) {
         $this->repository = $repository;
         $this->serializer = $serializer ?? new LineItemSerializer();
-        $this->parser = $parser ?? new RequestUrlParser();
+        $this->extractor = $extractor ?? new RequestUriParameterExtractor();
         $this->factory = $factory ?? new HttplugFactory();
     }
 
@@ -97,13 +97,13 @@ class SaveLineItemServiceServerRequestHandler implements LtiServiceServerRequest
     ): ResponseInterface {
         $lineItem = $this->serializer->deserialize((string)$request->getBody());
 
-        $parsingResult = $this->parser->parse($request);
+        $extractedUriParameters = $this->extractor->extract($request);
 
-        if ($parsingResult->hasContextIdentifier()) {
-            $lineItem->setContextIdentifier($parsingResult->getContextIdentifier());
-        }
+        $contextIdentifier = $options['contextIdentifier'] ?? $extractedUriParameters->getContextIdentifier();
 
-        $lineItem = $this->repository->save($lineItem);
+        $lineItem = $this->repository->save(
+            $lineItem->setContextIdentifier($contextIdentifier)
+        );
 
         $responseBody = $this->serializer->serialize($lineItem);
         $responseHeaders = [

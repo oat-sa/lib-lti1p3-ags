@@ -88,9 +88,20 @@ trait AgsDomainTestingTrait
                 }
             }
 
-            public function find(string $lineItemIdentifier): ?LineItemInterface
+            public function find(string $lineItemIdentifier, ?string $contextIdentifier = null): ?LineItemInterface
             {
-                return $this->lineItems->get($lineItemIdentifier);
+                /** @var LineItemInterface $lineItem */
+                $lineItem = $this->lineItems->get($lineItemIdentifier);
+
+                if (null !== $lineItem) {
+                    if (null !== $contextIdentifier) {
+                        return $lineItem->getContextIdentifier() === $contextIdentifier ? $lineItem : null;
+                    }
+
+                    return $lineItem;
+                }
+
+                return null;
             }
 
             public function findBy(
@@ -128,8 +139,8 @@ trait AgsDomainTestingTrait
                }
 
                 return new LineItemCollection(
-                    array_slice($foundLineItems, $offset ? intval($offset) : 0, $limit ? intval($limit) : null),
-                    ($limit ? intval($limit) : 0) >= $this->lineItems->count()
+                    array_slice($foundLineItems, $offset ?: 0, $limit),
+                    ($limit ?: 0) >= $this->lineItems->count()
                 );
             }
 
@@ -142,9 +153,13 @@ trait AgsDomainTestingTrait
                 $this->lineItems->set($lineItem->getIdentifier(), $lineItem);
             }
 
-            public function delete(string $lineItemIdentifier): void
+            public function delete(string $lineItemIdentifier, ?string $contextIdentifier = null): void
             {
-                $this->lineItems->remove($lineItemIdentifier);
+                $lineItem = $this->find($lineItemIdentifier, $contextIdentifier);
+
+                if (null !== $lineItem) {
+                    $this->lineItems->remove($lineItem->getIdentifier());
+                }
             }
         };
     }

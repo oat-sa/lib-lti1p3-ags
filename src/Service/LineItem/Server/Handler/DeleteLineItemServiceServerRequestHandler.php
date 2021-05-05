@@ -24,8 +24,8 @@ namespace OAT\Library\Lti1p3Ags\Service\LineItem\Server\Handler;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
-use OAT\Library\Lti1p3Ags\Parser\RequestUrlParser;
-use OAT\Library\Lti1p3Ags\Parser\RequestUrlParserInterface;
+use OAT\Library\Lti1p3Ags\Extractor\RequestUriParameterExtractor;
+use OAT\Library\Lti1p3Ags\Extractor\RequestUriParameterExtractorInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
 use OAT\Library\Lti1p3Core\Security\OAuth2\Validator\Result\RequestAccessTokenValidationResultInterface;
@@ -43,8 +43,8 @@ class DeleteLineItemServiceServerRequestHandler implements LtiServiceServerReque
     /** @var LineItemRepositoryInterface */
     private $repository;
 
-    /** @var RequestUrlParserInterface */
-    private $parser;
+    /** @var RequestUriParameterExtractorInterface */
+    private $extractor;
 
     /** @var ResponseFactory */
     private $factory;
@@ -54,12 +54,12 @@ class DeleteLineItemServiceServerRequestHandler implements LtiServiceServerReque
 
     public function __construct(
         LineItemRepositoryInterface $repository,
-        ?RequestUrlParserInterface $parser = null,
+        ?RequestUriParameterExtractorInterface $extractor = null,
         ?ResponseFactory $factory = null,
         ?LoggerInterface $logger = null
     ) {
         $this->repository = $repository;
-        $this->parser = $parser ?? new RequestUrlParser();
+        $this->extractor = $extractor ?? new RequestUriParameterExtractor();
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
@@ -93,16 +93,19 @@ class DeleteLineItemServiceServerRequestHandler implements LtiServiceServerReque
         ServerRequestInterface $request,
         array $options = []
     ): ResponseInterface {
-        $parsingResult = $this->parser->parse($request);
+        $extractedUriParameters = $this->extractor->extract($request);
 
-        if (!$parsingResult->hasLineItemIdentifier()) {
+        $lineItemIdentifier = $options['lineItemIdentifier'] ?? $extractedUriParameters->getLineItemIdentifier();
+        $contextIdentifier = $options['contextIdentifier'] ?? $extractedUriParameters->getContextIdentifier();
+
+        if (null === $lineItemIdentifier) {
             $message = 'Missing line item identifier';
             $this->logger->error($message);
 
             return $this->factory->createResponse(400, null, [], $message);
         }
 
-        $this->repository->delete($parsingResult->getLineItemIdentifier());
+        $this->repository->delete($lineItemIdentifier, $contextIdentifier);
 
         return $this->factory->createResponse(204);
     }

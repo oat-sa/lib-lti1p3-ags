@@ -20,11 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Parser;
+namespace OAT\Library\Lti1p3Ags\Extractor;
 
 use Psr\Http\Message\ServerRequestInterface;
 
-interface RequestUrlParserInterface
+interface RequestUriParameterExtractorInterface
 {
-    public function parse(ServerRequestInterface $request): RequestUrlParserResult;
+    public function extract(ServerRequestInterface $request): RequestUriParameterExtractorResult;
 }

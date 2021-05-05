@@ -20,11 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Parser;
+namespace OAT\Library\Lti1p3Ags\Extractor;
 
 use Psr\Http\Message\ServerRequestInterface;
 
-class RequestUrlParser implements RequestUrlParserInterface
+class RequestUriParameterExtractor implements RequestUriParameterExtractorInterface
 {
     private const SPLIT_PATTERN = '/lineitems';
 
@@ -36,12 +36,12 @@ class RequestUrlParser implements RequestUrlParserInterface
         $this->splitPattern = $splitPattern;
     }
 
-    public function parse(ServerRequestInterface $request): RequestUrlParserResult
+    public function extract(ServerRequestInterface $request): RequestUriParameterExtractorResult
     {
         $path = trim($request->getUri()->getPath(), '/');
 
         if (false === strpos($path, $this->splitPattern)){
-            return new RequestUrlParserResult();
+            return new RequestUriParameterExtractorResult();
         }
 
         $parts = explode($this->splitPattern, $path);
@@ -49,7 +49,7 @@ class RequestUrlParser implements RequestUrlParserInterface
         $contextParts = explode('/', $parts[0]);
         $lineItemParts = explode('/', trim($parts[1] ?? '', '/'));
 
-        return new RequestUrlParserResult(
+        return new RequestUriParameterExtractorResult(
             end($contextParts),
             current($lineItemParts)
         );
