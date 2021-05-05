@@ -84,7 +84,7 @@ class GetLineItemServiceServerRequestHandler implements LtiServiceServerRequestH
     public function getAllowedMethods(): array
     {
         return [
-            'POST',
+            'GET',
         ];
     }
 
