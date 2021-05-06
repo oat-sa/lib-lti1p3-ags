@@ -105,6 +105,20 @@ class DeleteLineItemServiceServerRequestHandler implements LtiServiceServerReque
             return $this->factory->createResponse(400, null, [], $message);
         }
 
+        $lineItem = $this->repository->find($lineItemIdentifier, $contextIdentifier);
+
+        if (null === $lineItem) {
+            $message = sprintf('Cannot find line item with id %s', $lineItemIdentifier);
+
+            if (null !== $contextIdentifier) {
+                $message .= sprintf(' and with context id %s', $contextIdentifier);
+            }
+
+            $this->logger->error($message);
+
+            return $this->factory->createResponse(404, null, [], $message);
+        }
+
         $this->repository->delete($lineItemIdentifier, $contextIdentifier);
 
         return $this->factory->createResponse(204);
