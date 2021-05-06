@@ -71,7 +71,7 @@ class DeleteLineItemServiceServerRequestHandler implements LtiServiceServerReque
 
     public function getAllowedContentType(): ?string
     {
-        return static::CONTENT_TYPE_LINE_ITEM;
+        return null;
     }
 
     public function getAllowedMethods(): array
