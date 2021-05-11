@@ -144,13 +144,20 @@ trait AgsDomainTestingTrait
                 );
             }
 
-            public function save(LineItemInterface $lineItem): LineItemInterface
+            public function create(LineItemInterface $lineItem): LineItemInterface
             {
-                if (null === $lineItem->getIdentifier()) {
-                    $lineItem->setIdentifier($this->generator->generate());
-                }
+                $lineItem->setIdentifier($this->generator->generate());
 
                 $this->lineItems->set($lineItem->getIdentifier(), $lineItem);
+
+                return $lineItem;
+            }
+
+            public function update(LineItemInterface $lineItem): LineItemInterface
+            {
+                $this->lineItems->set($lineItem->getIdentifier(), $lineItem);
+
+                return $lineItem;
             }
 
             public function delete(string $lineItemIdentifier, ?string $contextIdentifier = null): void

@@ -210,7 +210,6 @@ class LineItem implements LineItemInterface
         return $this
             ->setScoreMaximum($lineItem->getScoreMaximum())
             ->setLabel($lineItem->getLabel())
-            ->setContextIdentifier($lineItem->getContextIdentifier())
             ->setResourceIdentifier($lineItem->getResourceIdentifier())
             ->setResourceLinkIdentifier($lineItem->getResourceLinkIdentifier())
             ->setTag($lineItem->getTag())
