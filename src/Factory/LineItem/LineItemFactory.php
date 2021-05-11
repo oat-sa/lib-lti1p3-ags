@@ -25,23 +25,11 @@ namespace OAT\Library\Lti1p3Ags\Factory\LineItem;
 use Carbon\Carbon;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
-use OAT\Library\Lti1p3Core\Util\Generator\IdGenerator;
-use OAT\Library\Lti1p3Core\Util\Generator\IdGeneratorInterface;
 
 class LineItemFactory implements LineItemFactoryInterface
 {
-    /** @var IdGeneratorInterface */
-    private $generator;
-
-    public function __construct(IdGeneratorInterface $generator = null)
-    {
-        $this->generator = $generator ?? new IdGenerator();
-    }
-
     public function create(array $data): LineItemInterface
     {
-        $identifier = $data['id'] ?? $this->generator->generate();
-
         $additionalProperties = array_diff_key(
             $data,
             array_flip(
@@ -61,7 +49,7 @@ class LineItemFactory implements LineItemFactoryInterface
         return new LineItem(
             (float)$data['scoreMaximum'],
             (string)$data['label'],
-            $identifier,
+            $data['id'] ?? null,
             $data['contextId'] ?? null,
             $data['resourceId'] ?? null,
             $data['resourceLinkId'] ?? null,
