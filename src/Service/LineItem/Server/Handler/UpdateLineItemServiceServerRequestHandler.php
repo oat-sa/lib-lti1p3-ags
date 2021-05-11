@@ -30,16 +30,19 @@ use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
+use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use OAT\Library\Lti1p3Core\Security\OAuth2\Validator\Result\RequestAccessTokenValidationResultInterface;
 use OAT\Library\Lti1p3Core\Service\Server\Handler\LtiServiceServerRequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 
 /**
  * @see https://www.imsglobal.org/spec/lti-ags/v2p0#creating-a-new-line-item
  * @see https://www.imsglobal.org/spec/lti-ags/v2p0#updating-a-line-item
  */
-class SaveLineItemServiceServerRequestHandler implements LtiServiceServerRequestHandlerInterface, LineItemServiceInterface
+class UpdateLineItemServiceServerRequestHandler implements LtiServiceServerRequestHandlerInterface, LineItemServiceInterface
 {
     /** @var LineItemRepositoryInterface */
     private $repository;
@@ -53,16 +56,21 @@ class SaveLineItemServiceServerRequestHandler implements LtiServiceServerRequest
     /** @var ResponseFactory */
     private $factory;
 
+    /** @var LoggerInterface */
+    protected $logger;
+
     public function __construct(
         LineItemRepositoryInterface $repository,
         ?LineItemSerializerInterface $serializer = null,
         ?RequestUriParameterExtractorInterface $extractor = null,
-        ?ResponseFactory $factory = null
+        ?ResponseFactory $factory = null,
+        ?LoggerInterface $logger = null
     ) {
         $this->repository = $repository;
         $this->serializer = $serializer ?? new LineItemSerializer();
         $this->extractor = $extractor ?? new RequestUriParameterExtractor();
         $this->factory = $factory ?? new HttplugFactory();
+        $this->logger = $logger ?? new NullLogger();
     }
 
     public function getServiceName(): string
@@ -78,7 +86,6 @@ class SaveLineItemServiceServerRequestHandler implements LtiServiceServerRequest
     public function getAllowedMethods(): array
     {
         return [
-            'POST',
             'PUT',
         ];
     }
@@ -95,14 +102,42 @@ class SaveLineItemServiceServerRequestHandler implements LtiServiceServerRequest
         ServerRequestInterface $request,
         array $options = []
     ): ResponseInterface {
-        $lineItem = $this->serializer->deserialize((string)$request->getBody());
-
         $extractedUriParameters = $this->extractor->extract($request);
 
+        $lineItemIdentifier = $options['lineItemIdentifier'] ?? $extractedUriParameters->getLineItemIdentifier();
         $contextIdentifier = $options['contextIdentifier'] ?? $extractedUriParameters->getContextIdentifier();
 
+        if (null === $lineItemIdentifier) {
+            $message = 'Missing line item identifier';
+            $this->logger->error($message);
+
+            return $this->factory->createResponse(400, null, [], $message);
+        }
+
+        $lineItem = $this->repository->find($lineItemIdentifier, $contextIdentifier);
+
+        if (null === $lineItem) {
+            $message = sprintf('Cannot find line item with id %s', $lineItemIdentifier);
+
+            if (null !== $contextIdentifier) {
+                $message .= sprintf(' and with context id %s', $contextIdentifier);
+            }
+
+            $this->logger->error($message);
+
+            return $this->factory->createResponse(404, null, [], $message);
+        }
+
+        try {
+            $lineItemUpdate = $this->serializer->deserialize((string)$request->getBody());
+        } catch (LtiExceptionInterface $exception) {
+            $this->logger->error($exception->getMessage());
+
+            return $this->factory->createResponse(400, null, [], $exception->getMessage());
+        }
+
         $lineItem = $this->repository->save(
-            $lineItem->setContextIdentifier($contextIdentifier)
+            $lineItem->copy($lineItemUpdate)
         );
 
         $responseBody = $this->serializer->serialize($lineItem);
@@ -111,6 +146,6 @@ class SaveLineItemServiceServerRequestHandler implements LtiServiceServerRequest
             'Content-Length' => strlen($responseBody),
         ];
 
-        return $this->factory->createResponse(201, null, $responseHeaders, $responseBody);
+        return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
     }
 }

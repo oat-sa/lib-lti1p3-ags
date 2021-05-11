@@ -198,6 +198,27 @@ class LineItem implements LineItemInterface
         return $this->additionalProperties;
     }
 
+    public function setAdditionalProperties(CollectionInterface $additionalProperties): LineItemInterface
+    {
+        $this->additionalProperties = $additionalProperties;
+
+        return $this;
+    }
+
+    public function copy(LineItemInterface $lineItem): LineItemInterface
+    {
+        return $this
+            ->setScoreMaximum($lineItem->getScoreMaximum())
+            ->setLabel($lineItem->getLabel())
+            ->setContextIdentifier($lineItem->getContextIdentifier())
+            ->setResourceIdentifier($lineItem->getResourceIdentifier())
+            ->setResourceLinkIdentifier($lineItem->getResourceLinkIdentifier())
+            ->setTag($lineItem->getTag())
+            ->setStartDateTime($lineItem->getStartDateTime())
+            ->setEndDateTime($lineItem->getEndDateTime())
+            ->setAdditionalProperties($lineItem->getAdditionalProperties());
+    }
+
     public function jsonSerialize(): array
     {
         $startDateTime = $this->startDateTime
