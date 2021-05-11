@@ -30,6 +30,8 @@ use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemCollectionSerializerInterf
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
+use OAT\Library\Lti1p3Ags\Url\Builder\UrlBuilder;
+use OAT\Library\Lti1p3Ags\Url\Builder\UrlBuilderInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
@@ -49,14 +51,19 @@ class LineItemServiceClient implements LineItemServiceInterface
     /** @var LineItemCollectionSerializerInterface */
     private $collectionSerializer;
 
+    /** @var UrlBuilderInterface */
+    private $builder;
+
     public function __construct(
         ?LtiServiceClientInterface $client = null,
         ?LineItemSerializerInterface $serializer = null,
-        ?LineItemCollectionSerializerInterface $collectionSerializer = null
+        ?LineItemCollectionSerializerInterface $collectionSerializer = null,
+        ?UrlBuilderInterface $builder = null
     ) {
         $this->client = $client ?? new LtiServiceClient();
         $this->serializer = $serializer ?? new LineItemSerializer();
         $this->collectionSerializer = $collectionSerializer ?? new LineItemCollectionSerializer();
+        $this->builder = $builder ?? new UrlBuilder();
     }
 
     /**
@@ -130,13 +137,26 @@ class LineItemServiceClient implements LineItemServiceInterface
      */
     public function listLineItems(
         RegistrationInterface $registration,
-        string $lineItemContainerUrl
+        string $lineItemContainerUrl,
+        ?string $resourceIdentifier = null,
+        ?string $resourceLinkIdentifier = null,
+        ?string $tag = null,
+        ?int $limit = null,
+        ?int $offset = null
     ): LineItemContainerInterface {
         try {
+            $queryParameters = [
+                'resource_id' => $resourceIdentifier,
+                'resource_link_id' => $resourceLinkIdentifier,
+                'tag' => $tag,
+                'limit' => $limit,
+                'offset' => $offset
+            ];
+
             $response = $this->client->request(
                 $registration,
                 'GET',
-                $lineItemContainerUrl,
+                $this->builder->build($lineItemContainerUrl, null, array_filter($queryParameters)),
                 [
                     'headers' => [
                         'Accept' => static::CONTENT_TYPE_LINE_ITEM_CONTAINER,

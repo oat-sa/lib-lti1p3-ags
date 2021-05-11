@@ -20,9 +20,9 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Extractor;
+namespace OAT\Library\Lti1p3Ags\Url\Extractor;
 
-class RequestUriParameterExtractorResult
+class UrlParameterExtractorResult
 {
     /** @var string|null */
     private $contextIdentifier;

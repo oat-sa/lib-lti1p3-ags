@@ -15,41 +15,38 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Extractor;
+namespace OAT\Library\Lti1p3Ags\Url\Extractor;
 
-use Psr\Http\Message\ServerRequestInterface;
+use InvalidArgumentException;
 
-class RequestUriParameterExtractor implements RequestUriParameterExtractorInterface
+class UrlParameterExtractor implements UrlParameterExtractorInterface
 {
-    private const SPLIT_PATTERN = '/lineitems';
-
-    /** @var string */
-    private $splitPattern;
-
-    public function __construct(string $splitPattern = self::SPLIT_PATTERN)
+    /**
+     * @throw InvalidArgumentException
+     */
+    public function extract(string $url, string $splitPattern = self::DEFAULT_SPLIT_PATTERN): UrlParameterExtractorResult
     {
-        $this->splitPattern = $splitPattern;
-    }
+        $parsedUrl = parse_url($url);
+        if (false === $parsedUrl) {
+            throw new InvalidArgumentException(sprintf('Malformed url %s', $url));
+        }
+        $path = trim($parsedUrl['path'], '/');
 
-    public function extract(ServerRequestInterface $request): RequestUriParameterExtractorResult
-    {
-        $path = trim($request->getUri()->getPath(), '/');
-
-        if (false === strpos($path, $this->splitPattern)){
-            return new RequestUriParameterExtractorResult();
+        if (false === strpos($path, $splitPattern)){
+            return new UrlParameterExtractorResult();
         }
 
-        $parts = explode($this->splitPattern, $path);
+        $parts = explode($splitPattern, $path);
 
         $contextParts = explode('/', $parts[0]);
         $lineItemParts = explode('/', trim($parts[1] ?? '', '/'));
 
-        return new RequestUriParameterExtractorResult(
+        return new UrlParameterExtractorResult(
             end($contextParts),
             current($lineItemParts)
         );

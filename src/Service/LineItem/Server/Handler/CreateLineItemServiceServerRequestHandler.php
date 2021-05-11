@@ -24,12 +24,12 @@ namespace OAT\Library\Lti1p3Ags\Service\LineItem\Server\Handler;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
-use OAT\Library\Lti1p3Ags\Extractor\RequestUriParameterExtractor;
-use OAT\Library\Lti1p3Ags\Extractor\RequestUriParameterExtractorInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
+use OAT\Library\Lti1p3Ags\Url\Extractor\UrlParameterExtractor;
+use OAT\Library\Lti1p3Ags\Url\Extractor\UrlParameterExtractorInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use OAT\Library\Lti1p3Core\Security\OAuth2\Validator\Result\RequestAccessTokenValidationResultInterface;
 use OAT\Library\Lti1p3Core\Service\Server\Handler\LtiServiceServerRequestHandlerInterface;
@@ -50,7 +50,7 @@ class CreateLineItemServiceServerRequestHandler implements LtiServiceServerReque
     /** @var LineItemSerializerInterface */
     private $serializer;
 
-    /** @var RequestUriParameterExtractorInterface */
+    /** @var UrlParameterExtractorInterface */
     private $extractor;
 
     /** @var ResponseFactory */
@@ -62,13 +62,13 @@ class CreateLineItemServiceServerRequestHandler implements LtiServiceServerReque
     public function __construct(
         LineItemRepositoryInterface $repository,
         ?LineItemSerializerInterface $serializer = null,
-        ?RequestUriParameterExtractorInterface $extractor = null,
+        ?UrlParameterExtractorInterface $extractor = null,
         ?ResponseFactory $factory = null,
         ?LoggerInterface $logger = null
     ) {
         $this->repository = $repository;
         $this->serializer = $serializer ?? new LineItemSerializer();
-        $this->extractor = $extractor ?? new RequestUriParameterExtractor();
+        $this->extractor = $extractor ?? new UrlParameterExtractor();
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
@@ -110,9 +110,9 @@ class CreateLineItemServiceServerRequestHandler implements LtiServiceServerReque
             return $this->factory->createResponse(400, null, [], $exception->getMessage());
         }
 
-        $extractedUriParameters = $this->extractor->extract($request);
+        $extractedParameters = $this->extractor->extract($request->getUri()->__toString());
 
-        $contextIdentifier = $options['contextIdentifier'] ?? $extractedUriParameters->getContextIdentifier();
+        $contextIdentifier = $options['contextIdentifier'] ?? $extractedParameters->getContextIdentifier();
 
         $lineItem = $this->repository->save(
             $lineItem->setContextIdentifier($contextIdentifier)

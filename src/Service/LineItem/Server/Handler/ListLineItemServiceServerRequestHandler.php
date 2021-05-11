@@ -24,8 +24,8 @@ namespace OAT\Library\Lti1p3Ags\Service\LineItem\Server\Handler;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
-use OAT\Library\Lti1p3Ags\Extractor\RequestUriParameterExtractor;
-use OAT\Library\Lti1p3Ags\Extractor\RequestUriParameterExtractorInterface;
+use OAT\Library\Lti1p3Ags\Url\Extractor\UrlParameterExtractor;
+use OAT\Library\Lti1p3Ags\Url\Extractor\UrlParameterExtractorInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemCollectionSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemCollectionSerializerInterface;
@@ -46,7 +46,7 @@ class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequest
     /** @var LineItemCollectionSerializerInterface */
     private $serializer;
 
-    /** @var RequestUriParameterExtractorInterface */
+    /** @var UrlParameterExtractorInterface */
     private $extractor;
 
     /** @var ResponseFactory */
@@ -55,12 +55,12 @@ class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequest
     public function __construct(
         LineItemRepositoryInterface $repository,
         ?LineItemCollectionSerializerInterface $serializer = null,
-        ?RequestUriParameterExtractorInterface $extractor = null,
+        ?UrlParameterExtractorInterface $extractor = null,
         ?ResponseFactory $factory = null
     ) {
         $this->repository = $repository;
         $this->serializer = $serializer ?? new LineItemCollectionSerializer();
-        $this->extractor = $extractor ?? new RequestUriParameterExtractor();
+        $this->extractor = $extractor ?? new UrlParameterExtractor();
         $this->factory = $factory ?? new HttplugFactory();
     }
 
@@ -94,9 +94,9 @@ class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequest
         ServerRequestInterface $request,
         array $options = []
     ): ResponseInterface {
-        $extractedUriParameters = $this->extractor->extract($request);
+        $extractedParameters = $this->extractor->extract($request->getUri()->__toString());
 
-        $contextIdentifier = $options['contextIdentifier'] ?? $extractedUriParameters->getContextIdentifier();
+        $contextIdentifier = $options['contextIdentifier'] ?? $extractedParameters->getContextIdentifier();
 
         parse_str($request->getUri()->getQuery(), $parameters);
 
