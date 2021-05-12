@@ -24,8 +24,6 @@ namespace OAT\Library\Lti1p3Ags\Service\LineItem\Server\Handler;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
-use OAT\Library\Lti1p3Ags\Url\Extractor\UrlParameterExtractor;
-use OAT\Library\Lti1p3Ags\Url\Extractor\UrlParameterExtractorInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemCollectionSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemCollectionSerializerInterface;
@@ -46,21 +44,16 @@ class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequest
     /** @var LineItemCollectionSerializerInterface */
     private $serializer;
 
-    /** @var UrlParameterExtractorInterface */
-    private $extractor;
-
     /** @var ResponseFactory */
     private $factory;
 
     public function __construct(
         LineItemRepositoryInterface $repository,
         ?LineItemCollectionSerializerInterface $serializer = null,
-        ?UrlParameterExtractorInterface $extractor = null,
         ?ResponseFactory $factory = null
     ) {
         $this->repository = $repository;
         $this->serializer = $serializer ?? new LineItemCollectionSerializer();
-        $this->extractor = $extractor ?? new UrlParameterExtractor();
         $this->factory = $factory ?? new HttplugFactory();
     }
 
@@ -94,14 +87,9 @@ class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequest
         ServerRequestInterface $request,
         array $options = []
     ): ResponseInterface {
-        $extractedParameters = $this->extractor->extract($request->getUri()->__toString());
-
-        $contextIdentifier = $options['contextIdentifier'] ?? $extractedParameters->getContextIdentifier();
-
         parse_str($request->getUri()->getQuery(), $parameters);
 
         $lineItemCollection = $this->repository->findBy(
-            $contextIdentifier,
             $parameters['resource_link_id'] ?? null,
             $parameters['resource_id'] ?? null,
             $parameters['tag'] ?? null,

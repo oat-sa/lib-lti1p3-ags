@@ -41,9 +41,6 @@ class LineItem implements LineItemInterface
     private $identifier;
 
     /** @var string|null */
-    private $contextIdentifier;
-
-    /** @var string|null */
     private $resourceIdentifier;
 
     /** @var string|null */
@@ -65,7 +62,6 @@ class LineItem implements LineItemInterface
         float $scoreMaximum,
         string $label,
         ?string $identifier = null,
-        ?string $contextIdentifier = null,
         ?string $resourceIdentifier = null,
         ?string $resourceLinkIdentifier = null,
         ?string $tag = null,
@@ -76,7 +72,6 @@ class LineItem implements LineItemInterface
         $this->scoreMaximum = $scoreMaximum;
         $this->label = $label;
         $this->identifier = $identifier;
-        $this->contextIdentifier = $contextIdentifier;
         $this->resourceIdentifier = $resourceIdentifier;
         $this->resourceLinkIdentifier = $resourceLinkIdentifier;
         $this->tag = $tag;
@@ -117,18 +112,6 @@ class LineItem implements LineItemInterface
     public function setIdentifier(?string $identifier): LineItemInterface
     {
         $this->identifier = $identifier;
-
-        return $this;
-    }
-
-    public function getContextIdentifier(): ?string
-    {
-        return $this->contextIdentifier;
-    }
-
-    public function setContextIdentifier(?string $contextIdentifier): LineItemInterface
-    {
-        $this->contextIdentifier = $contextIdentifier;
 
         return $this;
     }
@@ -216,6 +199,12 @@ class LineItem implements LineItemInterface
             ->setStartDateTime($lineItem->getStartDateTime())
             ->setEndDateTime($lineItem->getEndDateTime())
             ->setAdditionalProperties($lineItem->getAdditionalProperties());
+    }
+
+    /** @see getIdentifier */
+    public function getUrl(): ?string
+    {
+        return $this->getIdentifier();
     }
 
     public function jsonSerialize(): array

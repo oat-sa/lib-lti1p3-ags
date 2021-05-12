@@ -43,10 +43,6 @@ interface LineItemInterface extends JsonSerializable
 
     public function setIdentifier(?string $identifier): LineItemInterface;
 
-    public function getContextIdentifier(): ?string;
-
-    public function setContextIdentifier(?string $contextIdentifier): LineItemInterface;
-
     public function getResourceIdentifier(): ?string;
 
     public function setResourceIdentifier(?string $resourceIdentifier): LineItemInterface;
@@ -70,6 +66,9 @@ interface LineItemInterface extends JsonSerializable
     public function setAdditionalProperties(CollectionInterface $additionalProperties): LineItemInterface;
 
     public function getAdditionalProperties(): CollectionInterface;
+
+    /** @see getIdentifier */
+    public function getUrl(): ?string;
 
     public function copy(LineItemInterface $lineItem): LineItemInterface;
 }

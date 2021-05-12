@@ -24,8 +24,6 @@ namespace OAT\Library\Lti1p3Ags\Service\LineItem\Server\Handler;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
-use OAT\Library\Lti1p3Ags\Url\Extractor\UrlParameterExtractor;
-use OAT\Library\Lti1p3Ags\Url\Extractor\UrlParameterExtractorInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
@@ -50,9 +48,6 @@ class UpdateLineItemServiceServerRequestHandler implements LtiServiceServerReque
     /** @var LineItemSerializerInterface */
     private $serializer;
 
-    /** @var UrlParameterExtractorInterface */
-    private $extractor;
-
     /** @var ResponseFactory */
     private $factory;
 
@@ -62,13 +57,11 @@ class UpdateLineItemServiceServerRequestHandler implements LtiServiceServerReque
     public function __construct(
         LineItemRepositoryInterface $repository,
         ?LineItemSerializerInterface $serializer = null,
-        ?UrlParameterExtractorInterface $extractor = null,
         ?ResponseFactory $factory = null,
         ?LoggerInterface $logger = null
     ) {
         $this->repository = $repository;
         $this->serializer = $serializer ?? new LineItemSerializer();
-        $this->extractor = $extractor ?? new UrlParameterExtractor();
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
@@ -102,26 +95,12 @@ class UpdateLineItemServiceServerRequestHandler implements LtiServiceServerReque
         ServerRequestInterface $request,
         array $options = []
     ): ResponseInterface {
-        $extractedParameters = $this->extractor->extract($request->getUri()->__toString());
+        $lineItemIdentifier = $request->getUri()->__toString();
 
-        $lineItemIdentifier = $options['lineItemIdentifier'] ?? $extractedParameters->getLineItemIdentifier();
-        $contextIdentifier = $options['contextIdentifier'] ?? $extractedParameters->getContextIdentifier();
-
-        if (null === $lineItemIdentifier) {
-            $message = 'Missing line item identifier';
-            $this->logger->error($message);
-
-            return $this->factory->createResponse(400, null, [], $message);
-        }
-
-        $lineItem = $this->repository->find($lineItemIdentifier, $contextIdentifier);
+        $lineItem = $this->repository->find($lineItemIdentifier);
 
         if (null === $lineItem) {
             $message = sprintf('Cannot find line item with id %s', $lineItemIdentifier);
-
-            if (null !== $contextIdentifier) {
-                $message .= sprintf(' and with context id %s', $contextIdentifier);
-            }
 
             $this->logger->error($message);
 
@@ -129,16 +108,14 @@ class UpdateLineItemServiceServerRequestHandler implements LtiServiceServerReque
         }
 
         try {
-            $lineItemUpdate = $this->serializer->deserialize((string)$request->getBody());
+            $updatedLineItem = $this->serializer->deserialize((string)$request->getBody());
         } catch (LtiExceptionInterface $exception) {
             $this->logger->error($exception->getMessage());
 
             return $this->factory->createResponse(400, null, [], $exception->getMessage());
         }
 
-        $lineItem = $this->repository->save(
-            $lineItem->copy($lineItemUpdate)
-        );
+        $lineItem = $this->repository->save($lineItem->copy($updatedLineItem));
 
         $responseBody = $this->serializer->serialize($lineItem);
         $responseHeaders = [

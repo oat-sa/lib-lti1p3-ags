@@ -39,9 +39,9 @@ class LineItemCollectionSerializer implements LineItemCollectionSerializerInterf
         $this->factory = $factory ?? new LineItemFactory();
     }
 
-    public function serialize(LineItemCollectionInterface $lineItem): string
+    public function serialize(LineItemCollectionInterface $collection): string
     {
-        return json_encode($lineItem);
+        return json_encode($collection);
     }
 
     /**

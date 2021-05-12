@@ -28,8 +28,6 @@ use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
-use OAT\Library\Lti1p3Ags\Url\Extractor\UrlParameterExtractor;
-use OAT\Library\Lti1p3Ags\Url\Extractor\UrlParameterExtractorInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use OAT\Library\Lti1p3Core\Security\OAuth2\Validator\Result\RequestAccessTokenValidationResultInterface;
 use OAT\Library\Lti1p3Core\Service\Server\Handler\LtiServiceServerRequestHandlerInterface;
@@ -50,9 +48,6 @@ class CreateLineItemServiceServerRequestHandler implements LtiServiceServerReque
     /** @var LineItemSerializerInterface */
     private $serializer;
 
-    /** @var UrlParameterExtractorInterface */
-    private $extractor;
-
     /** @var ResponseFactory */
     private $factory;
 
@@ -62,13 +57,11 @@ class CreateLineItemServiceServerRequestHandler implements LtiServiceServerReque
     public function __construct(
         LineItemRepositoryInterface $repository,
         ?LineItemSerializerInterface $serializer = null,
-        ?UrlParameterExtractorInterface $extractor = null,
         ?ResponseFactory $factory = null,
         ?LoggerInterface $logger = null
     ) {
         $this->repository = $repository;
         $this->serializer = $serializer ?? new LineItemSerializer();
-        $this->extractor = $extractor ?? new UrlParameterExtractor();
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
@@ -110,13 +103,7 @@ class CreateLineItemServiceServerRequestHandler implements LtiServiceServerReque
             return $this->factory->createResponse(400, null, [], $exception->getMessage());
         }
 
-        $extractedParameters = $this->extractor->extract($request->getUri()->__toString());
-
-        $contextIdentifier = $options['contextIdentifier'] ?? $extractedParameters->getContextIdentifier();
-
-        $lineItem = $this->repository->save(
-            $lineItem->setContextIdentifier($contextIdentifier)
-        );
+        $lineItem = $this->repository->save($lineItem);
 
         $responseBody = $this->serializer->serialize($lineItem);
         $responseHeaders = [

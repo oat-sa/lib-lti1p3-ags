@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Factory\LineItem;
 
 use Carbon\Carbon;
+use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
@@ -30,6 +31,18 @@ class LineItemFactory implements LineItemFactoryInterface
 {
     public function create(array $data): LineItemInterface
     {
+        $scoreMaximum = $data['scoreMaximum'] ?? null;
+
+        if (null === $scoreMaximum) {
+            throw new InvalidArgumentException('Missing mandatory scoreMaximum');
+        }
+
+        $label = $data['label'] ?? null;
+
+        if (null === $label) {
+            throw new InvalidArgumentException('Missing mandatory label');
+        }
+
         $additionalProperties = array_diff_key(
             $data,
             array_flip(
@@ -47,10 +60,9 @@ class LineItemFactory implements LineItemFactoryInterface
         );
 
         return new LineItem(
-            (float)$data['scoreMaximum'],
-            (string)$data['label'],
+            (float)$scoreMaximum,
+            (string)$label,
             $data['id'] ?? null,
-            $data['contextId'] ?? null,
             $data['resourceId'] ?? null,
             $data['resourceLinkId'] ?? null,
             $data['tag'] ?? null,

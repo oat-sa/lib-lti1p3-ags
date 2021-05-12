@@ -27,10 +27,9 @@ use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
 interface LineItemRepositoryInterface
 {
-    public function find(string $lineItemIdentifier, ?string $contextIdentifier = null): ?LineItemInterface;
+    public function find(string $lineItemIdentifier): ?LineItemInterface;
 
     public function findBy(
-        ?string $contextIdentifier = null,
         ?string $resourceIdentifier = null,
         ?string $resourceLinkIdentifier = null,
         ?string $tag = null,
@@ -40,5 +39,5 @@ interface LineItemRepositoryInterface
 
     public function save(LineItemInterface $lineItem): LineItemInterface;
 
-    public function delete(string $lineItemIdentifier, ?string $contextIdentifier = null): void;
+    public function delete(string $lineItemIdentifier): void;
 }

@@ -24,8 +24,6 @@ namespace OAT\Library\Lti1p3Ags\Service\LineItem\Server\Handler;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
-use OAT\Library\Lti1p3Ags\Url\Extractor\UrlParameterExtractor;
-use OAT\Library\Lti1p3Ags\Url\Extractor\UrlParameterExtractorInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
 use OAT\Library\Lti1p3Core\Security\OAuth2\Validator\Result\RequestAccessTokenValidationResultInterface;
@@ -43,9 +41,6 @@ class DeleteLineItemServiceServerRequestHandler implements LtiServiceServerReque
     /** @var LineItemRepositoryInterface */
     private $repository;
 
-    /** @var UrlParameterExtractorInterface */
-    private $extractor;
-
     /** @var ResponseFactory */
     private $factory;
 
@@ -54,12 +49,10 @@ class DeleteLineItemServiceServerRequestHandler implements LtiServiceServerReque
 
     public function __construct(
         LineItemRepositoryInterface $repository,
-        ?UrlParameterExtractorInterface $extractor = null,
         ?ResponseFactory $factory = null,
         ?LoggerInterface $logger = null
     ) {
         $this->repository = $repository;
-        $this->extractor = $extractor ?? new UrlParameterExtractor();
         $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
@@ -93,33 +86,19 @@ class DeleteLineItemServiceServerRequestHandler implements LtiServiceServerReque
         ServerRequestInterface $request,
         array $options = []
     ): ResponseInterface {
-        $extractedParameters = $this->extractor->extract($request->getUri()->__toString());
+        $lineItemIdentifier = $request->getUri()->__toString();
 
-        $lineItemIdentifier = $options['lineItemIdentifier'] ?? $extractedParameters->getLineItemIdentifier();
-        $contextIdentifier = $options['contextIdentifier'] ?? $extractedParameters->getContextIdentifier();
-
-        if (null === $lineItemIdentifier) {
-            $message = 'Missing line item identifier';
-            $this->logger->error($message);
-
-            return $this->factory->createResponse(400, null, [], $message);
-        }
-
-        $lineItem = $this->repository->find($lineItemIdentifier, $contextIdentifier);
+        $lineItem = $this->repository->find($lineItemIdentifier);
 
         if (null === $lineItem) {
             $message = sprintf('Cannot find line item with id %s', $lineItemIdentifier);
-
-            if (null !== $contextIdentifier) {
-                $message .= sprintf(' and with context id %s', $contextIdentifier);
-            }
 
             $this->logger->error($message);
 
             return $this->factory->createResponse(404, null, [], $message);
         }
 
-        $this->repository->delete($lineItemIdentifier, $contextIdentifier);
+        $this->repository->delete($lineItemIdentifier);
 
         return $this->factory->createResponse(204);
     }

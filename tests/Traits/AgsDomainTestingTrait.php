@@ -88,24 +88,12 @@ trait AgsDomainTestingTrait
                 }
             }
 
-            public function find(string $lineItemIdentifier, ?string $contextIdentifier = null): ?LineItemInterface
+            public function find(string $lineItemIdentifier): ?LineItemInterface
             {
-                /** @var LineItemInterface $lineItem */
-                $lineItem = $this->lineItems->get($lineItemIdentifier);
-
-                if (null !== $lineItem) {
-                    if (null !== $contextIdentifier) {
-                        return $lineItem->getContextIdentifier() === $contextIdentifier ? $lineItem : null;
-                    }
-
-                    return $lineItem;
-                }
-
-                return null;
+                return $this->lineItems->get($lineItemIdentifier);
             }
 
             public function findBy(
-                ?string $contextIdentifier = null,
                 ?string $resourceIdentifier = null,
                 ?string $resourceLinkIdentifier = null,
                 ?string $tag = null,
@@ -116,10 +104,6 @@ trait AgsDomainTestingTrait
 
                foreach ($this->lineItems as $lineItem) {
                    $found = true;
-
-                   if (null !== $contextIdentifier) {
-                       $found = $found && $lineItem->getContextIdentifier() === $contextIdentifier;
-                   }
 
                    if (null !== $resourceIdentifier) {
                        $found = $found && $lineItem->getResourceIdentifier() === $resourceIdentifier;
@@ -153,9 +137,9 @@ trait AgsDomainTestingTrait
                 $this->lineItems->set($lineItem->getIdentifier(), $lineItem);
             }
 
-            public function delete(string $lineItemIdentifier, ?string $contextIdentifier = null): void
+            public function delete(string $lineItemIdentifier): void
             {
-                $lineItem = $this->find($lineItemIdentifier, $contextIdentifier);
+                $lineItem = $this->find($lineItemIdentifier);
 
                 if (null !== $lineItem) {
                     $this->lineItems->remove($lineItem->getIdentifier());
