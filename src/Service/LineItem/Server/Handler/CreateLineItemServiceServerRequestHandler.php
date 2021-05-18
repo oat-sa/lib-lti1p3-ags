@@ -103,7 +103,9 @@ class CreateLineItemServiceServerRequestHandler implements LtiServiceServerReque
             return $this->factory->createResponse(400, null, [], $exception->getMessage());
         }
 
-        $lineItem = $this->repository->save($lineItem);
+        $lineItem = $this->repository->save(
+            $lineItem->setIdentifier($request->getUri()->__toString())
+        );
 
         $responseBody = $this->serializer->serialize($lineItem);
         $responseHeaders = [
