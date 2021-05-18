@@ -112,7 +112,7 @@ class LineItemServiceClient implements LineItemServiceInterface
                 $lineItemUrl,
                 [
                     'headers' => [
-                        'Accept' => static::CONTENT_TYPE_LINE_ITEM,
+                        'Content-Type' => static::CONTENT_TYPE_LINE_ITEM,
                     ],
                 ],
                 [
