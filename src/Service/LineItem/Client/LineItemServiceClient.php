@@ -37,7 +37,6 @@ use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClient;
 use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
-use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
 class LineItemServiceClient implements LineItemServiceInterface
@@ -74,9 +73,9 @@ class LineItemServiceClient implements LineItemServiceInterface
         RegistrationInterface $registration,
         LineItemInterface $lineItem,
         string $lineItemContainerUrl
-    ): ResponseInterface {
+    ): LineItemInterface {
         try {
-            return $this->client->request(
+            $response = $this->client->request(
                 $registration,
                 'POST',
                 $lineItemContainerUrl,
@@ -90,6 +89,8 @@ class LineItemServiceClient implements LineItemServiceInterface
                     static::AUTHORIZATION_SCOPE_LINE_ITEM,
                 ]
             );
+
+            return $this->serializer->deserialize($response->getBody()->__toString());
         } catch (Throwable $exception) {
             throw new LtiException(
                 sprintf('Cannot create line item: %s', $exception->getMessage()),
