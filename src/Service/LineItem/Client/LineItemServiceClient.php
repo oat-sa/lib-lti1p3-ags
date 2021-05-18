@@ -82,7 +82,7 @@ class LineItemServiceClient implements LineItemServiceInterface
                 $lineItemContainerUrl,
                 [
                     'headers' => [
-                        'Accept' => static::CONTENT_TYPE_LINE_ITEM,
+                        'Content-Type' => static::CONTENT_TYPE_LINE_ITEM,
                     ],
                     'body' => $this->serializer->serialize($lineItem)
                 ],
@@ -103,8 +103,11 @@ class LineItemServiceClient implements LineItemServiceInterface
      * @see https://www.imsglobal.org/spec/lti-ags/v2p0#example-getting-a-single-line-item
      * @throws LtiExceptionInterface
      */
-    public function getLineItem(RegistrationInterface $registration, string $lineItemUrl): LineItemInterface
-    {
+    public function getLineItem(
+        RegistrationInterface $registration,
+        string $lineItemUrl,
+        ?array $scopes = null
+    ): LineItemInterface {
         try {
             $response = $this->client->request(
                 $registration,
@@ -112,10 +115,10 @@ class LineItemServiceClient implements LineItemServiceInterface
                 $lineItemUrl,
                 [
                     'headers' => [
-                        'Content-Type' => static::CONTENT_TYPE_LINE_ITEM,
+                        'Accept' => static::CONTENT_TYPE_LINE_ITEM,
                     ],
                 ],
-                [
+                $scopes ?? [
                     static::AUTHORIZATION_SCOPE_LINE_ITEM,
                     static::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY,
                 ]
@@ -142,7 +145,8 @@ class LineItemServiceClient implements LineItemServiceInterface
         ?string $resourceLinkIdentifier = null,
         ?string $tag = null,
         ?int $limit = null,
-        ?int $offset = null
+        ?int $offset = null,
+        ?array $scopes = null
     ): LineItemContainerInterface {
         try {
             $queryParameters = [
@@ -162,7 +166,7 @@ class LineItemServiceClient implements LineItemServiceInterface
                         'Accept' => static::CONTENT_TYPE_LINE_ITEM_CONTAINER,
                     ],
                 ],
-                [
+                $scopes ?? [
                     static::AUTHORIZATION_SCOPE_LINE_ITEM,
                     static::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY,
                 ]
@@ -195,15 +199,15 @@ class LineItemServiceClient implements LineItemServiceInterface
         RegistrationInterface $registration,
         LineItemInterface $lineItem,
         string $lineItemUrl
-    ): ResponseInterface {
+    ): LineItemInterface {
         try {
-            return $this->client->request(
+            $response = $this->client->request(
                 $registration,
                 'PUT',
                 $lineItemUrl,
                 [
                     'headers' => [
-                        'Accept' => static::CONTENT_TYPE_LINE_ITEM,
+                        'Content-Type' => static::CONTENT_TYPE_LINE_ITEM,
                     ],
                     'body' => $this->serializer->serialize($lineItem)
                 ],
@@ -211,6 +215,8 @@ class LineItemServiceClient implements LineItemServiceInterface
                     static::AUTHORIZATION_SCOPE_LINE_ITEM,
                 ]
             );
+
+            return $this->serializer->deserialize($response->getBody()->__toString());
         } catch (LtiExceptionInterface $exception) {
             throw $exception;
         } catch (Throwable $exception) {
@@ -226,16 +232,16 @@ class LineItemServiceClient implements LineItemServiceInterface
      * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service-scope-and-allowed-http-methods
      * @throws LtiExceptionInterface
      */
-    public function deleteLineItem(RegistrationInterface $registration, string $lineItemUrl): ResponseInterface
+    public function deleteLineItem(RegistrationInterface $registration, string $lineItemUrl): void
     {
         try {
-            return $this->client->request(
+            $this->client->request(
                 $registration,
                 'DELETE',
                 $lineItemUrl,
                 [],
                 [
-                    static::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY,
+                    static::AUTHORIZATION_SCOPE_LINE_ITEM,
                 ]
             );
         } catch (LtiExceptionInterface $exception) {
@@ -248,6 +254,4 @@ class LineItemServiceClient implements LineItemServiceInterface
             );
         }
     }
-
-
 }
