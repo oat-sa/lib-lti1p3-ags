@@ -217,15 +217,17 @@ class LineItem implements LineItemInterface
             ? $this->endDateTime->format(DateTimeInterface::ATOM)
             : null;
 
-        return [
-            'id' => $this->identifier,
-            'startDateTime' => $startDateTime,
-            'endDateTime' => $endDateTime,
-            'scoreMaximum' => $this->scoreMaximum,
-            'label' => $this->label,
-            'tag' => $this->tag,
-            'resourceId' => $this->resourceIdentifier,
-            'resourceLinkId' => $this->resourceLinkIdentifier
-        ];
+        return array_filter(
+            [
+                'id' => $this->identifier,
+                'startDateTime' => $startDateTime,
+                'endDateTime' => $endDateTime,
+                'scoreMaximum' => $this->scoreMaximum,
+                'label' => $this->label,
+                'tag' => $this->tag,
+                'resourceId' => $this->resourceIdentifier,
+                'resourceLinkId' => $this->resourceLinkIdentifier
+            ]
+        );
     }
 }
