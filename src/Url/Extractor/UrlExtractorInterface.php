@@ -22,9 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Url\Extractor;
 
-interface UrlParameterExtractorInterface
+interface UrlExtractorInterface
 {
-    public const DEFAULT_SPLIT_PATTERN = '/lineitems';
-
-    public function extract(string $url, string $splitPattern = self::DEFAULT_SPLIT_PATTERN): UrlParameterExtractorResult;
+    public function extract(string $url, ?string $removableUrlPathSuffix = null): string;
 }

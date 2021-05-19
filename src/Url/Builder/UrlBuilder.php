@@ -29,16 +29,19 @@ class UrlBuilder implements UrlBuilderInterface
     /**
      * @throw InvalidArgumentException
      */
-    public function build(string $baseUrl, ?string $urlSuffix = null, array $urlQueryParameters = []): string
-    {
-        $parsedUrl = parse_url($baseUrl);
+    public function build(
+        string $url,
+        ?string $additionalUrlPathSuffix = null,
+        array $additionalUrlQueryParameters = []
+    ): string {
+        $parsedUrl = parse_url($url);
 
         if (false === $parsedUrl) {
-            throw new InvalidArgumentException(sprintf('Malformed url %s', $baseUrl));
+            throw new InvalidArgumentException(sprintf('Malformed url %s', $url));
         }
 
         parse_str($parsedUrl['query'] ?? '', $parsedQueryParameters);
-        $queryString = http_build_query(array_merge($parsedQueryParameters, $urlQueryParameters));
+        $queryString = http_build_query(array_merge($parsedQueryParameters, $additionalUrlQueryParameters));
 
         $username = $parsedUrl['user'] ?? '';
         $password = isset($parsedUrl['pass']) ? ':' . $parsedUrl['pass']  : '';
@@ -50,7 +53,7 @@ class UrlBuilder implements UrlBuilderInterface
             $parsedUrl['host'],
             isset($parsedUrl['port']) ? ':' . $parsedUrl['port'] : '',
             $parsedUrl['path'],
-            !empty($urlSuffix) ? '/' . $urlSuffix : '',
+            !empty($additionalUrlPathSuffix) ? '/' . $additionalUrlPathSuffix : '',
             !empty($queryString) ? '?' . $queryString : '',
             isset($parsedUrl['fragment']) ? '#' . $parsedUrl['fragment'] : ''
         );

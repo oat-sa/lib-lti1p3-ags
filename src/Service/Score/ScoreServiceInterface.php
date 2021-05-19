@@ -24,6 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Service\Score;
 
 interface ScoreServiceInterface
 {
+    public const NAME = 'AGS score';
     public const AUTHORIZATION_SCOPE_SCORE = 'https://purl.imsglobal.org/spec/lti-ags/scope/score';
     public const CONTENT_TYPE_SCORE = 'application/vnd.ims.lis.v1.score+json';
 }

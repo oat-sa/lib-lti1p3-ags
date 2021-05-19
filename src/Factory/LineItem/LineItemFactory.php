@@ -29,6 +29,9 @@ use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
 class LineItemFactory implements LineItemFactoryInterface
 {
+    /**
+     * @throws InvalidArgumentException
+     */
     public function create(array $data): LineItemInterface
     {
         $scoreMaximum = $data['scoreMaximum'] ?? null;

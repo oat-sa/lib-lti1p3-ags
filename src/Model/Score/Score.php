@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
@@ -24,6 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Model\Score;
 
 use Carbon\Carbon;
 use DateTimeInterface;
+use InvalidArgumentException;
 
 /**
  * @see https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service
@@ -31,16 +32,16 @@ use DateTimeInterface;
 class Score implements ScoreInterface
 {
     /** @var string */
-    private $userId;
+    private $userIdentifier;
 
     /** @var string */
-    private $contextId;
+    private $activityProgressStatus;
 
     /** @var string */
-    private $lineItemId;
+    private $gradingProgressStatus;
 
     /** @var string|null */
-    private $identifier;
+    private $lineItemIdentifier;
 
     /** @var float|null */
     private $scoreGiven;
@@ -54,74 +55,36 @@ class Score implements ScoreInterface
     /** @var DateTimeInterface */
     private $timestamp;
 
-    /** @var string */
-    private $activityProgressStatus;
-
-    /** @var string */
-    private $gradingProgressStatus;
-
     public function __construct(
-        string $userId,
-        string $contextId,
-        string $lineItemId,
-        ?string $identifier = null,
+        string $userIdentifier,
+        string $activityProgressStatus = self::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
+        string $gradingProgressStatus = self::GRADING_PROGRESS_STATUS_NOT_READY,
+        ?string $lineItemIdentifier = null,
         ?float $scoreGiven = null,
         ?float $scoreMaximum = null,
         ?string $comment = null,
-        ?DateTimeInterface $timestamp = null,
-        string $activityProgressStatus = self::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
-        string $gradingProgressStatus = self::GRADING_PROGRESS_STATUS_NOT_READY
+        ?DateTimeInterface $timestamp = null
     ) {
-        $this->userId = $userId;
-        $this->contextId = $contextId;
-        $this->lineItemId = $lineItemId;
-        $this->identifier = $identifier;
+        $this->userIdentifier = $userIdentifier;
+        $this->activityProgressStatus = $activityProgressStatus;
+        $this->gradingProgressStatus = $gradingProgressStatus;
+        $this->lineItemIdentifier = $lineItemIdentifier;
         $this->scoreGiven = $scoreGiven;
         $this->scoreMaximum = $scoreMaximum;
         $this->comment = $comment;
         $this->timestamp = $timestamp ?? Carbon::now();
-        $this->activityProgressStatus = $activityProgressStatus;
-        $this->gradingProgressStatus = $gradingProgressStatus;
     }
 
-    public function getIdentifier(): ?string
+    public function getUserIdentifier(): string
     {
-        return $this->identifier;
+        return $this->userIdentifier;
     }
 
-    public function getUserId(): string
+    public function setUserIdentifier(string $userIdentifier): ScoreInterface
     {
-        return $this->userId;
-    }
+        $this->userIdentifier = $userIdentifier;
 
-    public function getContextId(): string
-    {
-        return $this->contextId;
-    }
-
-    public function getLineItemId(): string
-    {
-        return $this->lineItemId;
-    }
-
-    public function getScoreGiven(): ?float
-    {
-        return $this->scoreGiven;
-    }
-
-    public function getScoreMaximum(): ?float
-    {
-        return $this->scoreMaximum;
-    }
-
-    public function getComment(): ?string
-    {
-        return $this->comment;
-    }
-
-    public function getTimestamp(): DateTimeInterface
-    {
-        return $this->timestamp;
+        return $this;
     }
 
     public function getActivityProgressStatus(): string
@@ -129,8 +92,115 @@ class Score implements ScoreInterface
         return $this->activityProgressStatus;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function setActivityProgressStatus(string $activityProgressStatus): ScoreInterface
+    {
+        if (!in_array($activityProgressStatus, self::SUPPORTED_ACTIVITY_PROGRESS_STATUSES)) {
+            throw new InvalidArgumentException(
+                sprintf('Score activity progress status %s is not supported', $activityProgressStatus)
+            );
+        }
+
+        $this->activityProgressStatus = $activityProgressStatus;
+
+        return $this;
+    }
+
     public function getGradingProgressStatus(): string
     {
         return $this->gradingProgressStatus;
+    }
+
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function setGradingProgressStatus(string $gradingProgressStatus): ScoreInterface
+    {
+        if (!in_array($gradingProgressStatus, self::SUPPORTED_GRADING_PROGRESS_STATUSES)) {
+            throw new InvalidArgumentException(
+                sprintf('Score grading progress status %s is not supported', $gradingProgressStatus)
+            );
+        }
+
+        $this->gradingProgressStatus = $gradingProgressStatus;
+
+        return $this;
+    }
+
+    public function getLineItemIdentifier(): ?string
+    {
+        return $this->lineItemIdentifier;
+    }
+
+    public function setLineItemIdentifier(?string $lineItemIdentifier): ScoreInterface
+    {
+        $this->lineItemIdentifier = $lineItemIdentifier;
+
+        return $this;
+    }
+
+    public function getScoreGiven(): ?float
+    {
+        return $this->scoreGiven;
+    }
+
+    public function setScoreGiven(?float $scoreGiven): ScoreInterface
+    {
+        $this->scoreGiven = $scoreGiven;
+
+        return $this;
+    }
+
+    public function getScoreMaximum(): ?float
+    {
+        return $this->scoreMaximum;
+    }
+
+    public function setScoreMaximum(?float $scoreMaximum): ScoreInterface
+    {
+        $this->scoreMaximum = $scoreMaximum;
+
+        return $this;
+    }
+
+    public function getComment(): ?string
+    {
+        return $this->comment;
+    }
+
+    public function setComment(?string $comment): ScoreInterface
+    {
+        $this->comment = $comment;
+
+        return $this;
+    }
+
+    public function getTimestamp(): DateTimeInterface
+    {
+        return $this->timestamp;
+    }
+
+    public function setTimestamp(DateTimeInterface $timestamp): ScoreInterface
+    {
+        $this->timestamp = $timestamp;
+
+        return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return array_filter(
+            [
+                'userId' => $this->userIdentifier,
+                'activityProgress' => $this->activityProgressStatus,
+                'gradingProgress' => $this->gradingProgressStatus,
+                'scoreGiven' => $this->scoreGiven,
+                'scoreMaximum' => $this->scoreMaximum,
+                'comment' => $this->comment,
+                'timestamp' => $this->timestamp->format(DateTimeInterface::ATOM),
+            ]
+        );
     }
 }

@@ -26,11 +26,16 @@ use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Score\Normalizer\ScoreNormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\Score\Normalizer\ScoreNormalizerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\Score\ScoreSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\Score\ScoreSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\Score\ScoreServiceInterface;
+use OAT\Library\Lti1p3Ags\Url\Builder\UrlBuilder;
+use OAT\Library\Lti1p3Ags\Url\Builder\UrlBuilderInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
+use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
 use OAT\Library\Lti1p3Core\Service\Client\ServiceClient;
 use OAT\Library\Lti1p3Core\Service\Client\ServiceClientInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -38,53 +43,23 @@ use Throwable;
 
 class ScoreServiceClient implements ScoreServiceInterface
 {
-    /** @var ServiceClientInterface */
+    /** @var LtiServiceClientInterface */
     private $client;
 
-    /** @var ScoreNormalizerInterface */
-    private $normalizer;
+    /** @var ScoreSerializerInterface */
+    private $serializer;
+
+    /** @var UrlBuilderInterface */
+    private $builder;
 
     public function __construct(
-        ServiceClientInterface $client = null,
-        ScoreNormalizerInterface $normalizer = null
+        LtiServiceClientInterface $client,
+        ?ScoreSerializerInterface $serializer = null,
+        ?UrlBuilderInterface $builder = null,
     ) {
-        $this->client = $client ?? new ServiceClient();
-        $this->normalizer = $normalizer ?? new ScoreNormalizer();
-    }
-
-    /**
-     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service
-     * @throws LtiExceptionInterface
-     */
-    public function publishForPayload(
-        RegistrationInterface $registration,
-        LtiMessagePayloadInterface $payload,
-        ScoreInterface $score
-    ): ResponseInterface {
-        try {
-            if (null === $payload->getAgs()) {
-                throw new InvalidArgumentException('Provided payload does not contain AGS claim');
-            }
-
-            if (null === $payload->getAgs()->getLineItemUrl()) {
-                throw new InvalidArgumentException('Provided payload AGS claim does not contain a line item url');
-            }
-
-            return $this->publish(
-                $registration,
-                $score,
-                $payload->getAgs()->getLineItemUrl(),
-                $payload->getAgs()->getScopes()
-            );
-        } catch (LtiExceptionInterface $exception) {
-            throw $exception;
-        } catch (Throwable $exception) {
-            throw new LtiException(
-                sprintf('Cannot publish score for payload: %s', $exception->getMessage()),
-                $exception->getCode(),
-                $exception
-            );
-        }
+        $this->client = $client;
+        $this->serializer = $serializer ?? new ScoreSerializer();
+        $this->builder = $builder ?? new UrlBuilder();
     }
 
     /**
@@ -94,26 +69,25 @@ class ScoreServiceClient implements ScoreServiceInterface
     public function publish(
         RegistrationInterface $registration,
         ScoreInterface $score,
-        string $lineItemUrl,
-        array $scopes = null
-    ): ResponseInterface {
+        string $lineItemUrl
+    ): bool {
         try {
-            if (!empty($scopes) && !in_array(static::AUTHORIZATION_SCOPE_SCORE, $scopes, true)) {
-                throw new InvalidArgumentException(
-                    sprintf('The mandatory scope %s is missing', self::AUTHORIZATION_SCOPE_SCORE)
-                );
-            }
+            $scoreUrl = $this->builder->build($lineItemUrl, 'scores');
 
-            return $this->client->request(
+            $response =  $this->client->request(
                 $registration,
                 'POST',
-                $this->buildEndpointUrl($lineItemUrl),
+                $scoreUrl,
                 [
                     'headers' => ['Content-Type' => static::CONTENT_TYPE_SCORE],
-                    'body' => json_encode($this->normalizer->normalize($score))
+                    'body' => json_encode($this->serializer->serialize($score)),
                 ],
-                $scopes ?? [static::AUTHORIZATION_SCOPE_SCORE]
+                [
+                    static::AUTHORIZATION_SCOPE_SCORE,
+                ]
             );
+
+            return in_array($response->getStatusCode(), [200, 201, 202, 204]);
         } catch (LtiExceptionInterface $exception) {
             throw $exception;
         } catch (Throwable $exception) {
@@ -123,27 +97,5 @@ class ScoreServiceClient implements ScoreServiceInterface
                 $exception
             );
         }
-    }
-
-    private function buildEndpointUrl(string $lineItemUrl): string
-    {
-        $parsedUrl = parse_url($lineItemUrl);
-
-        $parsedUrl['path'] = rtrim($parsedUrl['path'], '/');
-        $parsedUrl['path'] = rtrim($parsedUrl['path'], '/lineitem');
-
-        $username = $parsedUrl['user'] ?? '';
-        $password = isset($parsedUrl['pass']) ? ':' . $parsedUrl['pass']  : '';
-
-        return sprintf(
-            '%s%s%s%s%s%s%s',
-            isset($parsedUrl['scheme']) ? $parsedUrl['scheme'] . '://' : '',
-            $username !== '' ? $username . $password . '@' : '',
-            $parsedUrl['host'],
-            isset($parsedUrl['port']) ? ':' . $parsedUrl['port'] : '',
-            $parsedUrl['path'],
-            '/scores',
-            isset($parsedUrl['query']) ? '?' . $parsedUrl['query'] : ''
-        );
     }
 }

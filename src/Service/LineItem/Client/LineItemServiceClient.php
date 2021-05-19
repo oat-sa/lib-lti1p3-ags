@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem\Client;
 
+use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
@@ -198,14 +199,17 @@ class LineItemServiceClient implements LineItemServiceInterface
      */
     public function updateLineItem(
         RegistrationInterface $registration,
-        LineItemInterface $lineItem,
-        string $lineItemUrl
+        LineItemInterface $lineItem
     ): LineItemInterface {
         try {
+            if (null === $lineItem->getIdentifier()) {
+                throw new InvalidArgumentException('Provided line item does not have an identifier');
+            }
+
             $response = $this->client->request(
                 $registration,
                 'PUT',
-                $lineItemUrl,
+                $lineItem->getIdentifier(),
                 [
                     'headers' => [
                         'Content-Type' => static::CONTENT_TYPE_LINE_ITEM,
@@ -233,10 +237,10 @@ class LineItemServiceClient implements LineItemServiceInterface
      * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service-scope-and-allowed-http-methods
      * @throws LtiExceptionInterface
      */
-    public function deleteLineItem(RegistrationInterface $registration, string $lineItemUrl): void
+    public function deleteLineItem(RegistrationInterface $registration, string $lineItemUrl): bool
     {
         try {
-            $this->client->request(
+            $response = $this->client->request(
                 $registration,
                 'DELETE',
                 $lineItemUrl,
@@ -245,6 +249,8 @@ class LineItemServiceClient implements LineItemServiceInterface
                     static::AUTHORIZATION_SCOPE_LINE_ITEM,
                 ]
             );
+
+            return in_array($response->getStatusCode(), [200, 201, 202, 204]);
         } catch (LtiExceptionInterface $exception) {
             throw $exception;
         } catch (Throwable $exception) {

@@ -24,31 +24,38 @@ namespace OAT\Library\Lti1p3Ags\Url\Extractor;
 
 use InvalidArgumentException;
 
-class UrlParameterExtractor implements UrlParameterExtractorInterface
+class UrlExtractor implements UrlExtractorInterface
 {
     /**
      * @throw InvalidArgumentException
      */
-    public function extract(string $url, string $splitPattern = self::DEFAULT_SPLIT_PATTERN): UrlParameterExtractorResult
+    public function extract(string $url, ?string $removableUrlPathSuffix = null): string
     {
         $parsedUrl = parse_url($url);
+
         if (false === $parsedUrl) {
             throw new InvalidArgumentException(sprintf('Malformed url %s', $url));
         }
-        $path = trim($parsedUrl['path'], '/');
 
-        if (false === strpos($path, $splitPattern)){
-            return new UrlParameterExtractorResult();
+        $path = $parsedUrl['path'];
+
+        if (null !== $removableUrlPathSuffix) {
+            $path = rtrim($path, '/' . $removableUrlPathSuffix);
         }
 
-        $parts = explode($splitPattern, $path);
+        $username = $parsedUrl['user'] ?? '';
+        $password = isset($parsedUrl['pass']) ? ':' . $parsedUrl['pass']  : '';
 
-        $contextParts = explode('/', $parts[0]);
-        $lineItemParts = explode('/', trim($parts[1] ?? '', '/'));
-
-        return new UrlParameterExtractorResult(
-            end($contextParts),
-            current($lineItemParts)
+        return sprintf(
+            '%s%s%s%s%s%s%s%s',
+            isset($parsedUrl['scheme']) ? $parsedUrl['scheme'] . '://' : '',
+            $username !== '' ? $username . $password . '@' : '',
+            $parsedUrl['host'],
+            isset($parsedUrl['port']) ? ':' . $parsedUrl['port'] : '',
+            $path,
+            !empty($additionalUrlSuffix) ? '/' . $additionalUrlSuffix : '',
+            isset($parsedUrl['query']) ? '?' . $parsedUrl['query'] : '',
+            isset($parsedUrl['fragment']) ? '#' . $parsedUrl['fragment'] : ''
         );
     }
 }

@@ -24,5 +24,9 @@ namespace OAT\Library\Lti1p3Ags\Url\Builder;
 
 interface UrlBuilderInterface
 {
-    public function build(string $baseUrl, ?string $urlSuffix = null, array $urlQueryParameters = []): string;
+    public function build(
+        string $url,
+        ?string $additionalUrlPathSuffix = null,
+        array $additionalUrlQueryParameters = []
+    ): string;
 }
