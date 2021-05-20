@@ -90,8 +90,8 @@ class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequest
         parse_str($request->getUri()->getQuery(), $parameters);
 
         $lineItemCollection = $this->repository->findBy(
-            $parameters['resource_link_id'] ?? null,
             $parameters['resource_id'] ?? null,
+            $parameters['resource_link_id'] ?? null,
             $parameters['tag'] ?? null,
             array_key_exists('limit', $parameters) ? intval($parameters['limit']) : null,
             array_key_exists('offset', $parameters) ? intval($parameters['offset']) : null
