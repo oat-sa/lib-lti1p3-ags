@@ -15,18 +15,17 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\LineItem;
+namespace OAT\Library\Lti1p3Ags\Service\Result;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
-
-interface LineItemCollectionSerializerInterface
+interface ResultServiceInterface
 {
-    public function serialize(LineItemCollectionInterface $collection): string;
-
-    public function deserialize(string $data): LineItemCollectionInterface;
+    public const NAME = 'AGS result';
+    public const AUTHORIZATION_SCOPE_RESULT_READ_ONLY = 'https://purl.imsglobal.org/spec/lti-ags/scope/result.readonly';
+    public const CONTENT_TYPE_RESULT_CONTAINER = 'application/vnd.ims.lis.v2.resultcontainer+json';
+    public const HEADER_LINK = 'Link';
 }

@@ -20,13 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\LineItem;
+namespace OAT\Library\Lti1p3Ags\Factory\Result;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
 
-interface LineItemCollectionSerializerInterface
+interface ResultFactoryInterface
 {
-    public function serialize(LineItemCollectionInterface $collection): string;
-
-    public function deserialize(string $data): LineItemCollectionInterface;
+    public function create(array $data): ResultInterface;
 }

@@ -20,57 +20,57 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model\LineItem;
+namespace OAT\Library\Lti1p3Ags\Model\Result;
 
 use OAT\Library\Lti1p3Core\Util\Collection\Collection;
 use OAT\Library\Lti1p3Core\Util\Collection\CollectionInterface;
 
 /**
- * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
+ * @see https://www.imsglobal.org/spec/lti-ags/v2p0#result-service
  */
-class LineItemCollection implements LineItemCollectionInterface
+class ResultCollection implements ResultCollectionInterface
 {
-    /** @var LineItemInterface[]|CollectionInterface */
-    private $lineItems;
+    /** @var ResultInterface[]|CollectionInterface */
+    private $results;
 
     /** @var bool */
     private $hasNext;
 
-    public function __construct(array $lineItems = [], bool $hasNext = false)
+    public function __construct(array $results = [], bool $hasNext = false)
     {
-        $this->lineItems = new Collection();
+        $this->results = new Collection();
         $this->hasNext = $hasNext;
 
-        foreach ($lineItems as $lineItem) {
-            $this->add($lineItem);
+        foreach ($results as $result) {
+            $this->add($result);
         }
     }
 
     public function all(): array
     {
-        return $this->lineItems->all();
+        return $this->results->all();
     }
 
-    public function has(string $lineItemIdentifier): bool
+    public function has(string $resultIdentifier): bool
     {
-        return $this->lineItems->has($lineItemIdentifier);
+        return $this->results->has($resultIdentifier);
     }
 
-    public function get(string $lineItemIdentifier): ?LineItemInterface
+    public function get(string $resultIdentifier): ?ResultInterface
     {
-        return $this->lineItems->get($lineItemIdentifier);
+        return $this->results->get($resultIdentifier);
     }
 
-    public function add(LineItemInterface $lineItem): LineItemCollectionInterface
+    public function add(ResultInterface $result): ResultCollectionInterface
     {
-        $this->lineItems->set($lineItem->getIdentifier(), $lineItem);
+        $this->results->set($result->getIdentifier(), $result);
 
         return $this;
     }
 
-    public function remove(string $lineItemIdentifier): LineItemCollectionInterface
+    public function remove(string $resultIdentifier): ResultCollectionInterface
     {
-        $this->lineItems->remove($lineItemIdentifier);
+        $this->results->remove($resultIdentifier);
 
         return $this;
     }

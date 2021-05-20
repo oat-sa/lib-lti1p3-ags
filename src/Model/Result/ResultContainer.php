@@ -20,28 +20,28 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model\LineItem;
+namespace OAT\Library\Lti1p3Ags\Model\Result;
 
 /**
- * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
+ * @see https://www.imsglobal.org/spec/lti-ags/v2p0#result-service
  */
-class LineItemContainer implements LineItemContainerInterface
+class ResultContainer implements ResultContainerInterface
 {
-    /** @var LineItemCollectionInterface */
-    private $lineItems;
+    /** @var ResultCollectionInterface */
+    private $results;
 
     /** @var string|null */
     private $relationLink;
 
-    public function __construct(LineItemCollectionInterface $lineItems, ?string $relationLink = null)
+    public function __construct(ResultCollectionInterface $results, ?string $relationLink = null)
     {
-        $this->lineItems = $lineItems;
+        $this->results = $results;
         $this->relationLink = $relationLink;
     }
 
-    public function getLineItems(): LineItemCollectionInterface
+    public function getResults(): ResultCollectionInterface
     {
-        return $this->lineItems;
+        return $this->results;
     }
 
     public function getRelationLink(): ?string
@@ -49,7 +49,7 @@ class LineItemContainer implements LineItemContainerInterface
         return $this->relationLink;
     }
 
-    public function setRelationLink(?string $relationLink): LineItemContainerInterface
+    public function setRelationLink(?string $relationLink): ResultContainerInterface
     {
         $this->relationLink = $relationLink;
 

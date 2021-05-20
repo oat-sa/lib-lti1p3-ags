@@ -20,49 +20,42 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\LineItem;
+namespace OAT\Library\Lti1p3Ags\Serializer\Result;
 
-use OAT\Library\Lti1p3Ags\Factory\LineItem\LineItemFactory;
-use OAT\Library\Lti1p3Ags\Factory\LineItem\LineItemFactoryInterface;
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollection;
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
+use OAT\Library\Lti1p3Ags\Factory\Result\ResultFactory;
+use OAT\Library\Lti1p3Ags\Factory\Result\ResultFactoryInterface;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 
-class LineItemCollectionSerializer implements LineItemCollectionSerializerInterface
+class ResultSerializer implements ResultSerializerInterface
 {
-    /** @var LineItemFactoryInterface */
+    /** @var ResultFactoryInterface */
     private $factory;
 
-    public function __construct(?LineItemFactoryInterface $factory = null)
+    public function __construct(?ResultFactoryInterface $factory = null)
     {
-        $this->factory = $factory ?? new LineItemFactory();
+        $this->factory = $factory ?? new ResultFactory();
     }
 
-    public function serialize(LineItemCollectionInterface $collection): string
+    public function serialize(ResultInterface $result): string
     {
-        return json_encode($collection);
+        return json_encode($result);
     }
 
     /**
      * @throws LtiExceptionInterface
      */
-    public function deserialize(string $data): LineItemCollectionInterface
+    public function deserialize(string $data): ResultInterface
     {
         $data = json_decode($data, true);
 
         if (JSON_ERROR_NONE !== json_last_error()) {
             throw new LtiException(
-                sprintf('Error during line item collection deserialization: %s', json_last_error_msg())
+                sprintf('Error during result deserialization: %s', json_last_error_msg())
             );
         }
 
-        $collection = new LineItemCollection();
-
-        foreach ($data as $lineItemData) {
-            $collection->add($this->factory->create($lineItemData));
-        }
-
-        return $collection;
+        return $this->factory->create($data);
     }
 }

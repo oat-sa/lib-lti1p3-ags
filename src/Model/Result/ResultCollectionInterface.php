@@ -20,13 +20,25 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\LineItem;
+namespace OAT\Library\Lti1p3Ags\Model\Result;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
+use JsonSerializable;
 
-interface LineItemCollectionSerializerInterface
+/**
+ * @see https://www.imsglobal.org/spec/lti-ags/v2p0#result-service
+ */
+interface ResultCollectionInterface extends JsonSerializable
 {
-    public function serialize(LineItemCollectionInterface $collection): string;
+    /** @return ResultInterface[] */
+    public function all(): array;
 
-    public function deserialize(string $data): LineItemCollectionInterface;
+    public function has(string $resultIdentifier): bool;
+
+    public function get(string $resultIdentifier): ?ResultInterface;
+
+    public function add(ResultInterface $result): ResultCollectionInterface;
+
+    public function remove(string $resultIdentifier): ResultCollectionInterface;
+
+    public function hasNext(): bool;
 }
