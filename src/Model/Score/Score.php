@@ -68,8 +68,9 @@ class Score implements ScoreInterface
         ?string $comment = null,
         ?DateTimeInterface $timestamp = null
     ) {
-        $this->setActivityProgressStatus($activityProgressStatus);
-        $this->setGradingProgressStatus($gradingProgressStatus);
+        $this
+            ->setActivityProgressStatus($activityProgressStatus)
+            ->setGradingProgressStatus($gradingProgressStatus);
 
         $this->userIdentifier = $userIdentifier;
         $this->lineItemIdentifier = $lineItemIdentifier;
