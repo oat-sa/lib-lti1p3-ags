@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Factory\Score;
 
-use Carbon\Traits\Creator;
+use Carbon\Carbon;
 use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\Score\Score;
 use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
