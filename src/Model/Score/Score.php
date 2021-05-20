@@ -55,6 +55,9 @@ class Score implements ScoreInterface
     /** @var DateTimeInterface */
     private $timestamp;
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function __construct(
         string $userIdentifier,
         string $activityProgressStatus = self::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
