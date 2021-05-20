@@ -55,7 +55,7 @@ class ScoreServiceClient implements ScoreServiceInterface
     public function __construct(
         LtiServiceClientInterface $client,
         ?ScoreSerializerInterface $serializer = null,
-        ?UrlBuilderInterface $builder = null,
+        ?UrlBuilderInterface $builder = null
     ) {
         $this->client = $client;
         $this->serializer = $serializer ?? new ScoreSerializer();
