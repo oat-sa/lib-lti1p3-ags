@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Factory\Score;
 
+use Carbon\Traits\Creator;
 use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\Score\Score;
 use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
@@ -47,7 +48,7 @@ class ScoreFactory implements ScoreFactoryInterface
             $data['scoreGiven'] ?? null,
             $data['scoreMaximum'] ?? null,
             $data['comment'] ?? null,
-            $data['timestamp'] ?? null
+            isset($data['timestamp']) ? new Carbon($data['timestamp']) : null
         );
     }
 }
