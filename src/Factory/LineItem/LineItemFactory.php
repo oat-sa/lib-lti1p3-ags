@@ -69,8 +69,8 @@ class LineItemFactory implements LineItemFactoryInterface
             $data['resourceId'] ?? null,
             $data['resourceLinkId'] ?? null,
             $data['tag'] ?? null,
-            $data['startDateTime'] ? new Carbon($data['startDateTime']) : null,
-            $data['endDateTime'] ? new Carbon($data['endDateTime']) : null,
+            isset($data['startDateTime']) ? new Carbon($data['startDateTime']) : null,
+            isset($data['endDateTime']) ? new Carbon($data['endDateTime']) : null,
             $additionalProperties
         );
     }
