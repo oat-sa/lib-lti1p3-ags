@@ -79,8 +79,10 @@ class ScoreServiceClient implements ScoreServiceInterface
                 'POST',
                 $scoreUrl,
                 [
-                    'headers' => ['Content-Type' => static::CONTENT_TYPE_SCORE],
-                    'body' => json_encode($this->serializer->serialize($score)),
+                    'headers' => [
+                        'Content-Type' => static::CONTENT_TYPE_SCORE,
+                    ],
+                    'body' => $this->serializer->serialize($score),
                 ],
                 [
                     static::AUTHORIZATION_SCOPE_SCORE,

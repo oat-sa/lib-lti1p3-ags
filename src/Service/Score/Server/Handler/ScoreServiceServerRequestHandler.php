@@ -24,6 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Service\Score\Server\Handler;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
+use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Repository\ScoreRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Score\ScoreSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\Score\ScoreSerializerInterface;
@@ -43,8 +44,11 @@ use Psr\Log\NullLogger;
  */
 class ScoreServiceServerRequestHandler implements LtiServiceServerRequestHandlerInterface, ScoreServiceInterface
 {
+    /** @var LineItemRepositoryInterface */
+    private $lineItemRepository;
+
     /** @var ScoreRepositoryInterface */
-    private $repository;
+    private $scoreRepository;
 
     /** @var ScoreSerializerInterface */
     private $serializer;
@@ -59,13 +63,15 @@ class ScoreServiceServerRequestHandler implements LtiServiceServerRequestHandler
     protected $logger;
 
     public function __construct(
-        ScoreRepositoryInterface $repository,
+        LineItemRepositoryInterface $lineItemRepository,
+        ScoreRepositoryInterface $scoreRepository,
         ?ScoreSerializerInterface $serializer = null,
         ?ResponseFactory $factory = null,
         ?UrlExtractorInterface $extractor = null,
         ?LoggerInterface $logger = null
     ) {
-        $this->repository = $repository;
+        $this->lineItemRepository = $lineItemRepository;
+        $this->scoreRepository = $scoreRepository;
         $this->serializer = $serializer ?? new ScoreSerializer();
         $this->factory = $factory ?? new HttplugFactory();
         $this->extractor = $extractor ?? new UrlExtractor();
@@ -103,6 +109,16 @@ class ScoreServiceServerRequestHandler implements LtiServiceServerRequestHandler
     ): ResponseInterface {
         $lineItemIdentifier = $this->extractor->extract($request->getUri()->__toString(), 'scores');
 
+        $lineItem = $this->lineItemRepository->find($lineItemIdentifier);
+
+        if (null === $lineItem) {
+            $message = sprintf('Cannot find line item with id %s', $lineItemIdentifier);
+
+            $this->logger->error($message);
+
+            return $this->factory->createResponse(404, null, [], $message);
+        }
+
         try {
             $score = $this->serializer->deserialize((string)$request->getBody());
         } catch (LtiExceptionInterface $exception) {
@@ -111,8 +127,8 @@ class ScoreServiceServerRequestHandler implements LtiServiceServerRequestHandler
             return $this->factory->createResponse(400, null, [], $exception->getMessage());
         }
 
-        $this->repository->save(
-            $score->setLineItemIdentifier($lineItemIdentifier)
+        $this->scoreRepository->save(
+            $score->setLineItemIdentifier($lineItem->getIdentifier())
         );
 
         return $this->factory->createResponse(204);
