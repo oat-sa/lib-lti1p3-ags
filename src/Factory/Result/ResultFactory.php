@@ -49,9 +49,9 @@ class ResultFactory implements ResultFactoryInterface
             $userIdentifier,
             $lineItemIdentifier,
             $data['id'] ?? null,
-            (float)$data['resultScore'] ?? null,
-            (float)$data['resultMaximum'] ?? null,
-            $data['comment'] ?? null,
+            isset($data['resultScore']) ? (float)$data['resultScore'] : null,
+            isset($data['resultMaximum']) ? (float)$data['resultMaximum'] : null,
+            $data['comment'] ?? null
         );
     }
 }
