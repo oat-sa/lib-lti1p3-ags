@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\Result;
 
+use JsonSerializable;
+
 /**
  * @see https://www.imsglobal.org/spec/lti-ags/v2p0#result-service
  */
