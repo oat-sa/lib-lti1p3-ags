@@ -25,7 +25,7 @@ namespace OAT\Library\Lti1p3Ags\Model\Result;
 /**
  * @see https://www.imsglobal.org/spec/lti-ags/v2p0#result-service
  */
-interface ResultInterface
+interface ResultInterface extends JsonSerializable
 {
     public function getUserIdentifier(): string;
 

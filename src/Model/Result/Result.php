@@ -132,4 +132,18 @@ class Result implements ResultInterface
 
         return $this;
     }
+
+    public function jsonSerialize(): array
+    {
+        return array_filter(
+            [
+                'id' => $this->identifier,
+                'scoreOf' => $this->lineItemIdentifier,
+                'userId' => $this->userIdentifier,
+                'resultScore' => $this->resultScore,
+                'resultMaximum' => $this->resultMaximum,
+                'comment' => $this->comment,
+            ]
+        );
+    }
 }
