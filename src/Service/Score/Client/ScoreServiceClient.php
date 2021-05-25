@@ -74,7 +74,7 @@ class ScoreServiceClient implements ScoreServiceInterface
         try {
             $scoreUrl = $this->builder->build($lineItemUrl, 'scores');
 
-            $response =  $this->client->request(
+            $response = $this->client->request(
                 $registration,
                 'POST',
                 $scoreUrl,
