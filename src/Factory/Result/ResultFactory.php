@@ -45,13 +45,28 @@ class ResultFactory implements ResultFactoryInterface
             throw new InvalidArgumentException('Missing mandatory scoreOf');
         }
 
+        $additionalProperties = array_diff_key(
+            $data,
+            array_flip(
+                [
+                    'id',
+                    'scoreOf',
+                    'userId',
+                    'resultScore',
+                    'resultMaximum',
+                    'comment',
+                ]
+            )
+        );
+
         return new Result(
             $userIdentifier,
             $lineItemIdentifier,
             $data['id'] ?? null,
             isset($data['resultScore']) ? (float)$data['resultScore'] : null,
             isset($data['resultMaximum']) ? (float)$data['resultMaximum'] : null,
-            $data['comment'] ?? null
+            $data['comment'] ?? null,
+            $additionalProperties
         );
     }
 }

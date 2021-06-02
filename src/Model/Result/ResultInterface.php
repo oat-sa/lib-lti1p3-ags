@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Model\Result;
 
 use JsonSerializable;
+use OAT\Library\Lti1p3Core\Util\Collection\CollectionInterface;
 
 /**
  * @see https://www.imsglobal.org/spec/lti-ags/v2p0#result-service
@@ -52,4 +53,8 @@ interface ResultInterface extends JsonSerializable
     public function getComment(): ?string;
 
     public function setComment(?string $comment): ResultInterface;
+
+    public function setAdditionalProperties(CollectionInterface $additionalProperties): ResultInterface;
+
+    public function getAdditionalProperties(): CollectionInterface;
 }

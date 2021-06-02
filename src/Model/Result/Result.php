@@ -22,6 +22,9 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\Result;
 
+use OAT\Library\Lti1p3Core\Util\Collection\Collection;
+use OAT\Library\Lti1p3Core\Util\Collection\CollectionInterface;
+
 /**
  * @see https://www.imsglobal.org/spec/lti-ags/v2p0#result-service
  */
@@ -45,13 +48,17 @@ class Result implements ResultInterface
     /** @var string|null */
     private $comment;
 
+    /** @var CollectionInterface */
+    private $additionalProperties;
+
     public function __construct(
         string $userIdentifier,
         string $lineItemIdentifier,
         ?string $identifier = null,
         ?float $resultScore = null,
         ?float $resultMaximum = null,
-        ?string $comment = null
+        ?string $comment = null,
+        array $additionalProperties = []
     ) {
         $this->userIdentifier = $userIdentifier;
         $this->lineItemIdentifier = $lineItemIdentifier;
@@ -59,6 +66,7 @@ class Result implements ResultInterface
         $this->resultScore = $resultScore;
         $this->resultMaximum = $resultMaximum;
         $this->comment = $comment;
+        $this->additionalProperties = (new Collection())->add($additionalProperties);
     }
 
     public function getUserIdentifier(): string
@@ -133,17 +141,32 @@ class Result implements ResultInterface
         return $this;
     }
 
+    public function getAdditionalProperties(): CollectionInterface
+    {
+        return $this->additionalProperties;
+    }
+
+    public function setAdditionalProperties(CollectionInterface $additionalProperties): ResultInterface
+    {
+        $this->additionalProperties = $additionalProperties;
+
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
         return array_filter(
-            [
-                'id' => $this->identifier,
-                'scoreOf' => $this->lineItemIdentifier,
-                'userId' => $this->userIdentifier,
-                'resultScore' => $this->resultScore,
-                'resultMaximum' => $this->resultMaximum,
-                'comment' => $this->comment,
-            ]
+            array_merge(
+                $this->additionalProperties->all(),
+                [
+                    'id' => $this->identifier,
+                    'scoreOf' => $this->lineItemIdentifier,
+                    'userId' => $this->userIdentifier,
+                    'resultScore' => $this->resultScore,
+                    'resultMaximum' => $this->resultMaximum,
+                    'comment' => $this->comment,
+                ]
+            )
         );
     }
 }

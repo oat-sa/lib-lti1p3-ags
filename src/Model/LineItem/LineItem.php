@@ -218,16 +218,19 @@ class LineItem implements LineItemInterface
             : null;
 
         return array_filter(
-            [
-                'id' => $this->identifier,
-                'startDateTime' => $startDateTime,
-                'endDateTime' => $endDateTime,
-                'scoreMaximum' => $this->scoreMaximum,
-                'label' => $this->label,
-                'tag' => $this->tag,
-                'resourceId' => $this->resourceIdentifier,
-                'resourceLinkId' => $this->resourceLinkIdentifier
-            ]
+            array_merge(
+                $this->additionalProperties->all(),
+                [
+                    'id' => $this->identifier,
+                    'startDateTime' => $startDateTime,
+                    'endDateTime' => $endDateTime,
+                    'scoreMaximum' => $this->scoreMaximum,
+                    'label' => $this->label,
+                    'tag' => $this->tag,
+                    'resourceId' => $this->resourceIdentifier,
+                    'resourceLinkId' => $this->resourceLinkIdentifier
+                ]
+            )
         );
     }
 }

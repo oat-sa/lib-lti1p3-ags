@@ -25,6 +25,8 @@ namespace OAT\Library\Lti1p3Ags\Model\Score;
 use Carbon\Carbon;
 use DateTimeInterface;
 use InvalidArgumentException;
+use OAT\Library\Lti1p3Core\Util\Collection\Collection;
+use OAT\Library\Lti1p3Core\Util\Collection\CollectionInterface;
 
 /**
  * @see https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service
@@ -55,6 +57,9 @@ class Score implements ScoreInterface
     /** @var DateTimeInterface */
     private $timestamp;
 
+    /** @var CollectionInterface */
+    private $additionalProperties;
+
     /**
      * @throws InvalidArgumentException
      */
@@ -66,7 +71,8 @@ class Score implements ScoreInterface
         ?float $scoreGiven = null,
         ?float $scoreMaximum = null,
         ?string $comment = null,
-        ?DateTimeInterface $timestamp = null
+        ?DateTimeInterface $timestamp = null,
+        array $additionalProperties = []
     ) {
         $this
             ->setActivityProgressStatus($activityProgressStatus)
@@ -78,6 +84,7 @@ class Score implements ScoreInterface
         $this->scoreMaximum = $scoreMaximum;
         $this->comment = $comment;
         $this->timestamp = $timestamp ?? Carbon::now();
+        $this->additionalProperties = (new Collection())->add($additionalProperties);
     }
 
     public function getUserIdentifier(): string
@@ -194,18 +201,33 @@ class Score implements ScoreInterface
         return $this;
     }
 
+    public function getAdditionalProperties(): CollectionInterface
+    {
+        return $this->additionalProperties;
+    }
+
+    public function setAdditionalProperties(CollectionInterface $additionalProperties): ScoreInterface
+    {
+        $this->additionalProperties = $additionalProperties;
+
+        return $this;
+    }
+
     public function jsonSerialize(): array
     {
         return array_filter(
-            [
-                'userId' => $this->userIdentifier,
-                'activityProgress' => $this->activityProgressStatus,
-                'gradingProgress' => $this->gradingProgressStatus,
-                'scoreGiven' => $this->scoreGiven,
-                'scoreMaximum' => $this->scoreMaximum,
-                'comment' => $this->comment,
-                'timestamp' => $this->timestamp->format(DateTimeInterface::ATOM),
-            ]
+            array_merge(
+                $this->additionalProperties->all(),
+                [
+                    'userId' => $this->userIdentifier,
+                    'activityProgress' => $this->activityProgressStatus,
+                    'gradingProgress' => $this->gradingProgressStatus,
+                    'scoreGiven' => $this->scoreGiven,
+                    'scoreMaximum' => $this->scoreMaximum,
+                    'comment' => $this->comment,
+                    'timestamp' => $this->timestamp->format(DateTimeInterface::ATOM),
+                ]
+            )
         );
     }
 }

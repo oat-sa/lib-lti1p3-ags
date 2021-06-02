@@ -24,6 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Model\Score;
 
 use DateTimeInterface;
 use JsonSerializable;
+use OAT\Library\Lti1p3Core\Util\Collection\CollectionInterface;
 
 /**
  * @see https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service
@@ -89,4 +90,8 @@ interface ScoreInterface extends JsonSerializable
     public function getTimestamp(): DateTimeInterface;
 
     public function setTimestamp(DateTimeInterface $timestamp): ScoreInterface;
+
+    public function getAdditionalProperties(): CollectionInterface;
+
+    public function setAdditionalProperties(CollectionInterface $additionalProperties): ScoreInterface;
 }

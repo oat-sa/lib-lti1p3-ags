@@ -40,6 +40,21 @@ class ScoreFactory implements ScoreFactoryInterface
             throw new InvalidArgumentException('Missing mandatory user identifier');
         }
 
+        $additionalProperties = array_diff_key(
+            $data,
+            array_flip(
+                [
+                    'userId',
+                    'activityProgress',
+                    'gradingProgress',
+                    'scoreGiven',
+                    'scoreMaximum',
+                    'comment',
+                    'timestamp',
+                ]
+            )
+        );
+
         return new Score(
             $userIdentifier,
             $data['activityProgress'] ?? ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
@@ -48,7 +63,8 @@ class ScoreFactory implements ScoreFactoryInterface
             $data['scoreGiven'] ?? null,
             $data['scoreMaximum'] ?? null,
             $data['comment'] ?? null,
-            isset($data['timestamp']) ? new Carbon($data['timestamp']) : null
+            isset($data['timestamp']) ? new Carbon($data['timestamp']) : null,
+            $additionalProperties
         );
     }
 }

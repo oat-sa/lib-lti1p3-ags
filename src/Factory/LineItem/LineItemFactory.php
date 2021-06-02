@@ -57,7 +57,7 @@ class LineItemFactory implements LineItemFactoryInterface
                     'resourceLinkId',
                     'tag',
                     'startDateTime',
-                    'endDateTime'
+                    'endDateTime',
                 ]
             )
         );
