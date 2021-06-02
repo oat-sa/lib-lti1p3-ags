@@ -24,6 +24,8 @@ namespace OAT\Library\Lti1p3Ags\Voter;
 
 interface ScopePermissionVoterInterface
 {
+    public static function getPermissions(array $scopes = []): array;
+
     public static function canReadLineItem(array $scopes = []): bool;
 
     public static function canWriteLineItem(array $scopes = []): bool;

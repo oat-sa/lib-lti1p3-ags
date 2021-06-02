@@ -28,6 +28,16 @@ use OAT\Library\Lti1p3Ags\Service\Score\ScoreServiceInterface;
 
 class ScopePermissionVoter implements ScopePermissionVoterInterface
 {
+    public static function getPermissions(array $scopes = []): array
+    {
+        return [
+            'canReadLineItem' => self::canReadLineItem($scopes),
+            'canWriteLineItem' => self::canWriteLineItem($scopes),
+            'canWriteScore' => self::canWriteScore($scopes),
+            'canReadResult' => self::canReadResult($scopes),
+        ];
+    }
+
     public static function canReadLineItem(array $scopes = []): bool
     {
         return in_array(LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY, $scopes)
