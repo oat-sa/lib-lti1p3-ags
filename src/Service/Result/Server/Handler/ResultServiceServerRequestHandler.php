@@ -120,7 +120,9 @@ class ResultServiceServerRequestHandler implements LtiServiceServerRequestHandle
         ServerRequestInterface $request,
         array $options = []
     ): ResponseInterface {
-        $lineItemIdentifier = $this->extractor->extract($request->getUri()->__toString(), 'results');
+        $lineItemIdentifier = current(
+            explode('?', $this->extractor->extract($request->getUri()->__toString(), 'results'))
+        );
 
         $lineItem = $this->lineItemRepository->find($lineItemIdentifier);
 
