@@ -146,7 +146,7 @@ class ResultServiceServerRequestHandler implements LtiServiceServerRequestHandle
                 $userIdentifier
             );
 
-            $resultCollection = $this->resultCollectionFactory->create([$result]);
+            $resultCollection = $this->resultCollectionFactory->create(null !== $result ? [$result] : []);
         } else {
             $resultCollection = $this->resultRepository->findCollectionByLineItemIdentifier(
                 $lineItemIdentifier,
