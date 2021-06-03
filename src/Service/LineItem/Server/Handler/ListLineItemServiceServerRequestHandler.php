@@ -114,13 +114,15 @@ class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequest
         ];
 
         if ($lineItemCollection->hasNext()) {
-            $responseHeaders['Link'] = $this->builder->build(
+             $linkUrl = $this->builder->build(
                 $request->getUri()->__toString(),
                 null,
                 [
                     'offset' => ($limit ?? 0) + $offset
                 ]
             );
+
+            $responseHeaders['Link'] = sprintf('<%s>; rel=next', $linkUrl);
         }
 
         return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
