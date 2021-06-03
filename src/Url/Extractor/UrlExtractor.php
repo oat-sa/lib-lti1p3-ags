@@ -47,13 +47,12 @@ class UrlExtractor implements UrlExtractorInterface
         $password = isset($parsedUrl['pass']) ? ':' . $parsedUrl['pass']  : '';
 
         return sprintf(
-            '%s%s%s%s%s%s%s%s',
+            '%s%s%s%s%s%s%s',
             isset($parsedUrl['scheme']) ? $parsedUrl['scheme'] . '://' : '',
             $username !== '' ? $username . $password . '@' : '',
             $parsedUrl['host'],
             isset($parsedUrl['port']) ? ':' . $parsedUrl['port'] : '',
             $path,
-            !empty($additionalUrlSuffix) ? '/' . $additionalUrlSuffix : '',
             isset($parsedUrl['query']) ? '?' . $parsedUrl['query'] : '',
             isset($parsedUrl['fragment']) ? '#' . $parsedUrl['fragment'] : ''
         );
