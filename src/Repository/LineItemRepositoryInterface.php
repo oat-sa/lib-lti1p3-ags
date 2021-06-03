@@ -29,7 +29,7 @@ interface LineItemRepositoryInterface
 {
     public function find(string $lineItemIdentifier): ?LineItemInterface;
 
-    public function findBy(
+    public function findCollection(
         ?string $resourceIdentifier = null,
         ?string $resourceLinkIdentifier = null,
         ?string $tag = null,

@@ -23,13 +23,18 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Repository;
 
 use OAT\Library\Lti1p3Ags\Model\Result\ResultCollectionInterface;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
 
 interface ResultRepositoryInterface
 {
-    public function findBy(
+    public function findCollectionByLineItemIdentifier(
         string $lineItemIdentifier,
-        ?string $userIdentifier = null,
         ?int $limit = null,
         ?int $offset = null
     ): ?ResultCollectionInterface;
+
+    public function findByLineItemIdentifierAndUserIdentifier(
+        string $lineItemIdentifier,
+        string $userIdentifier
+    ): ?ResultInterface;
 }

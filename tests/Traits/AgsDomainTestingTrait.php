@@ -93,7 +93,7 @@ trait AgsDomainTestingTrait
                 return $this->lineItems->get($lineItemIdentifier);
             }
 
-            public function findBy(
+            public function findCollection(
                 ?string $resourceIdentifier = null,
                 ?string $resourceLinkIdentifier = null,
                 ?string $tag = null,

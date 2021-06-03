@@ -89,7 +89,7 @@ class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequest
     ): ResponseInterface {
         parse_str($request->getUri()->getQuery(), $parameters);
 
-        $lineItemCollection = $this->repository->findBy(
+        $lineItemCollection = $this->repository->findCollection(
             $parameters['resource_id'] ?? null,
             $parameters['resource_link_id'] ?? null,
             $parameters['tag'] ?? null,

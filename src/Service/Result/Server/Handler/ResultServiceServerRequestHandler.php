@@ -24,6 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Service\Result\Server\Handler;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultCollection;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Repository\ResultRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Result\ResultCollectionSerializer;
@@ -120,12 +121,26 @@ class ResultServiceServerRequestHandler implements LtiServiceServerRequestHandle
 
         parse_str($request->getUri()->getQuery(), $parameters);
 
-        $resultCollection = $this->resultRepository->findBy(
-            $lineItemIdentifier,
-            $parameters['user_id'] ?? null,
-            array_key_exists('limit', $parameters) ? intval($parameters['limit']) : null,
-            array_key_exists('offset', $parameters) ? intval($parameters['offset']) : null
-        );
+        $userIdentifier = $parameters['user_id'] ?? null;
+
+        if (null !== $userIdentifier) {
+            $resultCollection = new ResultCollection();
+
+            $result = $this->resultRepository->findByLineItemIdentifierAndUserIdentifier(
+                $lineItemIdentifier,
+                $userIdentifier
+            );
+
+            if (null !== $result) {
+                $resultCollection->add($result);
+            }
+        } else {
+            $resultCollection = $this->resultRepository->findCollectionByLineItemIdentifier(
+                $lineItemIdentifier,
+                array_key_exists('limit', $parameters) ? intval($parameters['limit']) : null,
+                array_key_exists('offset', $parameters) ? intval($parameters['offset']) : null
+            );
+        }
 
         $responseBody = $this->serializer->serialize($resultCollection);
         $responseHeaders = [
