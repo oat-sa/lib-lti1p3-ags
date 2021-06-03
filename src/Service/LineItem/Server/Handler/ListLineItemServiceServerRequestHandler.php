@@ -24,6 +24,7 @@ namespace OAT\Library\Lti1p3Ags\Service\LineItem\Server\Handler;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemCollectionSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemCollectionSerializerInterface;
@@ -122,7 +123,11 @@ class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequest
                 ]
             );
 
-            $responseHeaders['Link'] = sprintf('<%s>; rel=next', $linkUrl);
+            $responseHeaders[static::HEADER_LINK] = sprintf(
+                '<%s>; rel="%s"',
+                $linkUrl,
+                LineItemContainerInterface::REL_NEXT
+            );
         }
 
         return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);

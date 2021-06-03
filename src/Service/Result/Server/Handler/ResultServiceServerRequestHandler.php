@@ -26,6 +26,7 @@ use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
 use OAT\Library\Lti1p3Ags\Factory\Result\ResultCollectionFactory;
 use OAT\Library\Lti1p3Ags\Factory\Result\ResultCollectionFactoryInterface;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultContainerInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Repository\ResultRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Result\ResultCollectionSerializer;
@@ -170,7 +171,11 @@ class ResultServiceServerRequestHandler implements LtiServiceServerRequestHandle
                 ]
             );
 
-            $responseHeaders['Link'] = sprintf('<%s>; rel=next', $linkUrl);
+            $responseHeaders[static::HEADER_LINK] = sprintf(
+                '<%s>; rel="%s"',
+                $linkUrl,
+                ResultContainerInterface::REL_NEXT
+            );
         }
 
         return $this->responseFactory->createResponse(200, null, $responseHeaders, $responseBody);
