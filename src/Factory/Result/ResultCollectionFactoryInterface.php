@@ -20,11 +20,11 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Factory\LineItem;
+namespace OAT\Library\Lti1p3Ags\Factory\Result;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultCollectionInterface;
 
-interface LineItemFactoryInterface
+interface ResultCollectionFactoryInterface
 {
-    public function create(array $data): LineItemInterface;
+    public function create(array $results, bool $hasNext = false): ResultCollectionInterface;
 }

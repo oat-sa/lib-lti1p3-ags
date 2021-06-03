@@ -24,12 +24,15 @@ namespace OAT\Library\Lti1p3Ags\Service\Result\Server\Handler;
 
 use Http\Message\ResponseFactory;
 use Nyholm\Psr7\Factory\HttplugFactory;
-use OAT\Library\Lti1p3Ags\Model\Result\ResultCollection;
+use OAT\Library\Lti1p3Ags\Factory\Result\ResultCollectionFactory;
+use OAT\Library\Lti1p3Ags\Factory\Result\ResultCollectionFactoryInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Repository\ResultRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Result\ResultCollectionSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\Result\ResultCollectionSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\Result\ResultServiceInterface;
+use OAT\Library\Lti1p3Ags\Url\Builder\UrlBuilder;
+use OAT\Library\Lti1p3Ags\Url\Builder\UrlBuilderInterface;
 use OAT\Library\Lti1p3Ags\Url\Extractor\UrlExtractor;
 use OAT\Library\Lti1p3Ags\Url\Extractor\UrlExtractorInterface;
 use OAT\Library\Lti1p3Core\Security\OAuth2\Validator\Result\RequestAccessTokenValidationResultInterface;
@@ -53,11 +56,17 @@ class ResultServiceServerRequestHandler implements LtiServiceServerRequestHandle
     /** @var ResultCollectionSerializerInterface */
     private $serializer;
 
-    /** @var ResponseFactory */
-    private $factory;
+    /** @var ResultCollectionFactoryInterface */
+    private $resultCollectionFactory;
 
     /** @var UrlExtractorInterface */
     private $extractor;
+
+    /** @var UrlBuilderInterface */
+    private $builder;
+
+    /** @var ResponseFactory */
+    private $responseFactory;
 
     /** @var LoggerInterface */
     protected $logger;
@@ -66,15 +75,19 @@ class ResultServiceServerRequestHandler implements LtiServiceServerRequestHandle
         LineItemRepositoryInterface $lineItemRepository,
         ResultRepositoryInterface $resultRepository,
         ?ResultCollectionSerializerInterface $serializer = null,
-        ?ResponseFactory $factory = null,
+        ?ResultCollectionFactoryInterface $resultCollectionFactory = null,
         ?UrlExtractorInterface $extractor = null,
+        ?UrlBuilderInterface $builder = null,
+        ?ResponseFactory $responseFactory = null,
         ?LoggerInterface $logger = null
     ) {
         $this->lineItemRepository = $lineItemRepository;
         $this->resultRepository = $resultRepository;
         $this->serializer = $serializer ?? new ResultCollectionSerializer();
-        $this->factory = $factory ?? new HttplugFactory();
+        $this->resultCollectionFactory = $resultCollectionFactory ?? new ResultCollectionFactory();
         $this->extractor = $extractor ?? new UrlExtractor();
+        $this->builder = $builder ?? new UrlBuilder();
+        $this->responseFactory = $responseFactory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
 
@@ -116,29 +129,27 @@ class ResultServiceServerRequestHandler implements LtiServiceServerRequestHandle
 
             $this->logger->error($message);
 
-            return $this->factory->createResponse(404, null, [], $message);
+            return $this->responseFactory->createResponse(404, null, [], $message);
         }
 
         parse_str($request->getUri()->getQuery(), $parameters);
 
         $userIdentifier = $parameters['user_id'] ?? null;
+        $limit = array_key_exists('limit', $parameters) ? intval($parameters['limit']) : null;
+        $offset = array_key_exists('offset', $parameters) ? intval($parameters['offset']) : null;
 
         if (null !== $userIdentifier) {
-            $resultCollection = new ResultCollection();
-
             $result = $this->resultRepository->findByLineItemIdentifierAndUserIdentifier(
                 $lineItemIdentifier,
                 $userIdentifier
             );
 
-            if (null !== $result) {
-                $resultCollection->add($result);
-            }
+            $resultCollection = $this->resultCollectionFactory->create([$result]);
         } else {
             $resultCollection = $this->resultRepository->findCollectionByLineItemIdentifier(
                 $lineItemIdentifier,
-                array_key_exists('limit', $parameters) ? intval($parameters['limit']) : null,
-                array_key_exists('offset', $parameters) ? intval($parameters['offset']) : null
+                $limit,
+                $offset
             );
         }
 
@@ -149,9 +160,15 @@ class ResultServiceServerRequestHandler implements LtiServiceServerRequestHandle
         ];
 
         if ($resultCollection->hasNext()) {
-            $responseHeaders['Link'] = 'todo';
+            $responseHeaders['Link'] = $this->builder->build(
+                $request->getUri()->__toString(),
+                null,
+                [
+                    'offset' => ($limit ?? 0) + $offset
+                ]
+            );
         }
 
-        return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
+        return $this->responseFactory->createResponse(200, null, $responseHeaders, $responseBody);
     }
 }

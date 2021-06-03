@@ -53,11 +53,11 @@ class ScoreServiceServerRequestHandler implements LtiServiceServerRequestHandler
     /** @var ScoreSerializerInterface */
     private $serializer;
 
-    /** @var ResponseFactory */
-    private $factory;
-
     /** @var UrlExtractorInterface */
     private $extractor;
+
+    /** @var ResponseFactory */
+    private $factory;
 
     /** @var LoggerInterface */
     protected $logger;
@@ -66,15 +66,15 @@ class ScoreServiceServerRequestHandler implements LtiServiceServerRequestHandler
         LineItemRepositoryInterface $lineItemRepository,
         ScoreRepositoryInterface $scoreRepository,
         ?ScoreSerializerInterface $serializer = null,
-        ?ResponseFactory $factory = null,
         ?UrlExtractorInterface $extractor = null,
+        ?ResponseFactory $factory = null,
         ?LoggerInterface $logger = null
     ) {
         $this->lineItemRepository = $lineItemRepository;
         $this->scoreRepository = $scoreRepository;
         $this->serializer = $serializer ?? new ScoreSerializer();
-        $this->factory = $factory ?? new HttplugFactory();
         $this->extractor = $extractor ?? new UrlExtractor();
+        $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
 

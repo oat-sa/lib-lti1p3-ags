@@ -28,6 +28,8 @@ use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemCollectionSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemCollectionSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
+use OAT\Library\Lti1p3Ags\Url\Builder\UrlBuilder;
+use OAT\Library\Lti1p3Ags\Url\Builder\UrlBuilderInterface;
 use OAT\Library\Lti1p3Core\Security\OAuth2\Validator\Result\RequestAccessTokenValidationResultInterface;
 use OAT\Library\Lti1p3Core\Service\Server\Handler\LtiServiceServerRequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -44,16 +46,21 @@ class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequest
     /** @var LineItemCollectionSerializerInterface */
     private $serializer;
 
+    /** @var UrlBuilderInterface */
+    private $builder;
+
     /** @var ResponseFactory */
     private $factory;
 
     public function __construct(
         LineItemRepositoryInterface $repository,
         ?LineItemCollectionSerializerInterface $serializer = null,
+        ?UrlBuilderInterface $builder = null,
         ?ResponseFactory $factory = null
     ) {
         $this->repository = $repository;
         $this->serializer = $serializer ?? new LineItemCollectionSerializer();
+        $this->builder = $builder ?? new UrlBuilder();
         $this->factory = $factory ?? new HttplugFactory();
     }
 
@@ -89,12 +96,15 @@ class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequest
     ): ResponseInterface {
         parse_str($request->getUri()->getQuery(), $parameters);
 
+        $limit = array_key_exists('limit', $parameters) ? intval($parameters['limit']) : null;
+        $offset = array_key_exists('offset', $parameters) ? intval($parameters['offset']) : null;
+
         $lineItemCollection = $this->repository->findCollection(
             $parameters['resource_id'] ?? null,
             $parameters['resource_link_id'] ?? null,
             $parameters['tag'] ?? null,
-            array_key_exists('limit', $parameters) ? intval($parameters['limit']) : null,
-            array_key_exists('offset', $parameters) ? intval($parameters['offset']) : null
+            $limit,
+            $offset
         );
 
         $responseBody = $this->serializer->serialize($lineItemCollection);
@@ -104,7 +114,13 @@ class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequest
         ];
 
         if ($lineItemCollection->hasNext()) {
-            $responseHeaders['Link'] = 'todo';
+            $responseHeaders['Link'] = $this->builder->build(
+                $request->getUri()->__toString(),
+                null,
+                [
+                    'offset' => ($limit ?? 0) + $offset
+                ]
+            );
         }
 
         return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);

@@ -22,9 +22,9 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Factory\LineItem;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
 
-interface LineItemFactoryInterface
+interface LineItemCollectionFactoryInterface
 {
-    public function create(array $data): LineItemInterface;
+    public function create(array $lineItems, bool $hasNext = false): LineItemCollectionInterface;
 }
