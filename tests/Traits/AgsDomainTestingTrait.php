@@ -44,10 +44,10 @@ trait AgsDomainTestingTrait
     private function createTestLineItem(
         float $scoreMaximum = 100,
         string $label = 'lineItemLabel',
-        ?string $identifier = 'lineItemIdentifier',
-        ?string $resourceIdentifier = 'lineItemResourceIdentifier',
-        ?string $resourceLinkIdentifier = 'lineItemResourceLinkIdentifier',
-        ?string $tag = 'lineItemTag',
+        string $identifier = 'lineItemIdentifier',
+        string $resourceIdentifier = 'lineItemResourceIdentifier',
+        string $resourceLinkIdentifier = 'lineItemResourceLinkIdentifier',
+        string $tag = 'lineItemTag',
         ?DateTimeInterface $startDateTime = null,
         ?DateTimeInterface $endDateTime = null,
         array $additionalProperties = ['key' => 'value']
@@ -171,10 +171,10 @@ trait AgsDomainTestingTrait
         string $userIdentifier = 'scoreUserIdentifier',
         string $activityProgressStatus = ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
         string $gradingProgressStatus = ScoreInterface::GRADING_PROGRESS_STATUS_NOT_READY,
-        ?string $lineItemIdentifier = 'scoreLineItemIdentifier',
-        ?float $scoreGiven = 10,
-        ?float $scoreMaximum = 100,
-        ?string $comment = 'scoreComment',
+        string $lineItemIdentifier = 'scoreLineItemIdentifier',
+        float $scoreGiven = 10,
+        float $scoreMaximum = 100,
+        string $comment = 'scoreComment',
         ?DateTimeInterface $timestamp = null,
         array $additionalProperties = ['key' => 'value']
     ): ScoreInterface {
@@ -194,10 +194,10 @@ trait AgsDomainTestingTrait
     private function createTestResult(
         string $userIdentifier = 'resultUserIdentifier',
         string $lineItemIdentifier = 'resultLineItemIdentifier',
-        ?string $identifier = 'resultIdentifier',
-        ?float $resultScore = 10,
-        ?float $resultMaximum = 100,
-        ?string $comment = 'resultComment',
+        string $identifier = 'resultIdentifier',
+        float $resultScore = 10,
+        float $resultMaximum = 100,
+        string $comment = 'resultComment',
         array $additionalProperties = ['key' => 'value']
     ): ResultInterface {
         return new Result(
