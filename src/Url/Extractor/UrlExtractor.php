@@ -33,11 +33,11 @@ class UrlExtractor implements UrlExtractorInterface
     {
         $parsedUrl = parse_url($url);
 
-        if (false === $parsedUrl) {
+        if (false === $parsedUrl || !array_key_exists('host', $parsedUrl)) {
             throw new InvalidArgumentException(sprintf('Malformed url %s', $url));
         }
 
-        $path = $parsedUrl['path'];
+        $path = $parsedUrl['path'] ?? '';
 
         if (null !== $removableUrlPathSuffix) {
             $path = rtrim($path, '/' . $removableUrlPathSuffix);
@@ -50,7 +50,7 @@ class UrlExtractor implements UrlExtractorInterface
             '%s%s%s%s%s%s%s',
             isset($parsedUrl['scheme']) ? $parsedUrl['scheme'] . '://' : '',
             $username !== '' ? $username . $password . '@' : '',
-            $parsedUrl['host'],
+            $parsedUrl['host'] ?? '',
             isset($parsedUrl['port']) ? ':' . $parsedUrl['port'] : '',
             $path,
             isset($parsedUrl['query']) ? '?' . $parsedUrl['query'] : '',

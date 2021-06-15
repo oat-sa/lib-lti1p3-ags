@@ -36,7 +36,7 @@ class UrlBuilder implements UrlBuilderInterface
     ): string {
         $parsedUrl = parse_url($url);
 
-        if (false === $parsedUrl) {
+        if (false === $parsedUrl || !array_key_exists('host', $parsedUrl)) {
             throw new InvalidArgumentException(sprintf('Malformed url %s', $url));
         }
 
@@ -52,7 +52,7 @@ class UrlBuilder implements UrlBuilderInterface
             $username !== '' ? $username . $password . '@' : '',
             $parsedUrl['host'],
             isset($parsedUrl['port']) ? ':' . $parsedUrl['port'] : '',
-            $parsedUrl['path'],
+            $parsedUrl['path'] ?? '',
             !empty($additionalUrlPathSuffix) ? '/' . $additionalUrlPathSuffix : '',
             !empty($queryString) ? '?' . $queryString : '',
             isset($parsedUrl['fragment']) ? '#' . $parsedUrl['fragment'] : ''
