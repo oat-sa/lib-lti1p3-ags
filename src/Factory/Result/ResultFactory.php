@@ -42,7 +42,7 @@ class ResultFactory implements ResultFactoryInterface
         $lineItemIdentifier = $data['scoreOf'] ?? null;
 
         if (null === $lineItemIdentifier) {
-            throw new InvalidArgumentException('Missing mandatory scoreOf');
+            throw new InvalidArgumentException('Missing mandatory line item identifier');
         }
 
         $additionalProperties = array_diff_key(
