@@ -76,12 +76,18 @@ trait AgsDomainTestingTrait
                 $this->createTestLineItem(
                     110,
                     'lineItemLabel2',
-                    'https://example.com/line-items/lineItemIdentifier2'
+                    'https://example.com/line-items/lineItemIdentifier2',
+                    'lineItemResourceIdentifier2',
+                    'lineItemResourceLinkIdentifier2',
+                    'lineItemTag2'
                 ),
                 $this->createTestLineItem(
                     120,
                     'lineItemLabel3',
-                    'https://example.com/line-items/lineItemIdentifier3'
+                    'https://example.com/line-items/lineItemIdentifier3',
+                    'lineItemResourceIdentifier3',
+                    'lineItemResourceLinkIdentifier3',
+                    'lineItemTag3'
                 ),
             ];
 
@@ -151,7 +157,7 @@ trait AgsDomainTestingTrait
 
                 return new LineItemCollection(
                     array_slice($foundLineItems, $offset ?: 0, $limit),
-                    ($limit ?: 0) >= $this->lineItems->count()
+                    $limit && (($limit + $offset) < sizeof($foundLineItems))
                 );
             }
 
@@ -162,6 +168,8 @@ trait AgsDomainTestingTrait
                 }
 
                 $this->lineItems->set($lineItem->getIdentifier(), $lineItem);
+
+                return $lineItem;
             }
 
             public function delete(string $lineItemIdentifier): void

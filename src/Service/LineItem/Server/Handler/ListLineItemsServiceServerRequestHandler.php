@@ -39,7 +39,7 @@ use Psr\Http\Message\ServerRequestInterface;
 /**
  * @see https://www.imsglobal.org/spec/lti-ags/v2p0#example-getting-all-line-items-for-a-given-container
  */
-class ListLineItemServiceServerRequestHandler implements LtiServiceServerRequestHandlerInterface, LineItemServiceInterface
+class ListLineItemsServiceServerRequestHandler implements LtiServiceServerRequestHandlerInterface, LineItemServiceInterface
 {
     /** @var LineItemRepositoryInterface */
     private $repository;

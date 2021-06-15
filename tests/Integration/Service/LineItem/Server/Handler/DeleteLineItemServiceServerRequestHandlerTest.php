@@ -22,12 +22,9 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Integration\Service\LineItem\Server\Handler;
 
-use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Server\Handler\GetLineItemServiceServerRequestHandler;
+use OAT\Library\Lti1p3Ags\Service\LineItem\Server\Handler\DeleteLineItemServiceServerRequestHandler;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
 use OAT\Library\Lti1p3Core\Security\OAuth2\Validator\RequestAccessTokenValidator;
 use OAT\Library\Lti1p3Core\Security\OAuth2\Validator\Result\RequestAccessTokenValidationResult;
@@ -40,7 +37,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LogLevel;
 
-class GetLineItemServiceServerRequestHandlerTest extends TestCase
+class DeleteLineItemServiceServerRequestHandlerTest extends TestCase
 {
     use AgsDomainTestingTrait;
     use DomainTestingTrait;
@@ -52,13 +49,10 @@ class GetLineItemServiceServerRequestHandlerTest extends TestCase
     /** @var LineItemRepositoryInterface */
     private $repository;
 
-    /** @var LineItemSerializerInterface */
-    private $serializer;
-
     /** @var TestLogger */
     private $logger;
 
-    /** @var GetLineItemServiceServerRequestHandler */
+    /** @var DeleteLineItemServiceServerRequestHandler */
     private $subject;
 
     /** @var LtiServiceServer */
@@ -68,12 +62,10 @@ class GetLineItemServiceServerRequestHandlerTest extends TestCase
     {
         $this->validatorMock = $this->createMock(RequestAccessTokenValidator::class);
         $this->repository = $this->createTestLineItemRepository();
-        $this->serializer = new LineItemSerializer();
         $this->logger = new TestLogger();
 
-        $this->subject = new GetLineItemServiceServerRequestHandler(
+        $this->subject = new DeleteLineItemServiceServerRequestHandler(
             $this->repository,
-            null,
             null,
             $this->logger
         );
@@ -92,12 +84,8 @@ class GetLineItemServiceServerRequestHandlerTest extends TestCase
         $lineItem = $this->createTestLineItem();
 
         $request = $this->createServerRequest(
-            'GET',
-            $lineItem->getIdentifier(),
-            [],
-            [
-                'Accept' => LineItemServiceInterface::CONTENT_TYPE_LINE_ITEM
-            ]
+            'DELETE',
+            $lineItem->getIdentifier()
         );
 
         $validationResult = new RequestAccessTokenValidationResult($registration);
@@ -111,14 +99,11 @@ class GetLineItemServiceServerRequestHandlerTest extends TestCase
         $response = $this->server->handle($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals(200, $response->getStatusCode());
-
-        $result = $this->serializer->deserialize($response->getBody()->__toString());
-
-        $this->assertInstanceOf(LineItemInterface::class, $result);
-        $this->assertEquals($lineItem->getIdentifier(), $result->getIdentifier());
+        $this->assertEquals(204, $response->getStatusCode());
 
         $this->assertTrue($this->logger->hasLog(LogLevel::INFO, 'AGS line item service success'));
+
+        $this->assertNull($this->repository->find($lineItem->getIdentifier()));
     }
 
     public function testRequestHandlingErrorOnLineItemNotFound(): void
@@ -126,12 +111,8 @@ class GetLineItemServiceServerRequestHandlerTest extends TestCase
         $registration = $this->createTestRegistration();
 
         $request = $this->createServerRequest(
-            'GET',
-            'https://example.com/line-items/invalid',
-            [],
-            [
-                'Accept' => LineItemServiceInterface::CONTENT_TYPE_LINE_ITEM
-            ]
+            'DELETE',
+            'https://example.com/line-items/invalid'
         );
 
         $validationResult = new RequestAccessTokenValidationResult($registration);
@@ -158,7 +139,7 @@ class GetLineItemServiceServerRequestHandlerTest extends TestCase
         $lineItem = $this->createTestLineItem();
 
         $request = $this->createServerRequest(
-            'POST',
+            'GET',
             $lineItem->getIdentifier(),
             [],
             [
@@ -175,35 +156,7 @@ class GetLineItemServiceServerRequestHandlerTest extends TestCase
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals(405, $response->getStatusCode());
 
-        $errorMessage = 'Not acceptable request method, accepts: [get]';
-
-        $this->assertEquals($errorMessage, $response->getBody()->__toString());
-        $this->assertTrue($this->logger->hasLog(LogLevel::ERROR, $errorMessage));
-    }
-
-    public function testRequestHandlingErrorOnInvalidContentType(): void
-    {
-        $lineItem = $this->createTestLineItem();
-
-        $request = $this->createServerRequest(
-            'GET',
-            $lineItem->getIdentifier(),
-            [],
-            [
-                'Accept' => 'invalid'
-            ]
-        );
-
-        $this->validatorMock
-            ->expects($this->never())
-            ->method('validate');
-
-        $response = $this->server->handle($request);
-
-        $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals(406, $response->getStatusCode());
-
-        $errorMessage = 'Not acceptable request content type, accepts: application/vnd.ims.lis.v2.lineitem+json';
+        $errorMessage = 'Not acceptable request method, accepts: [delete]';
 
         $this->assertEquals($errorMessage, $response->getBody()->__toString());
         $this->assertTrue($this->logger->hasLog(LogLevel::ERROR, $errorMessage));
@@ -217,7 +170,7 @@ class GetLineItemServiceServerRequestHandlerTest extends TestCase
         $errorMessage = 'token validation error';
 
         $request = $this->createServerRequest(
-            'GET',
+            'DELETE',
             $lineItem->getIdentifier(),
             [],
             [
