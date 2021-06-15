@@ -27,6 +27,8 @@ use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollection;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Model\Score\Score;
+use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Core\Util\Collection\Collection;
 use OAT\Library\Lti1p3Core\Util\Collection\CollectionInterface;
@@ -159,5 +161,29 @@ trait AgsDomainTestingTrait
                 }
             }
         };
+    }
+
+    private function createTestScore(
+        string $userIdentifier = 'scoreUserIdentifier',
+        string $activityProgressStatus = ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
+        string $gradingProgressStatus = ScoreInterface::GRADING_PROGRESS_STATUS_NOT_READY,
+        ?string $lineItemIdentifier = 'scoreLineItemIdentifier',
+        ?float $scoreGiven = 10,
+        ?float $scoreMaximum = 100,
+        ?string $comment = 'scoreComment',
+        ?DateTimeInterface $timestamp = null,
+        array $additionalProperties = ['key' => 'value']
+    ): ScoreInterface {
+        return new Score(
+            $userIdentifier,
+            $activityProgressStatus,
+            $gradingProgressStatus,
+            $lineItemIdentifier,
+            $scoreGiven,
+            $scoreMaximum,
+            $comment,
+            $timestamp,
+            $additionalProperties
+        );
     }
 }

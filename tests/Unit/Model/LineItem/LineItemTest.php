@@ -159,8 +159,8 @@ class LineItemTest extends TestCase
 
     public function testJsonSerialize(): void
     {
-        $start = Carbon::now()->toDateTimeImmutable();
-        $end = Carbon::now()->addHour()->toDateTimeImmutable();
+        $start = Carbon::now();
+        $end = Carbon::now()->addHour();
 
         $subject = $this
             ->createTestLineItem()
