@@ -15,14 +15,13 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\Score\Client;
 
-use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Score\Normalizer\ScoreNormalizer;
 use OAT\Library\Lti1p3Ags\Serializer\Score\Normalizer\ScoreNormalizerInterface;
@@ -33,12 +32,10 @@ use OAT\Library\Lti1p3Ags\Url\Builder\UrlBuilder;
 use OAT\Library\Lti1p3Ags\Url\Builder\UrlBuilderInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
-use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
 use OAT\Library\Lti1p3Core\Service\Client\ServiceClient;
 use OAT\Library\Lti1p3Core\Service\Client\ServiceClientInterface;
-use Psr\Http\Message\ResponseInterface;
 use Throwable;
 
 class ScoreServiceClient implements ScoreServiceInterface
@@ -66,7 +63,7 @@ class ScoreServiceClient implements ScoreServiceInterface
      * @see https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service
      * @throws LtiExceptionInterface
      */
-    public function publish(
+    public function publishScore(
         RegistrationInterface $registration,
         ScoreInterface $score,
         string $lineItemUrl

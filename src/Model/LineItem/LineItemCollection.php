@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
+use ArrayIterator;
 use OAT\Library\Lti1p3Core\Util\Collection\Collection;
 use OAT\Library\Lti1p3Core\Util\Collection\CollectionInterface;
 
@@ -73,6 +74,16 @@ class LineItemCollection implements LineItemCollectionInterface
         $this->lineItems->remove($lineItemIdentifier);
 
         return $this;
+    }
+
+    public function count(): int
+    {
+        return $this->lineItems->count();
+    }
+
+    public function getIterator(): ArrayIterator
+    {
+        return $this->lineItems->getIterator();
     }
 
     public function hasNext(): bool

@@ -22,12 +22,14 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
+use Countable;
+use IteratorAggregate;
 use JsonSerializable;
 
 /**
  * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
  */
-interface LineItemCollectionInterface extends JsonSerializable
+interface LineItemCollectionInterface extends Countable, IteratorAggregate, JsonSerializable
 {
     /** @return LineItemInterface[] */
     public function all(): array;

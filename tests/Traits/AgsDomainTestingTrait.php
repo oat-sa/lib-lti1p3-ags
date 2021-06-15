@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
@@ -39,19 +39,17 @@ trait AgsDomainTestingTrait
         float $scoreMaximum = 100,
         string $label = 'lineItemLabel',
         ?string $identifier = 'lineItemIdentifier',
-        ?string $contextIdentifier = 'contextIdentifier',
-        ?string $resourceIdentifier = 'resourceIdentifier',
-        ?string $resourceLinkIdentifier = 'resourceLinkIdentifier',
-        ?string $tag = 'tag',
+        ?string $resourceIdentifier = 'lineItemResourceIdentifier',
+        ?string $resourceLinkIdentifier = 'lineItemResourceLinkIdentifier',
+        ?string $tag = 'lineItemTag',
         ?DateTimeInterface $startDateTime = null,
         ?DateTimeInterface $endDateTime = null,
-        array $additionalProperties = []
+        array $additionalProperties = ['key' => 'value']
     ): LineItemInterface {
         return new LineItem(
             $scoreMaximum,
             $label,
             $identifier,
-            $contextIdentifier,
             $resourceIdentifier,
             $resourceLinkIdentifier,
             $tag,
@@ -61,9 +59,24 @@ trait AgsDomainTestingTrait
         );
     }
 
+    private function createTestLineItemCollection(
+        array $lineItems = [],
+        bool $hasNext = false
+    ): LineItemCollectionInterface {
+        $lineItems = !empty($lineItems)
+            ? $lineItems
+            : [
+                $this->createTestLineItem(),
+                $this->createTestLineItem(110, 'lineItemLabel2', 'lineItemIdentifier2'),
+                $this->createTestLineItem(120, 'lineItemLabel3', 'lineItemIdentifier3'),
+            ];
+
+        return new LineItemCollection($lineItems, $hasNext);
+    }
+
     private function createTestLineItemRepository(
         array $lineItems = [],
-        IdGeneratorInterface $generator = null
+        ?IdGeneratorInterface $generator = null
     ): LineItemRepositoryInterface{
 
         $lineItems = !empty($lineItems) ? $lineItems : [$this->createTestLineItem()];
