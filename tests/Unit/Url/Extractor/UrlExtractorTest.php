@@ -40,22 +40,22 @@ class UrlExtractorTest extends TestCase
     public function testExtract(): void
     {
         $this->assertEquals(
-            'http://user:pass@example.com/scores?a=b#e',
-            $this->subject->extract('http://user:pass@example.com/scores?a=b#e')
+            'https://user:pass@example.com/scores?a=b#e',
+            $this->subject->extract('https://user:pass@example.com/scores?a=b#e')
         );
 
         $this->assertEquals(
-            'http://user:pass@example.com?a=b#e',
+            'https://user:pass@example.com?a=b#e',
             $this->subject->extract(
-                'http://user:pass@example.com/scores?a=b#e',
+                'https://user:pass@example.com/scores?a=b#e',
                 'scores'
             )
         );
 
         $this->assertEquals(
-            'http://user:pass@example.com?a=b#e',
+            'https://user:pass@example.com?a=b#e',
             $this->subject->extract(
-                'http://user:pass@example.com/path/scores?a=b#e',
+                'https://user:pass@example.com/path/scores?a=b#e',
                 'path/scores'
             )
         );

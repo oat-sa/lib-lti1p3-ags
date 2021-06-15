@@ -55,18 +55,33 @@ class ResultCollectionTest extends TestCase
 
     public function testHas(): void
     {
-        $this->assertTrue($this->subject->has('resultIdentifier'));
-        $this->assertTrue($this->subject->has('resultIdentifier2'));
-        $this->assertTrue($this->subject->has('resultIdentifier3'));
+        $this->assertTrue(
+            $this->subject->has('https://example.com/line-items/lineItemIdentifier/results/resultIdentifier')
+        );
+        $this->assertTrue(
+            $this->subject->has('https://example.com/line-items/lineItemIdentifier/results/resultIdentifier2')
+        );
+        $this->assertTrue(
+            $this->subject->has('https://example.com/line-items/lineItemIdentifier/results/resultIdentifier3')
+        );
 
         $this->assertFalse($this->subject->has('invalid'));
     }
 
     public function testGet(): void
     {
-        $this->assertEquals('resultIdentifier', $this->subject->get('resultIdentifier')->getIdentifier());
-        $this->assertEquals('resultIdentifier2', $this->subject->get('resultIdentifier2')->getIdentifier());
-        $this->assertEquals('resultIdentifier3', $this->subject->get('resultIdentifier3')->getIdentifier());
+        $this->assertEquals(
+            'https://example.com/line-items/lineItemIdentifier/results/resultIdentifier',
+            $this->subject->get('https://example.com/line-items/lineItemIdentifier/results/resultIdentifier')->getIdentifier()
+        );
+        $this->assertEquals(
+            'https://example.com/line-items/lineItemIdentifier/results/resultIdentifier2',
+            $this->subject->get('https://example.com/line-items/lineItemIdentifier/results/resultIdentifier2')->getIdentifier()
+        );
+        $this->assertEquals(
+            'https://example.com/line-items/lineItemIdentifier/results/resultIdentifier3',
+            $this->subject->get('https://example.com/line-items/lineItemIdentifier/results/resultIdentifier3')->getIdentifier()
+        );
 
         $this->assertNull($this->subject->get('invalid'));
     }
@@ -75,23 +90,34 @@ class ResultCollectionTest extends TestCase
     {
         $this->assertEquals(3, $this->subject->count());
 
-        $result = $this->createTestResult('resultUserIdentifier4', 'resultLineItemIdentifier4', 'resultIdentifier4');
+        $result = $this->createTestResult(
+            'resultUserIdentifier4',
+            'resultLineItemIdentifier4',
+            'https://example.com/line-items/lineItemIdentifier/results/resultIdentifier4'
+        );
 
         $this->subject->add($result);
 
         $this->assertEquals(4, $this->subject->count());
-        $this->assertTrue($this->subject->has('resultIdentifier4'));
-        $this->assertEquals($result, $this->subject->get('resultIdentifier4'));
+        $this->assertTrue(
+            $this->subject->has('https://example.com/line-items/lineItemIdentifier/results/resultIdentifier4')
+        );
+        $this->assertEquals(
+            $result,
+            $this->subject->get('https://example.com/line-items/lineItemIdentifier/results/resultIdentifier4')
+        );
     }
 
     public function testRemove(): void
     {
         $this->assertEquals(3, $this->subject->count());
 
-        $this->subject->remove('resultIdentifier3');
+        $this->subject->remove('https://example.com/line-items/lineItemIdentifier/results/resultIdentifier3');
 
         $this->assertEquals(2, $this->subject->count());
-        $this->assertFalse($this->subject->has('resultIdentifier3'));
+        $this->assertFalse(
+            $this->subject->has('https://example.com/line-items/lineItemIdentifier/results/resultIdentifier3')
+        );
     }
 
     public function testIterator(): void

@@ -55,18 +55,33 @@ class LineItemCollectionTest extends TestCase
 
     public function testHas(): void
     {
-        $this->assertTrue($this->subject->has('lineItemIdentifier'));
-        $this->assertTrue($this->subject->has('lineItemIdentifier2'));
-        $this->assertTrue($this->subject->has('lineItemIdentifier3'));
+        $this->assertTrue(
+            $this->subject->has('https://example.com/line-items/lineItemIdentifier')
+        );
+        $this->assertTrue(
+            $this->subject->has('https://example.com/line-items/lineItemIdentifier2')
+        );
+        $this->assertTrue(
+            $this->subject->has('https://example.com/line-items/lineItemIdentifier3')
+        );
 
         $this->assertFalse($this->subject->has('invalid'));
     }
 
     public function testGet(): void
     {
-        $this->assertEquals('lineItemIdentifier', $this->subject->get('lineItemIdentifier')->getIdentifier());
-        $this->assertEquals('lineItemIdentifier2', $this->subject->get('lineItemIdentifier2')->getIdentifier());
-        $this->assertEquals('lineItemIdentifier3', $this->subject->get('lineItemIdentifier3')->getIdentifier());
+        $this->assertEquals(
+            'https://example.com/line-items/lineItemIdentifier',
+            $this->subject->get('https://example.com/line-items/lineItemIdentifier')->getIdentifier()
+        );
+        $this->assertEquals(
+            'https://example.com/line-items/lineItemIdentifier2',
+            $this->subject->get('https://example.com/line-items/lineItemIdentifier2')->getIdentifier()
+        );
+        $this->assertEquals(
+            'https://example.com/line-items/lineItemIdentifier3',
+        $this->subject->get('https://example.com/line-items/lineItemIdentifier3')->getIdentifier()
+    );
 
         $this->assertNull($this->subject->get('invalid'));
     }
@@ -75,23 +90,34 @@ class LineItemCollectionTest extends TestCase
     {
         $this->assertEquals(3, $this->subject->count());
 
-        $lineItem = $this->createTestLineItem(140, 'lineItemLabel4', 'lineItemIdentifier4');
+        $lineItem = $this->createTestLineItem(
+            140,
+            'lineItemLabel4',
+            'https://example.com/line-items/lineItemIdentifier4'
+        );
 
         $this->subject->add($lineItem);
 
         $this->assertEquals(4, $this->subject->count());
-        $this->assertTrue($this->subject->has('lineItemIdentifier4'));
-        $this->assertEquals($lineItem, $this->subject->get('lineItemIdentifier4'));
+        $this->assertTrue(
+            $this->subject->has('https://example.com/line-items/lineItemIdentifier4')
+        );
+        $this->assertEquals(
+            $lineItem,
+            $this->subject->get('https://example.com/line-items/lineItemIdentifier4')
+        );
     }
 
     public function testRemove(): void
     {
         $this->assertEquals(3, $this->subject->count());
 
-        $this->subject->remove('lineItemIdentifier3');
+        $this->subject->remove('https://example.com/line-items/lineItemIdentifier3');
 
         $this->assertEquals(2, $this->subject->count());
-        $this->assertFalse($this->subject->has('lineItemIdentifier3'));
+        $this->assertFalse(
+            $this->subject->has('https://example.com/line-items/lineItemIdentifier3')
+        );
     }
 
     public function testIterator(): void

@@ -44,7 +44,7 @@ trait AgsDomainTestingTrait
     private function createTestLineItem(
         float $scoreMaximum = 100,
         string $label = 'lineItemLabel',
-        string $identifier = 'lineItemIdentifier',
+        string $identifier = 'https://example.com/line-items/lineItemIdentifier',
         string $resourceIdentifier = 'lineItemResourceIdentifier',
         string $resourceLinkIdentifier = 'lineItemResourceLinkIdentifier',
         string $tag = 'lineItemTag',
@@ -73,8 +73,16 @@ trait AgsDomainTestingTrait
             ? $lineItems
             : [
                 $this->createTestLineItem(),
-                $this->createTestLineItem(110, 'lineItemLabel2', 'lineItemIdentifier2'),
-                $this->createTestLineItem(120, 'lineItemLabel3', 'lineItemIdentifier3'),
+                $this->createTestLineItem(
+                    110,
+                    'lineItemLabel2',
+                    'https://example.com/line-items/lineItemIdentifier2'
+                ),
+                $this->createTestLineItem(
+                    120,
+                    'lineItemLabel3',
+                    'https://example.com/line-items/lineItemIdentifier3'
+                ),
             ];
 
         return new LineItemCollection($lineItems, $hasNext);
@@ -85,7 +93,7 @@ trait AgsDomainTestingTrait
         ?IdGeneratorInterface $generator = null
     ): LineItemRepositoryInterface{
 
-        $lineItems = !empty($lineItems) ? $lineItems : [$this->createTestLineItem()];
+        $lineItems = !empty($lineItems) ? $lineItems : $this->createTestLineItemCollection()->all();
         $generator = $generator ?? new IdGenerator();
 
         return new class ($lineItems, $generator) implements LineItemRepositoryInterface
@@ -171,7 +179,7 @@ trait AgsDomainTestingTrait
         string $userIdentifier = 'scoreUserIdentifier',
         string $activityProgressStatus = ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
         string $gradingProgressStatus = ScoreInterface::GRADING_PROGRESS_STATUS_NOT_READY,
-        string $lineItemIdentifier = 'scoreLineItemIdentifier',
+        string $lineItemIdentifier = 'https://example.com/line-items/lineItemIdentifier',
         float $scoreGiven = 10,
         float $scoreMaximum = 100,
         string $comment = 'scoreComment',
@@ -193,8 +201,8 @@ trait AgsDomainTestingTrait
 
     private function createTestResult(
         string $userIdentifier = 'resultUserIdentifier',
-        string $lineItemIdentifier = 'resultLineItemIdentifier',
-        string $identifier = 'resultIdentifier',
+        string $lineItemIdentifier = 'https://example.com/line-items/lineItemIdentifier',
+        string $identifier = 'https://example.com/line-items/lineItemIdentifier/results/resultIdentifier',
         float $resultScore = 10,
         float $resultMaximum = 100,
         string $comment = 'resultComment',
@@ -219,8 +227,16 @@ trait AgsDomainTestingTrait
             ? $results
             : [
                 $this->createTestResult(),
-                $this->createTestResult('resultUserIdentifier2', 'resultLineItemIdentifier2', 'resultIdentifier2'),
-                $this->createTestResult('resultUserIdentifier3', 'resultLineItemIdentifier3', 'resultIdentifier3'),
+                $this->createTestResult(
+                    'resultUserIdentifier2',
+                    'resultLineItemIdentifier2',
+                    'https://example.com/line-items/lineItemIdentifier/results/resultIdentifier2'
+                ),
+                $this->createTestResult(
+                    'resultUserIdentifier3',
+                    'resultLineItemIdentifier3',
+                    'https://example.com/line-items/lineItemIdentifier/results/resultIdentifier3'
+                ),
             ];
 
         return new ResultCollection($results, $hasNext);

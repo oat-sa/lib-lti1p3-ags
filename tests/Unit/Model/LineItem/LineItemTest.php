@@ -84,9 +84,12 @@ class LineItemTest extends TestCase
 
     public function testIdentifier(): void
     {
-        $this->subject->setIdentifier('lineItemIdentifier');
+        $this->subject->setIdentifier('https://example.com/line-items/otherLineItemIdentifier');
 
-        $this->assertEquals('lineItemIdentifier', $this->subject->getIdentifier());
+        $this->assertEquals(
+            'https://example.com/line-items/otherLineItemIdentifier',
+            $this->subject->getIdentifier()
+        );
     }
 
     public function testResourceIdentifier(): void
@@ -139,13 +142,16 @@ class LineItemTest extends TestCase
 
     public function testCopy(): void
     {
-        $this->subject->setIdentifier('preservedLineItemIdentifier');
+        $this->subject->setIdentifier('https://example.com/line-items/preservedLineItemIdentifier');
 
         $lineItemToCopyFrom = $this->createTestLineItem();
 
         $this->subject->copy($lineItemToCopyFrom);
 
-        $this->assertEquals('preservedLineItemIdentifier', $this->subject->getIdentifier());
+        $this->assertEquals(
+            'https://example.com/line-items/preservedLineItemIdentifier',
+            $this->subject->getIdentifier()
+        );
 
         $this->assertEquals($lineItemToCopyFrom->getScoreMaximum(), $this->subject->getScoreMaximum());
         $this->assertEquals($lineItemToCopyFrom->getLabel(), $this->subject->getLabel());
@@ -169,7 +175,7 @@ class LineItemTest extends TestCase
 
         $this->assertEquals(
             [
-                'id' => 'lineItemIdentifier',
+                'id' => 'https://example.com/line-items/lineItemIdentifier',
                 'startDateTime' => $start->format(DateTimeInterface::ATOM),
                 'endDateTime' => $end->format(DateTimeInterface::ATOM),
                 'scoreMaximum' => (float)100,

@@ -40,22 +40,22 @@ class UrlBuilderTest extends TestCase
     public function testBuild(): void
     {
         $this->assertEquals(
-            'http://user:pass@example.com?a=b#e',
-            $this->subject->build('http://user:pass@example.com?a=b#e')
+            'https://user:pass@example.com?a=b#e',
+            $this->subject->build('https://user:pass@example.com?a=b#e')
         );
 
         $this->assertEquals(
-            'http://user:pass@example.com/scores?a=b#e',
+            'https://user:pass@example.com/scores?a=b#e',
             $this->subject->build(
-                'http://user:pass@example.com?a=b#e',
+                'https://user:pass@example.com?a=b#e',
                 'scores'
             )
         );
 
         $this->assertEquals(
-            'http://user:pass@example.com?a=b&c=d#e',
+            'https://user:pass@example.com?a=b&c=d#e',
             $this->subject->build(
-                'http://user:pass@example.com?a=b#e',
+                'https://user:pass@example.com?a=b#e',
                 null,
                 [
                     'c' => 'd',
@@ -64,9 +64,9 @@ class UrlBuilderTest extends TestCase
         );
 
         $this->assertEquals(
-            'http://user:pass@example.com/scores?a=b&c=d#e',
+            'https://user:pass@example.com/scores?a=b&c=d#e',
             $this->subject->build(
-                'http://user:pass@example.com?a=b#e',
+                'https://user:pass@example.com?a=b#e',
                 'scores',
                 [
                     'c' => 'd',
@@ -75,9 +75,9 @@ class UrlBuilderTest extends TestCase
         );
 
         $this->assertEquals(
-            'http://user:pass@example.com/path/scores?a=b&c=d#e',
+            'https://user:pass@example.com/path/scores?a=b&c=d#e',
             $this->subject->build(
-                'http://user:pass@example.com/path?a=b#e',
+                'https://user:pass@example.com/path?a=b#e',
                 'scores',
                 [
                     'c' => 'd',

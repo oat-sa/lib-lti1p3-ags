@@ -39,14 +39,17 @@ class ResultTest extends TestCase
     {
         $this->subject = new Result(
             'resultUserIdentifier',
-            'resultLineItemIdentifier'
+            'https://example.com/line-items/lineItemIdentifier'
         );
     }
 
     public function testDefaults(): void
     {
         $this->assertEquals('resultUserIdentifier', $this->subject->getUserIdentifier());
-        $this->assertEquals('resultLineItemIdentifier', $this->subject->getLineItemIdentifier());
+        $this->assertEquals(
+            'https://example.com/line-items/lineItemIdentifier',
+            $this->subject->getLineItemIdentifier()
+        );
 
         $this->assertNull($this->subject->getIdentifier());
         $this->assertNull($this->subject->getResultScore());
@@ -57,7 +60,7 @@ class ResultTest extends TestCase
         $this->assertEquals(
             [
                 'userId' => 'resultUserIdentifier',
-                'scoreOf' => 'resultLineItemIdentifier',
+                'scoreOf' => 'https://example.com/line-items/lineItemIdentifier',
             ],
             $this->subject->jsonSerialize()
         );
@@ -72,16 +75,22 @@ class ResultTest extends TestCase
 
     public function testLineItemIdentifier(): void
     {
-        $this->subject->setLineItemIdentifier('resultOtherLineItemIdentifier');
+        $this->subject->setLineItemIdentifier('https://example.com/line-items/otherLineItemIdentifier');
 
-        $this->assertEquals('resultOtherLineItemIdentifier', $this->subject->getLineItemIdentifier());
+        $this->assertEquals(
+            'https://example.com/line-items/otherLineItemIdentifier',
+            $this->subject->getLineItemIdentifier()
+        );
     }
 
     public function testIdentifier(): void
     {
-        $this->subject->setIdentifier('resultIdentifier');
+        $this->subject->setIdentifier('https://example.com/line-items/lineItemIdentifier/results/resultIdentifier');
 
-        $this->assertEquals('resultIdentifier', $this->subject->getIdentifier());
+        $this->assertEquals(
+            'https://example.com/line-items/lineItemIdentifier/results/resultIdentifier',
+            $this->subject->getIdentifier()
+        );
     }
 
     public function testResultScore(): void
@@ -120,8 +129,8 @@ class ResultTest extends TestCase
 
         $this->assertEquals(
             [
-                'id' => 'resultIdentifier',
-                'scoreOf' => 'resultLineItemIdentifier',
+                'id' => 'https://example.com/line-items/lineItemIdentifier/results/resultIdentifier',
+                'scoreOf' => 'https://example.com/line-items/lineItemIdentifier',
                 'userId' => 'resultUserIdentifier',
                 'resultScore' => (float)10,
                 'resultMaximum' => (float)100,
