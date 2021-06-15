@@ -222,8 +222,6 @@ class LineItemServiceClient implements LineItemServiceInterface
             );
 
             return $this->serializer->deserialize($response->getBody()->__toString());
-        } catch (LtiExceptionInterface $exception) {
-            throw $exception;
         } catch (Throwable $exception) {
             throw new LtiException(
                 sprintf('Cannot update line item: %s', $exception->getMessage()),
@@ -251,8 +249,6 @@ class LineItemServiceClient implements LineItemServiceInterface
             );
 
             return in_array($response->getStatusCode(), [200, 201, 202, 204]);
-        } catch (LtiExceptionInterface $exception) {
-            throw $exception;
         } catch (Throwable $exception) {
             throw new LtiException(
                 sprintf('Cannot delete line item: %s', $exception->getMessage()),
