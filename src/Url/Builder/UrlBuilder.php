@@ -53,7 +53,7 @@ class UrlBuilder implements UrlBuilderInterface
             $parsedUrl['host'],
             isset($parsedUrl['port']) ? ':' . $parsedUrl['port'] : '',
             $parsedUrl['path'] ?? '',
-            !empty($additionalUrlPathSuffix) ? '/' . $additionalUrlPathSuffix : '',
+            !empty($additionalUrlPathSuffix) ? '/' . ltrim($additionalUrlPathSuffix, '/') : '',
             !empty($queryString) ? '?' . $queryString : '',
             isset($parsedUrl['fragment']) ? '#' . $parsedUrl['fragment'] : ''
         );

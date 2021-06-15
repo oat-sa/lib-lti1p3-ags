@@ -53,6 +53,14 @@ class UrlBuilderTest extends TestCase
         );
 
         $this->assertEquals(
+            'https://user:pass@example.com/scores?a=b#e',
+            $this->subject->build(
+                'https://user:pass@example.com?a=b#e',
+                '/scores'
+            )
+        );
+
+        $this->assertEquals(
             'https://user:pass@example.com?a=b&c=d#e',
             $this->subject->build(
                 'https://user:pass@example.com?a=b#e',
@@ -64,9 +72,9 @@ class UrlBuilderTest extends TestCase
         );
 
         $this->assertEquals(
-            'https://user:pass@example.com/scores?a=b&c=d#e',
+            'https://user:pass@example.com/line-items/lineItemIdentifier/scores?a=b&c=d#e',
             $this->subject->build(
-                'https://user:pass@example.com?a=b#e',
+                'https://user:pass@example.com/line-items/lineItemIdentifier?a=b#e',
                 'scores',
                 [
                     'c' => 'd',
@@ -75,10 +83,54 @@ class UrlBuilderTest extends TestCase
         );
 
         $this->assertEquals(
-            'https://user:pass@example.com/path/scores?a=b&c=d#e',
+            'https://user:pass@example.com/line-items/lineItemIdentifier/scores?a=b&c=d#e',
             $this->subject->build(
-                'https://user:pass@example.com/path?a=b#e',
+                'https://user:pass@example.com/line-items/lineItemIdentifier?a=b#e',
+                '/scores',
+                [
+                    'c' => 'd',
+                ]
+            )
+        );
+
+        $this->assertEquals(
+            'https://user:pass@example.com/line-items/lineItemIdentifier/sub-path/scores?a=b&c=d#e',
+            $this->subject->build(
+                'https://user:pass@example.com/line-items/lineItemIdentifier/sub-path?a=b#e',
                 'scores',
+                [
+                    'c' => 'd',
+                ]
+            )
+        );
+
+        $this->assertEquals(
+            'https://user:pass@example.com/line-items/lineItemIdentifier/sub-path/scores?a=b&c=d#e',
+            $this->subject->build(
+                'https://user:pass@example.com/line-items/lineItemIdentifier/sub-path?a=b#e',
+                '/scores',
+                [
+                    'c' => 'd',
+                ]
+            )
+        );
+
+        $this->assertEquals(
+            'https://user:pass@example.com/line-items/lineItemIdentifier/sub-path/scores?a=b&c=d#e',
+            $this->subject->build(
+                'https://user:pass@example.com/line-items/lineItemIdentifier?a=b#e',
+                'sub-path/scores',
+                [
+                    'c' => 'd',
+                ]
+            )
+        );
+
+        $this->assertEquals(
+            'https://user:pass@example.com/line-items/lineItemIdentifier/sub-path/scores?a=b&c=d#e',
+            $this->subject->build(
+                'https://user:pass@example.com/line-items/lineItemIdentifier?a=b#e',
+                '/sub-path/scores',
                 [
                     'c' => 'd',
                 ]

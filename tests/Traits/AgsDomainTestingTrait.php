@@ -34,6 +34,8 @@ use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
 use OAT\Library\Lti1p3Ags\Model\Score\Score;
 use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
+use OAT\Library\Lti1p3Ags\Repository\ResultRepositoryInterface;
+use OAT\Library\Lti1p3Ags\Repository\ScoreRepositoryInterface;
 use OAT\Library\Lti1p3Core\Util\Collection\Collection;
 use OAT\Library\Lti1p3Core\Util\Collection\CollectionInterface;
 use OAT\Library\Lti1p3Core\Util\Generator\IdGenerator;
@@ -97,7 +99,7 @@ trait AgsDomainTestingTrait
     private function createTestLineItemRepository(
         array $lineItems = [],
         ?IdGeneratorInterface $generator = null
-    ): LineItemRepositoryInterface{
+    ): LineItemRepositoryInterface {
 
         $lineItems = !empty($lineItems) ? $lineItems : $this->createTestLineItemCollection()->all();
         $generator = $generator ?? new IdGenerator();
@@ -207,6 +209,36 @@ trait AgsDomainTestingTrait
         );
     }
 
+    private function createTestScoreRepository(array $scores = []): ScoreRepositoryInterface
+    {
+        return new class ($scores) implements ScoreRepositoryInterface
+        {
+            /** @var ScoreInterface[] */
+            private $scores;
+
+            public function __construct(array $scores)
+            {
+                $this->scores = [];
+
+                foreach ($scores as $score) {
+                    $this->save($score);
+                }
+            }
+
+            public function save(ScoreInterface $score): ScoreInterface
+            {
+                $this->scores[$score->getLineItemIdentifier()][] = $score;
+
+                return $score;
+            }
+
+            public function findByLineItemIdentifier(string $lineItemIdentifier): array
+            {
+                return $this->scores[$lineItemIdentifier] ?? [];
+            }
+        };
+    }
+
     private function createTestResult(
         string $userIdentifier = 'resultUserIdentifier',
         string $lineItemIdentifier = 'https://example.com/line-items/lineItemIdentifier',
@@ -236,17 +268,74 @@ trait AgsDomainTestingTrait
             : [
                 $this->createTestResult(),
                 $this->createTestResult(
-                    'resultUserIdentifier2',
-                    'resultLineItemIdentifier2',
-                    'https://example.com/line-items/lineItemIdentifier/results/resultIdentifier2'
+                    'resultUserIdentifier',
+                    'https://example.com/line-items/lineItemIdentifier',
+                    'https://example.com/line-items/lineItemIdentifier/results/resultIdentifier2',
+                    20
                 ),
                 $this->createTestResult(
-                    'resultUserIdentifier3',
-                    'resultLineItemIdentifier3',
-                    'https://example.com/line-items/lineItemIdentifier/results/resultIdentifier3'
+                    'resultUserIdentifier',
+                    'https://example.com/line-items/lineItemIdentifier',
+                    'https://example.com/line-items/lineItemIdentifier/results/resultIdentifier3',
+                    30
                 ),
             ];
 
         return new ResultCollection($results, $hasNext);
+    }
+
+    private function createTestResultRepository(array $results = []): ResultRepositoryInterface
+    {
+        $results = !empty($results) ? $results : $this->createTestResultCollection()->all();
+
+        return new class ($results) implements ResultRepositoryInterface
+        {
+            /** @var ResultInterface[] */
+            private $results;
+
+            public function __construct(array $results)
+            {
+                $this->results = [];
+
+                foreach ($results as $result) {
+                    $this->save($result);
+                }
+            }
+
+            public function save(ResultInterface $result): ResultInterface
+            {
+                $this->results[$result->getLineItemIdentifier()][] = $result;
+
+                return $result;
+            }
+
+            public function findCollectionByLineItemIdentifier(
+                string $lineItemIdentifier,
+                ?int $limit = null,
+                ?int $offset = null
+            ): ResultCollectionInterface {
+                $lineItemResults = $this->results[$lineItemIdentifier] ?? [];
+
+                return new ResultCollection(
+                    array_slice($lineItemResults, $offset ?: 0, $limit),
+                    $limit && ($limit + $offset) < sizeof($lineItemResults)
+                );
+            }
+
+            public function findByLineItemIdentifierAndUserIdentifier(
+                string $lineItemIdentifier,
+                string $userIdentifier
+            ): ?ResultInterface {
+                $foundResults = [];
+
+                foreach ($this->results[$lineItemIdentifier] ?? [] as $result) {
+                    if ($result->getUserIdentifier() === $userIdentifier) {
+                        $foundResults[] = $result;
+                    }
+                }
+
+                return !empty($foundResults) ? end($foundResults) : null;
+            }
+        };
     }
 }

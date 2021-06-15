@@ -20,11 +20,16 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Integration\Service\LineItem\Server\Handler;
+namespace OAT\Library\Lti1p3Ags\Tests\Integration\Service\Score\Server\Handler;
 
+use Nyholm\Psr7\ServerRequest;
+use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
-use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
-use OAT\Library\Lti1p3Ags\Service\LineItem\Server\Handler\DeleteLineItemServiceServerRequestHandler;
+use OAT\Library\Lti1p3Ags\Repository\ScoreRepositoryInterface;
+use OAT\Library\Lti1p3Ags\Serializer\Score\ScoreSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\Score\ScoreSerializerInterface;
+use OAT\Library\Lti1p3Ags\Service\Score\ScoreServiceInterface;
+use OAT\Library\Lti1p3Ags\Service\Score\Server\Handler\ScoreServiceServerRequestHandler;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
 use OAT\Library\Lti1p3Core\Security\OAuth2\Validator\RequestAccessTokenValidator;
 use OAT\Library\Lti1p3Core\Security\OAuth2\Validator\Result\RequestAccessTokenValidationResult;
@@ -37,7 +42,7 @@ use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Log\LogLevel;
 
-class DeleteLineItemServiceServerRequestHandlerTest extends TestCase
+class ScoreServiceServerRequestHandlerTest extends TestCase
 {
     use AgsDomainTestingTrait;
     use DomainTestingTrait;
@@ -47,12 +52,18 @@ class DeleteLineItemServiceServerRequestHandlerTest extends TestCase
     private $validatorMock;
 
     /** @var LineItemRepositoryInterface */
-    private $repository;
+    private $lineItemRepository;
+
+    /** @var ScoreRepositoryInterface */
+    private $scoreRepository;
+
+    /** @var ScoreSerializerInterface */
+    private $serializer;
 
     /** @var TestLogger */
     private $logger;
 
-    /** @var DeleteLineItemServiceServerRequestHandler */
+    /** @var ScoreServiceServerRequestHandler */
     private $subject;
 
     /** @var LtiServiceServer */
@@ -61,11 +72,16 @@ class DeleteLineItemServiceServerRequestHandlerTest extends TestCase
     protected function setUp(): void
     {
         $this->validatorMock = $this->createMock(RequestAccessTokenValidator::class);
-        $this->repository = $this->createTestLineItemRepository();
+        $this->lineItemRepository = $this->createTestLineItemRepository();
+        $this->scoreRepository = $this->createTestScoreRepository();
+        $this->serializer = new ScoreSerializer();
         $this->logger = new TestLogger();
 
-        $this->subject = new DeleteLineItemServiceServerRequestHandler(
-            $this->repository,
+        $this->subject = new ScoreServiceServerRequestHandler(
+            $this->lineItemRepository,
+            $this->scoreRepository,
+            null,
+            null,
             null,
             $this->logger
         );
@@ -82,10 +98,15 @@ class DeleteLineItemServiceServerRequestHandlerTest extends TestCase
     {
         $registration = $this->createTestRegistration();
         $lineItem = $this->createTestLineItem();
+        $score = $this->createTestScore();
 
-        $request = $this->createServerRequest(
-            'DELETE',
-            $lineItem->getIdentifier()
+        $request = new ServerRequest(
+            'POST',
+            $lineItem->getIdentifier() . '/scores',
+            [
+                'Content-Type' => ScoreServiceInterface::CONTENT_TYPE_SCORE,
+            ],
+            $this->serializer->serialize($score)
         );
 
         $validationResult = new RequestAccessTokenValidationResult($registration);
@@ -102,9 +123,17 @@ class DeleteLineItemServiceServerRequestHandlerTest extends TestCase
         $this->assertEquals(204, $response->getStatusCode());
         $this->assertEmpty($response->getBody()->__toString());
 
-        $this->assertTrue($this->logger->hasLog(LogLevel::INFO, 'AGS line item service success'));
+        $this->assertTrue($this->logger->hasLog(LogLevel::INFO, 'AGS score service success'));
 
-        $this->assertNull($this->repository->find($lineItem->getIdentifier()));
+        $createdScores = $this->scoreRepository->findByLineItemIdentifier($lineItem->getIdentifier());
+
+        $this->assertCount(1, $createdScores);
+
+        /** @var ScoreInterface $createdScore */
+        $createdScore = current($createdScores);
+
+        $this->assertInstanceOf(ScoreInterface::class, $createdScore);
+        $this->assertEquals($lineItem->getIdentifier(), $createdScore->getLineItemIdentifier());
     }
 
     public function testRequestHandlingErrorOnLineItemNotFound(): void
@@ -112,8 +141,12 @@ class DeleteLineItemServiceServerRequestHandlerTest extends TestCase
         $registration = $this->createTestRegistration();
 
         $request = $this->createServerRequest(
-            'DELETE',
-            'https://example.com/line-items/invalid'
+            'POST',
+            'https://example.com/line-items/invalid/scores',
+            [],
+            [
+                'Content-Type' => ScoreServiceInterface::CONTENT_TYPE_SCORE
+            ]
         );
 
         $validationResult = new RequestAccessTokenValidationResult($registration);
@@ -135,17 +168,51 @@ class DeleteLineItemServiceServerRequestHandlerTest extends TestCase
         $this->assertTrue($this->logger->hasLog(LogLevel::ERROR, $errorMessage));
     }
 
+    public function testRequestHandlingErrorOnInvalidScore(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $request = new ServerRequest(
+            'POST',
+            $lineItem->getIdentifier() . '/scores',
+            [
+                'Content-Type' => ScoreServiceInterface::CONTENT_TYPE_SCORE,
+            ],
+            'invalid'
+        );
+
+        $validationResult = new RequestAccessTokenValidationResult($registration);
+
+        $this->validatorMock
+            ->expects($this->once())
+            ->method('validate')
+            ->with($request)
+            ->willReturn($validationResult);
+
+        $response = $this->server->handle($request);
+
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals(400, $response->getStatusCode());
+
+        $errorMessage = 'Error during score deserialization: Syntax error';
+
+        $this->assertEquals($errorMessage, $response->getBody()->__toString());
+        $this->assertTrue($this->logger->hasLog(LogLevel::ERROR, $errorMessage));
+    }
+
     public function testRequestHandlingErrorOnInvalidHttpMethod(): void
     {
         $lineItem = $this->createTestLineItem();
+        $score = $this->createTestScore();
 
-        $request = $this->createServerRequest(
+        $request = new ServerRequest(
             'GET',
-            $lineItem->getIdentifier(),
-            [],
+            $lineItem->getIdentifier() . '/scores',
             [
-                'Accept' => LineItemServiceInterface::CONTENT_TYPE_LINE_ITEM
-            ]
+                'Content-Type' => ScoreServiceInterface::CONTENT_TYPE_SCORE,
+            ],
+            $this->serializer->serialize($score)
         );
 
         $this->validatorMock
@@ -157,7 +224,35 @@ class DeleteLineItemServiceServerRequestHandlerTest extends TestCase
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals(405, $response->getStatusCode());
 
-        $errorMessage = 'Not acceptable request method, accepts: [delete]';
+        $errorMessage = 'Not acceptable request method, accepts: [post]';
+
+        $this->assertEquals($errorMessage, $response->getBody()->__toString());
+        $this->assertTrue($this->logger->hasLog(LogLevel::ERROR, $errorMessage));
+    }
+
+    public function testRequestHandlingErrorOnInvalidContentType(): void
+    {
+        $lineItem = $this->createTestLineItem();
+
+        $request = $this->createServerRequest(
+            'POST',
+            $lineItem->getIdentifier() . '/scores',
+            [],
+            [
+                'Content-Type' => 'invalid'
+            ]
+        );
+
+        $this->validatorMock
+            ->expects($this->never())
+            ->method('validate');
+
+        $response = $this->server->handle($request);
+
+        $this->assertInstanceOf(ResponseInterface::class, $response);
+        $this->assertEquals(406, $response->getStatusCode());
+
+        $errorMessage = 'Not acceptable request content type, accepts: application/vnd.ims.lis.v1.score+json';
 
         $this->assertEquals($errorMessage, $response->getBody()->__toString());
         $this->assertTrue($this->logger->hasLog(LogLevel::ERROR, $errorMessage));
@@ -167,16 +262,17 @@ class DeleteLineItemServiceServerRequestHandlerTest extends TestCase
     {
         $registration = $this->createTestRegistration();
         $lineItem = $this->createTestLineItem();
+        $score = $this->createTestScore();
 
         $errorMessage = 'token validation error';
 
-        $request = $this->createServerRequest(
-            'DELETE',
-            $lineItem->getIdentifier(),
-            [],
+        $request = new ServerRequest(
+            'POST',
+            $lineItem->getIdentifier() . '/scores',
             [
-                'Accept' => LineItemServiceInterface::CONTENT_TYPE_LINE_ITEM
-            ]
+                'Content-Type' => ScoreServiceInterface::CONTENT_TYPE_SCORE,
+            ],
+            $this->serializer->serialize($score)
         );
 
         $validationResult = new RequestAccessTokenValidationResult($registration, null, [], $errorMessage);

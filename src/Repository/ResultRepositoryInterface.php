@@ -31,7 +31,7 @@ interface ResultRepositoryInterface
         string $lineItemIdentifier,
         ?int $limit = null,
         ?int $offset = null
-    ): ?ResultCollectionInterface;
+    ): ResultCollectionInterface;
 
     public function findByLineItemIdentifierAndUserIdentifier(
         string $lineItemIdentifier,

@@ -40,7 +40,7 @@ class UrlExtractor implements UrlExtractorInterface
         $path = $parsedUrl['path'] ?? '';
 
         if (null !== $removableUrlPathSuffix) {
-            $path = rtrim($path, '/' . $removableUrlPathSuffix);
+            $path = str_replace('/' . ltrim($removableUrlPathSuffix, '/'), '', $path);
         }
 
         $username = $parsedUrl['user'] ?? '';

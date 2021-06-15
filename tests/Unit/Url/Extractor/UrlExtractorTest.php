@@ -40,23 +40,39 @@ class UrlExtractorTest extends TestCase
     public function testExtract(): void
     {
         $this->assertEquals(
-            'https://user:pass@example.com/scores?a=b#e',
-            $this->subject->extract('https://user:pass@example.com/scores?a=b#e')
+            'https://user:pass@example.com/line-items/lineItemIdentifier/scores?a=b&c=d#e',
+            $this->subject->extract('https://user:pass@example.com/line-items/lineItemIdentifier/scores?a=b&c=d#e')
         );
 
         $this->assertEquals(
-            'https://user:pass@example.com?a=b#e',
+            'https://user:pass@example.com/line-items/lineItemIdentifier?a=b&c=d#e',
             $this->subject->extract(
-                'https://user:pass@example.com/scores?a=b#e',
+                'https://user:pass@example.com/line-items/lineItemIdentifier/scores?a=b&c=d#e',
                 'scores'
             )
         );
 
         $this->assertEquals(
-            'https://user:pass@example.com?a=b#e',
+            'https://user:pass@example.com/line-items/lineItemIdentifier?a=b&c=d#e',
             $this->subject->extract(
-                'https://user:pass@example.com/path/scores?a=b#e',
-                'path/scores'
+                'https://user:pass@example.com/line-items/lineItemIdentifier/scores?a=b&c=d#e',
+                '/scores'
+            )
+        );
+
+        $this->assertEquals(
+            'https://user:pass@example.com/line-items/lineItemIdentifier?a=b&c=d#e',
+            $this->subject->extract(
+                'https://user:pass@example.com/line-items/lineItemIdentifier/sub-path/scores?a=b&c=d#e',
+                'sub-path/scores'
+            )
+        );
+
+        $this->assertEquals(
+            'https://user:pass@example.com/line-items/lineItemIdentifier?a=b&c=d#e',
+            $this->subject->extract(
+                'https://user:pass@example.com/line-items/lineItemIdentifier/sub-path/scores?a=b&c=d#e',
+                '/sub-path/scores'
             )
         );
     }
