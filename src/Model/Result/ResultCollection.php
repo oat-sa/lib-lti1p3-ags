@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\Result;
 
+use ArrayIterator;
 use OAT\Library\Lti1p3Core\Util\Collection\Collection;
 use OAT\Library\Lti1p3Core\Util\Collection\CollectionInterface;
 
@@ -73,6 +74,16 @@ class ResultCollection implements ResultCollectionInterface
         $this->results->remove($resultIdentifier);
 
         return $this;
+    }
+
+    public function count(): int
+    {
+        return $this->results->count();
+    }
+
+    public function getIterator(): ArrayIterator
+    {
+        return $this->results->getIterator();
     }
 
     public function hasNext(): bool

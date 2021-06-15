@@ -27,6 +27,10 @@ use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollection;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Model\Result\Result;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultCollection;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultCollectionInterface;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
 use OAT\Library\Lti1p3Ags\Model\Score\Score;
 use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
@@ -185,5 +189,40 @@ trait AgsDomainTestingTrait
             $timestamp,
             $additionalProperties
         );
+    }
+
+    private function createTestResult(
+        string $userIdentifier = 'resultUserIdentifier',
+        string $lineItemIdentifier = 'resultLineItemIdentifier',
+        ?string $identifier = 'resultIdentifier',
+        ?float $resultScore = 10,
+        ?float $resultMaximum = 100,
+        ?string $comment = 'resultComment',
+        array $additionalProperties = ['key' => 'value']
+    ): ResultInterface {
+        return new Result(
+            $userIdentifier,
+            $lineItemIdentifier,
+            $identifier,
+            $resultScore,
+            $resultMaximum,
+            $comment,
+            $additionalProperties
+        );
+    }
+
+    private function createTestResultCollection(
+        array $results = [],
+        bool $hasNext = false
+    ): ResultCollectionInterface {
+        $results = !empty($results)
+            ? $results
+            : [
+                $this->createTestResult(),
+                $this->createTestResult('resultUserIdentifier2', 'resultLineItemIdentifier2', 'resultIdentifier2'),
+                $this->createTestResult('resultUserIdentifier3', 'resultLineItemIdentifier3', 'resultIdentifier3'),
+            ];
+
+        return new ResultCollection($results, $hasNext);
     }
 }

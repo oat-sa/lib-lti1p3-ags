@@ -22,12 +22,14 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\Result;
 
+use Countable;
+use IteratorAggregate;
 use JsonSerializable;
 
 /**
  * @see https://www.imsglobal.org/spec/lti-ags/v2p0#result-service
  */
-interface ResultCollectionInterface extends JsonSerializable
+interface ResultCollectionInterface extends Countable, IteratorAggregate, JsonSerializable
 {
     /** @return ResultInterface[] */
     public function all(): array;
