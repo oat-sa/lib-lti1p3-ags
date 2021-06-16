@@ -6,7 +6,7 @@
 
 - [Line item repository interface](#line-item-repository-interface)
 - [Score repository interface](#score-repository-interface)
-- [Resultrepository interface](#result-repository-interface)
+- [Result repository interface](#result-repository-interface)
 
 
 ### Line item repository interface
@@ -122,4 +122,5 @@ $resultRepository = new class implements ResultRepositoryInterface
 ```
 **Notes**:
 - the interface does not provide methods to persist scores. Up to you to add dedicated methods in your repository implementation to handle this
+- as per [AGS specifications](https://www.imsglobal.org/spec/lti-ags/v2p0#container-request-filters-0)  , the `findByLineItemIdentifierAndUserIdentifier()` method must return the most relevant result for a given user
 - a simple implementation example can be found in the [library tests](../../tests/Traits/AgsDomainTestingTrait.php)
