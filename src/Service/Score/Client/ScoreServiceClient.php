@@ -23,8 +23,6 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Service\Score\Client;
 
 use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
-use OAT\Library\Lti1p3Ags\Serializer\Score\Normalizer\ScoreNormalizer;
-use OAT\Library\Lti1p3Ags\Serializer\Score\Normalizer\ScoreNormalizerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Score\ScoreSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\Score\ScoreSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\Score\ScoreServiceInterface;
@@ -34,8 +32,6 @@ use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
-use OAT\Library\Lti1p3Core\Service\Client\ServiceClient;
-use OAT\Library\Lti1p3Core\Service\Client\ServiceClientInterface;
 use Throwable;
 
 class ScoreServiceClient implements ScoreServiceInterface
@@ -87,8 +83,6 @@ class ScoreServiceClient implements ScoreServiceInterface
             );
 
             return in_array($response->getStatusCode(), [200, 201, 202, 204]);
-        } catch (LtiExceptionInterface $exception) {
-            throw $exception;
         } catch (Throwable $exception) {
             throw new LtiException(
                 sprintf('Cannot publish score: %s', $exception->getMessage()),

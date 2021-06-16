@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <psalm
         autoloader="vendor/autoload.php"
-        errorLevel="8"
+        errorLevel="3"
         hideExternalErrors="true"
         useDocblockTypes="false"
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
