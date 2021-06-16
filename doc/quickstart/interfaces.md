@@ -12,9 +12,9 @@
 ### Line item repository interface
 
 **Required by**:
-- [line item service](../../src/Service/LineItem/Server) (as a platform)
-- [score service](../../src/Service/Score/Server) (as a platform)
-- [result service](../../src/Service/Result/Server) (as a platform)
+- [line item service](../../src/Service/LineItem/Server/Handler) (as a platform)
+- [score service](../../src/Service/Score/Server/Handler) (as a platform)
+- [result service](../../src/Service/Result/Server/Handler) (as a platform)
 
 In order to be able to manage your line items, you need to provide an implementation of the [LineItemRepositoryInterface](../../src/Repository/LineItemRepositoryInterface.php).
 
@@ -62,7 +62,7 @@ $lineItemRepository = new class implements LineItemRepositoryInterface
 ### Score repository interface
 
 **Required by**:
-- [score service](../../src/Service/Score/Server) (as a platform)
+- [score service](../../src/Service/Score/Server/Handler) (as a platform)
 
 In order to be able to manage your scores, you need to provide an implementation of the [ScoreRepositoryInterface](../../src/Repository/ScoreRepositoryInterface.php).
 
@@ -89,7 +89,7 @@ $scoreRepository = new class implements ScoreRepositoryInterface
 ### Result repository interface
 
 **Required by**:
-- [result service](../../src/Service/Result/Server) (as a platform)
+- [result service](../../src/Service/Result/Server/Handler) (as a platform)
 
 In order to be able to manage your results, you need to provide an implementation of the [ResultRepositoryInterface](../../src/Repository/ResultRepositoryInterface.php).
 
