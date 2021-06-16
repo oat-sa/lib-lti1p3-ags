@@ -26,7 +26,7 @@ use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
 
 interface ResultSerializerInterface
 {
-    public function serialize(ResultInterface $lineItem): string;
+    public function serialize(ResultInterface $result): string;
 
     public function deserialize(string $data): ResultInterface;
 }
