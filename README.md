@@ -32,9 +32,10 @@ $ composer require oat-sa/lib-lti1p3-ags
 
 You can then find below usage tutorials, presented by topics.
 
-### Configuration
+### Quick start
 
 - how to [configure the underlying LTI 1.3 Core library](https://github.com/oat-sa/lib-lti1p3-core#quick-start).
+- how to [implement the AGS library interfaces](doc/quickstart/interfaces.md)
 
 ### Line Item
 
