@@ -5,7 +5,7 @@ CHANGELOG
 -----
 
 * Added models, factories, serializers for line items, scores and results
-* Added LTI clients and LTI service request handlers line items, scores and results
+* Added LTI clients and LTI service request handlers for line items, scores and results
 * Added scope permission voter and URL helpers
 * Moved principal branch to main (former master)
 * Upgraded for oat-sa/lib-lti1p3-core version 6.x
