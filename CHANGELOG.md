@@ -11,7 +11,6 @@ CHANGELOG
 * Upgraded for oat-sa/lib-lti1p3-core version 6.x
 * Updated documentation
 
-
 0.6.1
 -----
 * Fixed buildEndpointUrl of ScoreServiceClient when trimming line item URL provided by AGS claims
