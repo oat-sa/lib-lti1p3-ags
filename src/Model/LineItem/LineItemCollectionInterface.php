@@ -15,17 +15,32 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
-use IteratorAggregate;
 use Countable;
+use IteratorAggregate;
 use JsonSerializable;
 
-interface LineItemCollectionInterface extends IteratorAggregate, Countable, JsonSerializable
+/**
+ * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
+ */
+interface LineItemCollectionInterface extends Countable, IteratorAggregate, JsonSerializable
 {
+    /** @return LineItemInterface[] */
+    public function all(): array;
+
+    public function has(string $lineItemIdentifier): bool;
+
+    public function get(string $lineItemIdentifier): ?LineItemInterface;
+
+    public function add(LineItemInterface $lineItem): LineItemCollectionInterface;
+
+    public function remove(string $lineItemIdentifier): LineItemCollectionInterface;
+
+    public function hasNext(): bool;
 }

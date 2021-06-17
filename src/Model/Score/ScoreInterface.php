@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
@@ -23,11 +23,13 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Model\Score;
 
 use DateTimeInterface;
+use JsonSerializable;
+use OAT\Library\Lti1p3Core\Util\Collection\CollectionInterface;
 
 /**
  * @see https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service
  */
-interface ScoreInterface
+interface ScoreInterface extends JsonSerializable
 {
     public const ACTIVITY_PROGRESS_STATUS_INITIALIZED = 'Initialized';
     public const ACTIVITY_PROGRESS_STATUS_STARTED = 'Started';
@@ -57,23 +59,39 @@ interface ScoreInterface
         self::GRADING_PROGRESS_STATUS_NOT_READY
     ];
 
-    public function getIdentifier(): ?string;
+    public function getUserIdentifier(): string;
 
-    public function getUserId(): string;
-
-    public function getContextId(): string;
-
-    public function getLineItemId(): string;
-
-    public function getScoreGiven(): ?float;
-
-    public function getScoreMaximum(): ?float;
-
-    public function getComment(): ?string;
-
-    public function getTimestamp(): DateTimeInterface;
+    public function setUserIdentifier(string $userIdentifier): ScoreInterface;
 
     public function getActivityProgressStatus(): string;
 
+    public function setActivityProgressStatus(string $activityProgressStatus): ScoreInterface;
+
     public function getGradingProgressStatus(): string;
+
+    public function setGradingProgressStatus(string $gradingProgressStatus): ScoreInterface;
+
+    public function getLineItemIdentifier(): ?string;
+
+    public function setLineItemIdentifier(?string $lineItemIdentifier): ScoreInterface;
+
+    public function getScoreGiven(): ?float;
+
+    public function setScoreGiven(?float $scoreGiven): ScoreInterface;
+
+    public function getScoreMaximum(): ?float;
+
+    public function setScoreMaximum(?float $scoreMaximum): ScoreInterface;
+
+    public function getComment(): ?string;
+
+    public function setComment(?string $comment): ScoreInterface;
+
+    public function getTimestamp(): DateTimeInterface;
+
+    public function setTimestamp(DateTimeInterface $timestamp): ScoreInterface;
+
+    public function getAdditionalProperties(): CollectionInterface;
+
+    public function setAdditionalProperties(CollectionInterface $additionalProperties): ScoreInterface;
 }

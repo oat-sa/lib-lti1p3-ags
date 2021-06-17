@@ -15,24 +15,46 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\Result;
 
-interface ResultInterface
-{
-    public function getIdentifier(): string;
+use JsonSerializable;
+use OAT\Library\Lti1p3Core\Util\Collection\CollectionInterface;
 
+/**
+ * @see https://www.imsglobal.org/spec/lti-ags/v2p0#result-service
+ */
+interface ResultInterface extends JsonSerializable
+{
     public function getUserIdentifier(): string;
 
-    public function getScore(): float;
+    public function setUserIdentifier(string $userIdentifier): ResultInterface;
 
-    public function getMaximum(): int;
+    public function getLineItemIdentifier(): string;
 
-    public function getComment(): string;
+    public function setLineItemIdentifier(string $lineItemIdentifier): ResultInterface;
 
-    public function getScoreOf(): string;
+    public function getIdentifier(): ?string;
+
+    public function setIdentifier(?string $identifier): ResultInterface;
+
+    public function getResultScore(): ?float;
+
+    public function setResultScore(?float $resultScore): ResultInterface;
+
+    public function getResultMaximum(): ?float;
+
+    public function setResultMaximum(?float $resultMaximum): ResultInterface;
+
+    public function getComment(): ?string;
+
+    public function setComment(?string $comment): ResultInterface;
+
+    public function setAdditionalProperties(CollectionInterface $additionalProperties): ResultInterface;
+
+    public function getAdditionalProperties(): CollectionInterface;
 }

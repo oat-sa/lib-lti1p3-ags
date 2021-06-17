@@ -15,32 +15,29 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Repository;
 
-use OAT\Library\Lti1p3Ags\Model\LineItemContainer\LineItemContainerInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
 interface LineItemRepositoryInterface
 {
-    public function create(LineItemInterface $lineItem): void;
+    public function find(string $lineItemIdentifier): ?LineItemInterface;
 
-    public function find(string $contextId, string $lineItemId): LineItemInterface;
+    public function findCollection(
+        ?string $resourceIdentifier = null,
+        ?string $resourceLinkIdentifier = null,
+        ?string $tag = null,
+        ?int $limit = null,
+        ?int $offset = null
+    ): LineItemCollectionInterface;
 
-    public function findAll(
-        string $contextId,
-        int $page = null,
-        int $limit = null,
-        string $resourceLinkId = null,
-        string $tag = null,
-        string $resourceId = null
-    ): LineItemContainerInterface;
+    public function save(LineItemInterface $lineItem): LineItemInterface;
 
-    public function delete(string $contextId, string $lineItemId): void;
-
-    public function update(LineItemInterface $lineItem): void;
+    public function delete(string $lineItemIdentifier): void;
 }

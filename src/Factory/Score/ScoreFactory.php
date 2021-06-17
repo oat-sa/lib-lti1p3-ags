@@ -15,87 +15,56 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Factory\Score;
 
-use DateTimeInterface;
+use Carbon\Carbon;
 use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\Score\Score;
 use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 
 class ScoreFactory implements ScoreFactoryInterface
 {
-    public function create(
-        string $userId,
-        string $contextId,
-        string $lineItemId,
-        ?string $identifier = null,
-        ?float $scoreGiven = null,
-        ?float $scoreMaximum = null,
-        ?string $comment = null,
-        ?DateTimeInterface $timestamp = null,
-        ?string $activityProgressStatus = ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
-        ?string $gradingProgressStatus = ScoreInterface::GRADING_PROGRESS_STATUS_NOT_READY
-    ): ScoreInterface {
-        $activityProgressStatus = $activityProgressStatus ?? ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED;
-        $gradingProgressStatus = $gradingProgressStatus ?? ScoreInterface::GRADING_PROGRESS_STATUS_NOT_READY;
+    /**
+     * @throws InvalidArgumentException
+     */
+    public function create(array $data): ScoreInterface
+    {
+        $userIdentifier = $data['userId'] ?? null;
 
-        $this->validateActivityProgressStatus($activityProgressStatus);
-        $this->validateGradingProgressStatus($gradingProgressStatus);
-
-        if (!$this->areScoresValid($scoreGiven, $scoreMaximum)) {
-            $scoreGiven = null;
-            $scoreMaximum = null;
+        if (null === $userIdentifier) {
+            throw new InvalidArgumentException('Missing mandatory user identifier');
         }
+
+        $additionalProperties = array_diff_key(
+            $data,
+            array_flip(
+                [
+                    'userId',
+                    'activityProgress',
+                    'gradingProgress',
+                    'scoreGiven',
+                    'scoreMaximum',
+                    'comment',
+                    'timestamp',
+                ]
+            )
+        );
 
         return new Score(
-            $userId,
-            $contextId,
-            $lineItemId,
-            $identifier,
-            $scoreGiven,
-            $scoreMaximum,
-            $comment,
-            $timestamp,
-            $activityProgressStatus,
-            $gradingProgressStatus
+            $userIdentifier,
+            $data['activityProgress'] ?? ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
+            $data['gradingProgress'] ?? ScoreInterface::GRADING_PROGRESS_STATUS_NOT_READY,
+            null,
+            $data['scoreGiven'] ?? null,
+            $data['scoreMaximum'] ?? null,
+            $data['comment'] ?? null,
+            isset($data['timestamp']) ? new Carbon($data['timestamp']) : null,
+            $additionalProperties
         );
-    }
-
-    private function areScoresValid(?float $scoreGiven, ?float $scoreMaximum): bool
-    {
-        return gettype($scoreGiven) === gettype($scoreMaximum)
-            && $scoreGiven >= 0
-            && $scoreMaximum >= 0;
-    }
-
-    private function validateActivityProgressStatus(string $activityProgressStatus): void
-    {
-        if (!in_array($activityProgressStatus, ScoreInterface::SUPPORTED_ACTIVITY_PROGRESS_STATUSES, true)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Cannot create a new Score: Activity progress status provided %s is not allowed. Allowed statuses: %s',
-                    $activityProgressStatus,
-                    implode(', ', ScoreInterface::SUPPORTED_ACTIVITY_PROGRESS_STATUSES)
-                )
-            );
-        }
-    }
-
-    private function validateGradingProgressStatus(string $gradingProgressStatus): void
-    {
-        if (!in_array($gradingProgressStatus, ScoreInterface::SUPPORTED_GRADING_PROGRESS_STATUSES, true)) {
-            throw new InvalidArgumentException(
-                sprintf(
-                    'Cannot create a new Score: Grading progress status provided %s is not allowed. Allowed statuses: %s',
-                    $gradingProgressStatus,
-                    implode(', ', ScoreInterface::SUPPORTED_GRADING_PROGRESS_STATUSES)
-                )
-            );
-        }
     }
 }

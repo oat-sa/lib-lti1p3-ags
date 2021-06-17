@@ -15,16 +15,26 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Repository;
 
+use OAT\Library\Lti1p3Ags\Model\Result\ResultCollectionInterface;
 use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
 
 interface ResultRepositoryInterface
 {
-    public function find(string $contextId, string $lineItemId): ResultInterface;
+    public function findCollectionByLineItemIdentifier(
+        string $lineItemIdentifier,
+        ?int $limit = null,
+        ?int $offset = null
+    ): ResultCollectionInterface;
+
+    public function findByLineItemIdentifierAndUserIdentifier(
+        string $lineItemIdentifier,
+        string $userIdentifier
+    ): ?ResultInterface;
 }

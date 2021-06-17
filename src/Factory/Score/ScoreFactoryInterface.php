@@ -15,28 +15,16 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Factory\Score;
 
-use DateTimeInterface;
 use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 
 interface ScoreFactoryInterface
 {
-    public function create(
-        string $userId,
-        string $contextId,
-        string $lineItemId,
-        ?string $identifier = null,
-        ?float $scoreGiven = null,
-        ?float $scoreMaximum = null,
-        ?string $comment = null,
-        ?DateTimeInterface $timestamp = null,
-        ?string $activityProgressStatus = ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
-        ?string $gradingProgressStatus = ScoreInterface::GRADING_PROGRESS_STATUS_NOT_READY
-    ): ScoreInterface;
+    public function create(array $data): ScoreInterface;
 }

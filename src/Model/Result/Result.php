@@ -15,52 +15,58 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\Result;
 
+use OAT\Library\Lti1p3Core\Util\Collection\Collection;
+use OAT\Library\Lti1p3Core\Util\Collection\CollectionInterface;
+
+/**
+ * @see https://www.imsglobal.org/spec/lti-ags/v2p0#result-service
+ */
 class Result implements ResultInterface
 {
     /** @var string */
-    private $identifier;
-
-    /** @var string */
     private $userIdentifier;
 
-    /** @var float */
-    private $score;
-
-    /** @var int */
-    private $maximum;
-
     /** @var string */
+    private $lineItemIdentifier;
+
+    /** @var string|null */
+    private $identifier;
+
+    /** @var float|null */
+    private $resultScore;
+
+    /** @var float|null */
+    private $resultMaximum;
+
+    /** @var string|null */
     private $comment;
 
-    /** @var string */
-    private $scoreOf;
+    /** @var CollectionInterface */
+    private $additionalProperties;
 
     public function __construct(
-        string $identifier,
         string $userIdentifier,
-        float $score,
-        int $maximum,
-        string $comment,
-        string $scoreOf
+        string $lineItemIdentifier,
+        ?string $identifier = null,
+        ?float $resultScore = null,
+        ?float $resultMaximum = null,
+        ?string $comment = null,
+        array $additionalProperties = []
     ) {
-        $this->identifier = $identifier;
         $this->userIdentifier = $userIdentifier;
-        $this->score = $score;
-        $this->maximum = $maximum;
+        $this->lineItemIdentifier = $lineItemIdentifier;
+        $this->identifier = $identifier;
+        $this->resultScore = $resultScore;
+        $this->resultMaximum = $resultMaximum;
         $this->comment = $comment;
-        $this->scoreOf = $scoreOf;
-    }
-
-    public function getIdentifier(): string
-    {
-        return $this->identifier;
+        $this->additionalProperties = (new Collection())->add($additionalProperties);
     }
 
     public function getUserIdentifier(): string
@@ -68,23 +74,99 @@ class Result implements ResultInterface
         return $this->userIdentifier;
     }
 
-    public function getScore(): float
+    public function setUserIdentifier(string $userIdentifier): ResultInterface
     {
-        return $this->score;
+        $this->userIdentifier = $userIdentifier;
+
+        return $this;
     }
 
-    public function getMaximum(): int
+    public function getLineItemIdentifier(): string
     {
-        return $this->maximum;
+        return $this->lineItemIdentifier;
     }
 
-    public function getComment(): string
+    public function setLineItemIdentifier(string $lineItemIdentifier): ResultInterface
+    {
+        $this->lineItemIdentifier = $lineItemIdentifier;
+
+        return $this;
+    }
+
+    public function getIdentifier(): ?string
+    {
+        return $this->identifier;
+    }
+
+    public function setIdentifier(?string $identifier): ResultInterface
+    {
+        $this->identifier = $identifier;
+
+        return $this;
+    }
+
+    public function getResultScore(): ?float
+    {
+        return $this->resultScore;
+    }
+
+    public function setResultScore(?float $resultScore): ResultInterface
+    {
+        $this->resultScore = $resultScore;
+
+        return $this;
+    }
+
+    public function getResultMaximum(): ?float
+    {
+        return $this->resultMaximum;
+    }
+
+    public function setResultMaximum(?float $resultMaximum): ResultInterface
+    {
+        $this->resultMaximum = $resultMaximum;
+
+        return $this;
+    }
+
+    public function getComment(): ?string
     {
         return $this->comment;
     }
 
-    public function getScoreOf(): string
+    public function setComment(?string $comment): ResultInterface
     {
-        return $this->scoreOf;
+        $this->comment = $comment;
+
+        return $this;
+    }
+
+    public function getAdditionalProperties(): CollectionInterface
+    {
+        return $this->additionalProperties;
+    }
+
+    public function setAdditionalProperties(CollectionInterface $additionalProperties): ResultInterface
+    {
+        $this->additionalProperties = $additionalProperties;
+
+        return $this;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return array_filter(
+            array_merge(
+                $this->additionalProperties->all(),
+                [
+                    'id' => $this->identifier,
+                    'scoreOf' => $this->lineItemIdentifier,
+                    'userId' => $this->userIdentifier,
+                    'resultScore' => $this->resultScore,
+                    'resultMaximum' => $this->resultMaximum,
+                    'comment' => $this->comment,
+                ]
+            )
+        );
     }
 }

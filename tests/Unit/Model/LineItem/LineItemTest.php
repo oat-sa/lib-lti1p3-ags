@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
@@ -24,172 +24,168 @@ namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model\LineItem;
 
 use Carbon\Carbon;
 use DateTimeInterface;
-use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
+use OAT\Library\Lti1p3Core\Util\Collection\Collection;
 use PHPUnit\Framework\TestCase;
 
 class LineItemTest extends TestCase
 {
-    /** @var LineItemInterface */
-    private $lineItem;
+    use AgsDomainTestingTrait;
 
-    public function setUp(): void
+    /** @var LineItemInterface */
+    private $subject;
+
+    protected function setUp(): void
     {
-        $this->lineItem = new LineItem(
-            'contextId',
-            1.0,
-            'label',
-            'id',
-            Carbon::create(1988, 12, 22),
-            Carbon::create(2020, 03, 31),
-            'tag',
-            'resourceId',
-            'resourceLinkId'
+        $this->subject = new LineItem(
+            100,
+            'lineItemLabel'
         );
     }
 
-    public function testGetId(): void
+    public function testDefaults(): void
     {
-        $this->assertEquals('id', $this->lineItem->getId());
+        $this->assertEquals(100, $this->subject->getScoreMaximum());
+        $this->assertEquals('lineItemLabel', $this->subject->getLabel());
+
+        $this->assertNull($this->subject->getIdentifier());
+        $this->assertNull($this->subject->getUrl());
+        $this->assertNull($this->subject->getResourceIdentifier());
+        $this->assertNull($this->subject->getResourceLinkIdentifier());
+        $this->assertNull($this->subject->getTag());
+        $this->assertNull($this->subject->getStartDateTime());
+        $this->assertNull($this->subject->getEndDateTime());
+        $this->assertEmpty($this->subject->getAdditionalProperties()->all());
+
+        $this->assertEquals(
+            [
+                'scoreMaximum' => 100,
+                'label' => 'lineItemLabel',
+            ],
+            $this->subject->jsonSerialize()
+        );
     }
 
-    public function testGetContextId(): void
+    public function testScoreMaximum(): void
     {
-        $this->assertEquals('contextId', $this->lineItem->getContextId());
+        $this->subject->setScoreMaximum(50);
+
+        $this->assertEquals(50, $this->subject->getScoreMaximum());
     }
 
-    public function testGetScoreMaximum(): void
+    public function testLabel(): void
     {
-        $this->assertEquals(1.0, $this->lineItem->getScoreMaximum());
+        $this->subject->setLabel('otherLabel');
+
+        $this->assertEquals('otherLabel', $this->subject->getLabel());
     }
 
-    public function testGetLabel(): void
+    public function testIdentifier(): void
     {
-        $this->assertEquals('label', $this->lineItem->getLabel());
+        $this->subject->setIdentifier('https://example.com/line-items/otherLineItemIdentifier');
+
+        $this->assertEquals(
+            'https://example.com/line-items/otherLineItemIdentifier',
+            $this->subject->getIdentifier()
+        );
     }
 
-    public function testGetStartDateTime(): void
+    public function testResourceIdentifier(): void
     {
-        $this->assertEquals(Carbon::create(1988, 12, 22), $this->lineItem->getStartDateTime());
+        $this->subject->setResourceIdentifier('lineItemResourceIdentifier');
+
+        $this->assertEquals('lineItemResourceIdentifier', $this->subject->getResourceIdentifier());
     }
 
-    public function testGetEndDateTime(): void
+    public function testResourceLinkIdentifier(): void
     {
-        $this->assertEquals(Carbon::create(2020, 03, 31), $this->lineItem->getEndDateTime());
+        $this->subject->setResourceLinkIdentifier('lineItemResourceLinkIdentifier');
+
+        $this->assertEquals('lineItemResourceLinkIdentifier', $this->subject->getResourceLinkIdentifier());
     }
 
     public function testTag(): void
     {
-        $this->assertEquals('tag', $this->lineItem->getTag());
+        $this->subject->setTag('tag');
+
+        $this->assertEquals('tag', $this->subject->getTag());
     }
 
-    public function testResourceId(): void
+    public function testStartDateTime(): void
     {
-        $this->assertEquals('resourceId', $this->lineItem->getResourceId());
+        $now = Carbon::now();
+
+        $this->subject->setStartDateTime($now);
+
+        $this->assertEquals($now, $this->subject->getStartDateTime());
     }
 
-    public function testResourceLinkId(): void
+    public function testEndDateTime(): void
     {
-        $this->assertEquals('resourceLinkId', $this->lineItem->getResourceLinkId());
+        $now = Carbon::now();
+
+        $this->subject->setEndDateTime($now);
+
+        $this->assertEquals($now, $this->subject->getEndDateTime());
     }
 
-    public function testItThrowExceptionWhenTagIsTooLong(): void
+    public function testAdditionalProperties(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Cannot create a new LineItem: Parameter tag provided is 257 characters long and cannot exceed 256');
+        $additionalProperties = (new Collection())->add(['key' => 'value']);
 
-        new LineItem(
-            'contextId',
-            1.0,
-            'label',
-            'id',
-            null,
-            null,
-            'tag_too_long                                                                                                                                                                                                                                                     '
-        );
+        $this->subject->setAdditionalProperties($additionalProperties);
+
+        $this->assertSame($additionalProperties, $this->subject->getAdditionalProperties());
     }
 
-    public function testItThrowExceptionWhenResourceIdIsTooLong(): void
+    public function testCopy(): void
     {
-        $this->expectException(InvalidArgumentException::class);
-        $this->expectExceptionMessage('Cannot create a new LineItem: Parameter resourceId provided is 257 characters long and cannot exceed 256');
+        $this->subject->setIdentifier('https://example.com/line-items/preservedLineItemIdentifier');
 
-        new LineItem(
-            'contextId',
-            1.0,
-            'label',
-            'id',
-            null,
-            null,
-            null,
-            'resourceId_too_long                                                                                                                                                                                                                                              '
-        );
-    }
+        $lineItemToCopyFrom = $this->createTestLineItem();
 
-    public function testJsonSerializeWithAllValues(): void
-    {
-        $contextId = 'line-item-context-id';
-        $scoreMaximum = 0.5;
-        $label = 'line-item-label';
-        $id = 'line-item-id';
-        $startDateTime = Carbon::create(1988, 12, 22);
-        $endDateTime = Carbon::create(2020, 03, 31);
-        $tag = 'line-item-tag';
-        $resourceId = 'line-item-resource-id';
-        $resourceLinkId = 'line-item-resource-link-id';
+        $this->subject->copy($lineItemToCopyFrom);
 
-        $lineItem = new LineItem(
-            $contextId,
-            $scoreMaximum,
-            $label,
-            $id,
-            $startDateTime,
-            $endDateTime,
-            $tag,
-            $resourceId,
-            $resourceLinkId
+        $this->assertEquals(
+            'https://example.com/line-items/preservedLineItemIdentifier',
+            $this->subject->getIdentifier()
         );
 
-        $values = [
-            'id' => $id,
-            'startDateTime' => $startDateTime->format(DateTimeInterface::ATOM),
-            'endDateTime' => $endDateTime->format(DateTimeInterface::ATOM),
-            'scoreMaximum' => $scoreMaximum,
-            'label' => $label,
-            'tag' => $tag,
-            'resourceId' => $resourceId,
-            'resourceLinkId' => $resourceLinkId,
-        ];
-
-        $this->assertSame(
-            $values,
-            $lineItem->jsonSerialize()
-        );
+        $this->assertEquals($lineItemToCopyFrom->getScoreMaximum(), $this->subject->getScoreMaximum());
+        $this->assertEquals($lineItemToCopyFrom->getLabel(), $this->subject->getLabel());
+        $this->assertEquals($lineItemToCopyFrom->getResourceIdentifier(), $this->subject->getResourceIdentifier());
+        $this->assertEquals($lineItemToCopyFrom->getResourceLinkIdentifier(), $this->subject->getResourceLinkIdentifier());
+        $this->assertEquals($lineItemToCopyFrom->getTag(), $this->subject->getTag());
+        $this->assertEquals($lineItemToCopyFrom->getStartDateTime(), $this->subject->getStartDateTime());
+        $this->assertEquals($lineItemToCopyFrom->getEndDateTime(), $this->subject->getEndDateTime());
+        $this->assertSame($lineItemToCopyFrom->getAdditionalProperties(), $this->subject->getAdditionalProperties());
     }
 
-    public function testJsonSerializeWithRequiredValuesOnly(): void
+    public function testJsonSerialize(): void
     {
-        $contextId = 'line-item-context-id';
-        $scoreMaximum = 0.5;
-        $label = 'line-item-label';
+        $start = Carbon::now();
+        $end = Carbon::now()->addHour();
 
-        $lineItem = new LineItem($contextId, $scoreMaximum, $label);
+        $subject = $this
+            ->createTestLineItem()
+            ->setStartDateTime($start)
+            ->setEndDateTime($end);
 
-        $values = [
-            'id' => '',
-            'startDateTime' => null,
-            'endDateTime' => null,
-            'scoreMaximum' => $scoreMaximum,
-            'label' => $label,
-            'tag' => '',
-            'resourceId' => '',
-            'resourceLinkId' => '',
-        ];
-
-        $this->assertSame(
-            $values,
-            $lineItem->jsonSerialize()
+        $this->assertEquals(
+            [
+                'id' => 'https://example.com/line-items/lineItemIdentifier',
+                'startDateTime' => $start->format(DateTimeInterface::ATOM),
+                'endDateTime' => $end->format(DateTimeInterface::ATOM),
+                'scoreMaximum' => (float)100,
+                'label' => 'lineItemLabel',
+                'tag' => 'lineItemTag',
+                'resourceId' => 'lineItemResourceIdentifier',
+                'resourceLinkId' => 'lineItemResourceLinkIdentifier',
+                'key' => 'value'
+            ],
+            $subject->jsonSerialize()
         );
     }
 }

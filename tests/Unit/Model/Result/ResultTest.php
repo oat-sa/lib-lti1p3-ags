@@ -15,7 +15,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
- * Copyright (c) 2020 (original work) Open Assessment Technologies SA;
+ * Copyright (c) 2021 (original work) Open Assessment Technologies SA;
  */
 
 declare(strict_types=1);
@@ -24,52 +24,120 @@ namespace OAT\Library\Lti1p3Ags\Tests\Unit\Model\Result;
 
 use OAT\Library\Lti1p3Ags\Model\Result\Result;
 use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
+use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
+use OAT\Library\Lti1p3Core\Util\Collection\Collection;
 use PHPUnit\Framework\TestCase;
 
 class ResultTest extends TestCase
 {
+    use AgsDomainTestingTrait;
+
     /** @var ResultInterface */
     private $subject;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->subject = new Result(
-            'id',
-            'userId',
-            0.5,
-            10,
-            'comment',
-            'math'
+            'resultUserIdentifier',
+            'https://example.com/line-items/lineItemIdentifier'
         );
     }
 
-    public function testGetId(): void
+    public function testDefaults(): void
     {
-        $this->assertSame('id', $this->subject->getIdentifier());
+        $this->assertEquals('resultUserIdentifier', $this->subject->getUserIdentifier());
+        $this->assertEquals(
+            'https://example.com/line-items/lineItemIdentifier',
+            $this->subject->getLineItemIdentifier()
+        );
+
+        $this->assertNull($this->subject->getIdentifier());
+        $this->assertNull($this->subject->getResultScore());
+        $this->assertNull($this->subject->getResultMaximum());
+        $this->assertNull($this->subject->getComment());
+        $this->assertEmpty($this->subject->getAdditionalProperties()->all());
+
+        $this->assertEquals(
+            [
+                'userId' => 'resultUserIdentifier',
+                'scoreOf' => 'https://example.com/line-items/lineItemIdentifier',
+            ],
+            $this->subject->jsonSerialize()
+        );
     }
 
-    public function testGetUserId(): void
+    public function testUserIdentifier(): void
     {
-        $this->assertSame('userId', $this->subject->getUserIdentifier());
+        $this->subject->setUserIdentifier('resultOtherUserIdentifier');
+
+        $this->assertEquals('resultOtherUserIdentifier', $this->subject->getUserIdentifier());
     }
 
-    public function testGetResultScore(): void
+    public function testLineItemIdentifier(): void
     {
-        $this->assertSame(0.5, $this->subject->getScore());
+        $this->subject->setLineItemIdentifier('https://example.com/line-items/otherLineItemIdentifier');
+
+        $this->assertEquals(
+            'https://example.com/line-items/otherLineItemIdentifier',
+            $this->subject->getLineItemIdentifier()
+        );
     }
 
-    public function testGetResultMaximum(): void
+    public function testIdentifier(): void
     {
-        $this->assertSame(10, $this->subject->getMaximum());
+        $this->subject->setIdentifier('https://example.com/line-items/lineItemIdentifier/results/resultIdentifier');
+
+        $this->assertEquals(
+            'https://example.com/line-items/lineItemIdentifier/results/resultIdentifier',
+            $this->subject->getIdentifier()
+        );
     }
 
-    public function testGetComment(): void
+    public function testResultScore(): void
     {
-        $this->assertSame('comment', $this->subject->getComment());
+        $this->subject->setResultScore(10);
+
+        $this->assertEquals(10, $this->subject->getResultScore());
     }
 
-    public function testGetScoreOf(): void
+    public function testResultMaximum(): void
     {
-        $this->assertSame('math', $this->subject->getScoreOf());
+        $this->subject->setResultMaximum(10);
+
+        $this->assertEquals(10, $this->subject->getResultMaximum());
+    }
+
+    public function testComment(): void
+    {
+        $this->subject->setComment('resultComment');
+
+        $this->assertEquals('resultComment', $this->subject->getComment());
+    }
+
+    public function testAdditionalProperties(): void
+    {
+        $additionalProperties = (new Collection())->add(['key' => 'value']);
+
+        $this->subject->setAdditionalProperties($additionalProperties);
+
+        $this->assertSame($additionalProperties, $this->subject->getAdditionalProperties());
+    }
+
+    public function testJsonSerialize(): void
+    {
+        $subject = $this->createTestResult();
+
+        $this->assertEquals(
+            [
+                'id' => 'https://example.com/line-items/lineItemIdentifier/results/resultIdentifier',
+                'scoreOf' => 'https://example.com/line-items/lineItemIdentifier',
+                'userId' => 'resultUserIdentifier',
+                'resultScore' => (float)10,
+                'resultMaximum' => (float)100,
+                'comment' => 'resultComment',
+                'key' => 'value'
+            ],
+            $subject->jsonSerialize()
+        );
     }
 }
