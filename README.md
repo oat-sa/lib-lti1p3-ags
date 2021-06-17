@@ -2,8 +2,8 @@
 
 [![Latest Version](https://img.shields.io/github/tag/oat-sa/lib-lti1p3-ags.svg?style=flat&label=release)](https://github.com/oat-sa/lib-lti1p3-ags/tags)
 [![License GPL2](http://img.shields.io/badge/licence-GPL%202.0-blue.svg)](http://www.gnu.org/licenses/gpl-2.0.html)
-[![Build Status](https://github.com/oat-sa/lib-lti1p3-ags/actions/workflows/build.yaml/badge.svg?branch=master)](https://github.com/oat-sa/lib-lti1p3-ags/actions)
-[![Tests Coverage Status](https://coveralls.io/repos/github/oat-sa/lib-lti1p3-ags/badge.svg?branch=master)](https://coveralls.io/github/oat-sa/lib-lti1p3-ags?branch=master)
+[![Build Status](https://github.com/oat-sa/lib-lti1p3-ags/actions/workflows/build.yaml/badge.svg?branch=main)](https://github.com/oat-sa/lib-lti1p3-ags/actions)
+[![Tests Coverage Status](https://coveralls.io/repos/github/oat-sa/lib-lti1p3-ags/badge.svg?branch=main)](https://coveralls.io/github/oat-sa/lib-lti1p3-ags?branch=main)
 [![Psalm Level Status](https://shepherd.dev/github/oat-sa/lib-lti1p3-ags/level.svg)](https://shepherd.dev/github/oat-sa/lib-lti1p3-ags)
 [![Packagist Downloads](http://img.shields.io/packagist/dt/oat-sa/lib-lti1p3-ags.svg)](https://packagist.org/packages/oat-sa/lib-lti1p3-ags)
 
@@ -36,6 +36,7 @@ You can then find below usage tutorials, presented by topics.
 
 - how to [configure the underlying LTI 1.3 Core library](https://github.com/oat-sa/lib-lti1p3-core#quick-start)
 - how to [implement the AGS library interfaces](doc/quickstart/interfaces.md)
+- how to [check AGS scopes permissions](doc/quickstart/voter.md)
 
 ### Line Item
 
