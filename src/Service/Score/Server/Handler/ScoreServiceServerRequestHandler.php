@@ -131,6 +131,6 @@ class ScoreServiceServerRequestHandler implements LtiServiceServerRequestHandler
             $score->setLineItemIdentifier($lineItem->getIdentifier())
         );
 
-        return $this->factory->createResponse(204);
+        return $this->factory->createResponse(201);
     }
 }
