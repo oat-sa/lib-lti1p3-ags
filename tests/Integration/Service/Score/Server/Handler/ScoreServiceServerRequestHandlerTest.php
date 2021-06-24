@@ -120,7 +120,7 @@ class ScoreServiceServerRequestHandlerTest extends TestCase
         $response = $this->server->handle($request);
 
         $this->assertInstanceOf(ResponseInterface::class, $response);
-        $this->assertEquals(204, $response->getStatusCode());
+        $this->assertEquals(201, $response->getStatusCode());
         $this->assertEmpty($response->getBody()->__toString());
 
         $this->assertTrue($this->logger->hasLog(LogLevel::INFO, 'AGS score service success'));
