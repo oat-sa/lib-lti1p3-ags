@@ -44,7 +44,7 @@ $ composer require oat-sa/lib-lti1p3-ags
 
 ## Documentation
 
-You can then find below the library documentation, presented by topics.
+You can find below the library documentation, presented by topics.
 
 ### Quick start
 
