@@ -33,13 +33,19 @@ use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
 use OAT\Library\Lti1p3Ags\Url\Builder\UrlBuilder;
 use OAT\Library\Lti1p3Ags\Url\Builder\UrlBuilderInterface;
+use OAT\Library\Lti1p3Ags\Voter\ScopePermissionVoter;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use OAT\Library\Lti1p3Core\Message\Payload\Claim\AgsClaim;
+use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClient;
 use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
 use Throwable;
 
+/**
+ * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service-scope-and-allowed-http-methods
+ */
 class LineItemServiceClient implements LineItemServiceInterface
 {
     /** @var LtiServiceClientInterface */
@@ -67,19 +73,72 @@ class LineItemServiceClient implements LineItemServiceInterface
     }
 
     /**
-     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#creating-a-new-line-item
+     * @throws LtiExceptionInterface
+     */
+    public function createLineItemForPayload(
+        RegistrationInterface $registration,
+        LineItemInterface $lineItem,
+        LtiMessagePayloadInterface $payload
+    ): LineItemInterface {
+        try {
+            $claim = $payload->getAgs();
+
+            if (null === $claim) {
+                throw new InvalidArgumentException('Provided payload does not contain AGS claim');
+            }
+
+            return $this->createLineItemForClaim($registration, $lineItem, $claim);
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot create line item for payload: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @throws LtiExceptionInterface
+     */
+    public function createLineItemForClaim(
+        RegistrationInterface $registration,
+        LineItemInterface $lineItem,
+        AgsClaim $claim
+    ): LineItemInterface {
+        try {
+            $lineItemsContainerUrl = $claim->getLineItemsContainerUrl();
+
+            if (null === $lineItemsContainerUrl) {
+                throw new InvalidArgumentException('Provided AGS claim does not contain line items container url');
+            }
+
+            if (!ScopePermissionVoter::canWriteLineItem($claim->getScopes())) {
+                throw new InvalidArgumentException('Provided AGS claim does not contain line item write scope');
+            }
+
+            return $this->createLineItem($registration, $lineItem, $lineItemsContainerUrl);
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot create line item for claim: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
      * @throws LtiExceptionInterface
      */
     public function createLineItem(
         RegistrationInterface $registration,
         LineItemInterface $lineItem,
-        string $lineItemContainerUrl
+        string $lineItemsContainerUrl
     ): LineItemInterface {
         try {
             $response = $this->client->request(
                 $registration,
                 'POST',
-                $lineItemContainerUrl,
+                $lineItemsContainerUrl,
                 [
                     'headers' => [
                         'Content-Type' => static::CONTENT_TYPE_LINE_ITEM,
@@ -102,7 +161,58 @@ class LineItemServiceClient implements LineItemServiceInterface
     }
 
     /**
-     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#example-getting-a-single-line-item
+     * @throws LtiExceptionInterface
+     */
+    public function getLineItemForPayload(
+        RegistrationInterface $registration,
+        LtiMessagePayloadInterface $payload
+    ): LineItemInterface {
+        try {
+            $claim = $payload->getAgs();
+
+            if (null === $claim) {
+                throw new InvalidArgumentException('Provided payload does not contain AGS claim');
+            }
+
+            return $this->getLineItemForClaim($registration, $claim);
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot get line item for payload: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @throws LtiExceptionInterface
+     */
+    public function getLineItemForClaim(
+        RegistrationInterface $registration,
+        AgsClaim $claim
+    ): LineItemInterface {
+        try {
+            $lineItemUrl = $claim->getLineItemUrl();
+
+            if (null === $lineItemUrl) {
+                throw new InvalidArgumentException('Provided AGS claim does not contain line item url');
+            }
+
+            if (!ScopePermissionVoter::canReadLineItem($claim->getScopes())) {
+                throw new InvalidArgumentException('Provided AGS claim does not contain line item read scope');
+            }
+
+            return $this->getLineItem($registration, $lineItemUrl, $this->extractLineItemScopesFromClaim($claim));
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot get line item for claim: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
      * @throws LtiExceptionInterface
      */
     public function getLineItem(
@@ -137,12 +247,90 @@ class LineItemServiceClient implements LineItemServiceInterface
     }
 
     /**
-     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#example-getting-all-line-items-for-a-given-container
+     * @throws LtiExceptionInterface
+     */
+    public function listLineItemsForPayload(
+        RegistrationInterface $registration,
+        LtiMessagePayloadInterface $payload,
+        ?string $resourceIdentifier = null,
+        ?string $resourceLinkIdentifier = null,
+        ?string $tag = null,
+        ?int $limit = null,
+        ?int $offset = null
+    ): LineItemContainerInterface {
+        try {
+            $claim = $payload->getAgs();
+
+            if (null === $claim) {
+                throw new InvalidArgumentException('Provided payload does not contain AGS claim');
+            }
+
+            return $this->listLineItemsForClaim(
+                $registration,
+                $claim,
+                $resourceIdentifier,
+                $resourceLinkIdentifier,
+                $tag,
+                $limit,
+                $offset
+            );
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot list line items for payload: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @throws LtiExceptionInterface
+     */
+    public function listLineItemsForClaim(
+        RegistrationInterface $registration,
+        AgsClaim $claim,
+        ?string $resourceIdentifier = null,
+        ?string $resourceLinkIdentifier = null,
+        ?string $tag = null,
+        ?int $limit = null,
+        ?int $offset = null
+    ): LineItemContainerInterface {
+        try {
+            $lineItemsContainerUrl = $claim->getLineItemsContainerUrl();
+
+            if (null === $lineItemsContainerUrl) {
+                throw new InvalidArgumentException('Provided AGS claim does not contain line items container url');
+            }
+
+            if (!ScopePermissionVoter::canReadLineItem($claim->getScopes())) {
+                throw new InvalidArgumentException('Provided AGS claim does not contain line item read scope');
+            }
+
+            return $this->listLineItems(
+                $registration,
+                $lineItemsContainerUrl,
+                $resourceIdentifier,
+                $resourceLinkIdentifier,
+                $tag,
+                $limit,
+                $offset,
+                $this->extractLineItemScopesFromClaim($claim)
+            );
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot list line items for claim: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
      * @throws LtiExceptionInterface
      */
     public function listLineItems(
         RegistrationInterface $registration,
-        string $lineItemContainerUrl,
+        string $lineItemsContainerUrl,
         ?string $resourceIdentifier = null,
         ?string $resourceLinkIdentifier = null,
         ?string $tag = null,
@@ -162,7 +350,7 @@ class LineItemServiceClient implements LineItemServiceInterface
             $response = $this->client->request(
                 $registration,
                 'GET',
-                $this->builder->build($lineItemContainerUrl, null, array_filter($queryParameters)),
+                $this->builder->build($lineItemsContainerUrl, null, array_filter($queryParameters)),
                 [
                     'headers' => [
                         'Accept' => static::CONTENT_TYPE_LINE_ITEM_CONTAINER,
@@ -194,16 +382,72 @@ class LineItemServiceClient implements LineItemServiceInterface
     }
 
     /**
-     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#updating-a-line-item
+     * @throws LtiExceptionInterface
+     */
+    public function updateLineItemForPayload(
+        RegistrationInterface $registration,
+        LineItemInterface $lineItem,
+        LtiMessagePayloadInterface $payload
+    ): LineItemInterface {
+        try {
+            $claim = $payload->getAgs();
+
+            if (null === $claim) {
+                throw new InvalidArgumentException('Provided payload does not contain AGS claim');
+            }
+
+            return $this->updateLineItemForClaim($registration, $lineItem, $claim);
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot update line item for payload: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @throws LtiExceptionInterface
+     */
+    public function updateLineItemForClaim(
+        RegistrationInterface $registration,
+        LineItemInterface $lineItem,
+        AgsClaim $claim
+    ): LineItemInterface {
+        try {
+            $lineItemUrl = $lineItem->getIdentifier() ?? $claim->getLineItemUrl();
+
+            if (null === $lineItemUrl) {
+                throw new InvalidArgumentException('Provided AGS claim or line item does not contain line item url');
+            }
+
+            if (!ScopePermissionVoter::canWriteLineItem($claim->getScopes())) {
+                throw new InvalidArgumentException('Provided AGS claim does not contain line item write scope');
+            }
+
+            return $this->updateLineItem($registration, $lineItem, $lineItemUrl);
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot update line item for claim: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
      * @throws LtiExceptionInterface
      */
     public function updateLineItem(
         RegistrationInterface $registration,
-        LineItemInterface $lineItem
+        LineItemInterface $lineItem,
+        ?string $lineItemUrl = null
     ): LineItemInterface {
         try {
-            if (null === $lineItem->getIdentifier()) {
-                throw new InvalidArgumentException('Provided line item does not have an identifier');
+            $lineItemUrl = $lineItem->getIdentifier() ?? $lineItemUrl;
+
+            if (null === $lineItemUrl) {
+                throw new InvalidArgumentException('No provided line item url');
             }
 
             $response = $this->client->request(
@@ -232,11 +476,64 @@ class LineItemServiceClient implements LineItemServiceInterface
     }
 
     /**
-     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service-scope-and-allowed-http-methods
      * @throws LtiExceptionInterface
      */
-    public function deleteLineItem(RegistrationInterface $registration, string $lineItemUrl): bool
-    {
+    public function deleteLineItemForPayload(
+        RegistrationInterface $registration,
+        LtiMessagePayloadInterface $payload
+    ): bool {
+        try {
+            $claim = $payload->getAgs();
+
+            if (null === $claim) {
+                throw new InvalidArgumentException('Provided payload does not contain AGS claim');
+            }
+
+            return $this->deleteLineItemForClaim($registration, $claim);
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot delete line item for payload: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @throws LtiExceptionInterface
+     */
+    public function deleteLineItemForClaim(
+        RegistrationInterface $registration,
+        AgsClaim $claim
+    ): bool {
+        try {
+            $lineItemUrl = $claim->getLineItemUrl();
+
+            if (null === $lineItemUrl) {
+                throw new InvalidArgumentException('Provided AGS claim does not contain line item url');
+            }
+
+            if (!ScopePermissionVoter::canWriteLineItem($claim->getScopes())) {
+                throw new InvalidArgumentException('Provided AGS claim does not contain line item write scope');
+            }
+
+            return $this->deleteLineItem($registration, $lineItemUrl);
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot delete line item for claim: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @throws LtiExceptionInterface
+     */
+    public function deleteLineItem(
+        RegistrationInterface $registration,
+        string $lineItemUrl
+    ): bool {
         try {
             $response = $this->client->request(
                 $registration,
@@ -256,5 +553,18 @@ class LineItemServiceClient implements LineItemServiceInterface
                 $exception
             );
         }
+    }
+
+    private function extractLineItemScopesFromClaim(AgsClaim $claim): ?array
+    {
+        $intersect = array_intersect(
+            [
+                self::AUTHORIZATION_SCOPE_LINE_ITEM,
+                self::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY,
+            ],
+            $claim->getScopes()
+        );
+
+        return !empty($intersect) ? $intersect : null;
     }
 }

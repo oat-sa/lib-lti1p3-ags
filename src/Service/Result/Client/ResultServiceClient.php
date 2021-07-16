@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\Result\Client;
 
+use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Model\Result\ResultContainer;
 use OAT\Library\Lti1p3Ags\Model\Result\ResultContainerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Result\ResultCollectionSerializer;
@@ -29,13 +30,19 @@ use OAT\Library\Lti1p3Ags\Serializer\Result\ResultCollectionSerializerInterface;
 use OAT\Library\Lti1p3Ags\Service\Result\ResultServiceInterface;
 use OAT\Library\Lti1p3Ags\Url\Builder\UrlBuilder;
 use OAT\Library\Lti1p3Ags\Url\Builder\UrlBuilderInterface;
+use OAT\Library\Lti1p3Ags\Voter\ScopePermissionVoter;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use OAT\Library\Lti1p3Core\Message\Payload\Claim\AgsClaim;
+use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClient;
 use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
 use Throwable;
 
+/**
+ * @see https://www.imsglobal.org/spec/lti-ags/v2p0#result-service
+ */
 class ResultServiceClient implements ResultServiceInterface
 {
     /** @var LtiServiceClientInterface */
@@ -58,7 +65,76 @@ class ResultServiceClient implements ResultServiceInterface
     }
 
     /**
-     * @see https://www.imsglobal.org/spec/lti-ags/v2p0#result-service
+     * @throws LtiExceptionInterface
+     */
+    public function listResultsForPayload(
+        RegistrationInterface $registration,
+        LtiMessagePayloadInterface $payload,
+        ?string $userIdentifier = null,
+        ?int $limit = null,
+        ?int $offset = null
+    ): ResultContainerInterface {
+        try {
+            $claim = $payload->getAgs();
+
+            if (null === $claim) {
+                throw new InvalidArgumentException('Provided payload does not contain AGS claim');
+            }
+
+            return $this->listResultsForClaim(
+                $registration,
+                $claim,
+                $userIdentifier,
+                $limit,
+                $offset
+            );
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot list results for payload: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @throws LtiExceptionInterface
+     */
+    public function listResultsForClaim(
+        RegistrationInterface $registration,
+        AgsClaim $claim,
+        ?string $userIdentifier = null,
+        ?int $limit = null,
+        ?int $offset = null
+    ): ResultContainerInterface {
+        try {
+            $lineItemUrl = $claim->getLineItemUrl();
+
+            if (null === $lineItemUrl) {
+                throw new InvalidArgumentException('Provided AGS claim does not contain line item url');
+            }
+
+            if (!ScopePermissionVoter::canReadResult($claim->getScopes())) {
+                throw new InvalidArgumentException('Provided AGS claim does not contain result scope');
+            }
+
+            return $this->listResults(
+                $registration,
+                $lineItemUrl,
+                $userIdentifier,
+                $limit,
+                $offset
+            );
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Cannot list results for claim: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
      * @throws LtiExceptionInterface
      */
     public function listResults(

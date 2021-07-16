@@ -1,6 +1,12 @@
 CHANGELOG
 =========
 
+1.1.0
+-----
+
+* Added methods to line item, score and result clients to allow working from AGS claim or LTI message payload
+* Updated documentation
+
 1.0.0
 -----
 
