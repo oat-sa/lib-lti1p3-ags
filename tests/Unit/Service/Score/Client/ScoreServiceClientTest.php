@@ -114,9 +114,7 @@ class ScoreServiceClientTest extends TestCase
         $this->expectException(LtiExceptionInterface::class);
         $this->expectExceptionMessage('Cannot publish score for payload: Provided payload does not contain AGS claim');
 
-        $result = $this->subject->publishScoreForPayload($registration, $score, $payload);
-
-        $this->assertFalse($result);
+        $this->subject->publishScoreForPayload($registration, $score, $payload);
     }
 
     public function testPublishScoreForClaimSuccess(): void
@@ -172,9 +170,7 @@ class ScoreServiceClientTest extends TestCase
         $this->expectException(LtiExceptionInterface::class);
         $this->expectExceptionMessage('Cannot publish score for claim: Provided AGS claim does not contain line item url');
 
-        $result = $this->subject->publishScoreForClaim($registration, $score, $claim);
-
-        $this->assertFalse($result);
+        $this->subject->publishScoreForClaim($registration, $score, $claim);
     }
 
     public function testPublishScoreForClaimErrorOnInvalidScopes(): void
@@ -193,15 +189,12 @@ class ScoreServiceClientTest extends TestCase
             ],
             null,
             $lineItem->getIdentifier()
-
         );
 
         $this->expectException(LtiExceptionInterface::class);
         $this->expectExceptionMessage('Cannot publish score for claim: Provided AGS claim does not contain score scope');
 
-        $result = $this->subject->publishScoreForClaim($registration, $score, $claim);
-
-        $this->assertFalse($result);
+        $this->subject->publishScoreForClaim($registration, $score, $claim);
     }
 
     public function testPublishScoreSuccess(): void

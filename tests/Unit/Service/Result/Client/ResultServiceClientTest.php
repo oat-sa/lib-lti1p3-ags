@@ -27,6 +27,8 @@ use OAT\Library\Lti1p3Ags\Service\Result\Client\ResultServiceClient;
 use OAT\Library\Lti1p3Ags\Service\Result\ResultServiceInterface;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use OAT\Library\Lti1p3Core\Message\Payload\Claim\AgsClaim;
+use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
 use OAT\Library\Lti1p3Core\Tests\Traits\DomainTestingTrait;
@@ -51,6 +53,179 @@ class ResultServiceClientTest extends TestCase
         $this->clientMock = $this->createMock(LtiServiceClientInterface::class);
 
         $this->subject = new ResultServiceClient($this->clientMock);
+    }
+
+    public function testListResultsForPayloadSuccess(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+        $resultCollection = $this->createTestResultCollection();
+
+        $this->prepareClientMockSuccess(
+            $registration,
+            'GET',
+            $lineItem->getIdentifier() . '/results?user_id=uid&limit=1&offset=1',
+            [
+                'headers' => [
+                    'Accept' => ResultServiceInterface::CONTENT_TYPE_RESULT_CONTAINER,
+                ]
+            ],
+            [
+                ResultServiceInterface::AUTHORIZATION_SCOPE_RESULT_READ_ONLY,
+            ],
+            json_encode($resultCollection),
+            200,
+            [
+                ResultServiceInterface::HEADER_LINK => sprintf(
+                    '<%s/results?limit=1&offset=2>; rel="next"',
+                    $lineItem->getIdentifier()
+                )
+            ]
+        );
+
+        $claim = new AgsClaim(
+            [
+                ResultServiceInterface::AUTHORIZATION_SCOPE_RESULT_READ_ONLY
+            ],
+            null,
+            $lineItem->getIdentifier()
+        );
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->once())
+            ->method('getAgs')
+            ->willReturn($claim);
+
+        $result = $this->subject->listResultsForPayload(
+            $registration,
+            $payload,
+            'uid',
+            1,
+            1
+        );
+
+        $this->assertEquals($resultCollection, $result->getResults());
+        $this->assertTrue($result->hasNext());
+        $this->assertEquals(
+            $lineItem->getIdentifier() . '/results?limit=1&offset=2',
+            $result->getRelationLinkUrl()
+        );
+    }
+
+    public function testListResultsForPayloadErrorOnMissingAgsClaim(): void
+    {
+        $registration = $this->createTestRegistration();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->once())
+            ->method('getAgs')
+            ->willReturn(null);
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot list results for payload: Provided payload does not contain AGS claim');
+
+        $this->subject->listResultsForPayload($registration, $payload);
+    }
+
+    public function testListResultsForClaimSuccess(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+        $resultCollection = $this->createTestResultCollection();
+
+        $this->prepareClientMockSuccess(
+            $registration,
+            'GET',
+            $lineItem->getIdentifier() . '/results?user_id=uid&limit=1&offset=1',
+            [
+                'headers' => [
+                    'Accept' => ResultServiceInterface::CONTENT_TYPE_RESULT_CONTAINER,
+                ]
+            ],
+            [
+                ResultServiceInterface::AUTHORIZATION_SCOPE_RESULT_READ_ONLY,
+            ],
+            json_encode($resultCollection),
+            200,
+            [
+                ResultServiceInterface::HEADER_LINK => sprintf(
+                    '<%s/results?limit=1&offset=2>; rel="next"',
+                    $lineItem->getIdentifier()
+                )
+            ]
+        );
+
+        $claim = new AgsClaim(
+            [
+                ResultServiceInterface::AUTHORIZATION_SCOPE_RESULT_READ_ONLY
+            ],
+            null,
+            $lineItem->getIdentifier()
+        );
+
+        $result = $this->subject->listResultsForClaim(
+            $registration,
+            $claim,
+            'uid',
+            1,
+            1
+        );
+
+        $this->assertEquals($resultCollection, $result->getResults());
+        $this->assertTrue($result->hasNext());
+        $this->assertEquals(
+            $lineItem->getIdentifier() . '/results?limit=1&offset=2',
+            $result->getRelationLinkUrl()
+        );
+    }
+
+    public function testListResultsForClaimErrorOnMissingLineItemUrl(): void
+    {
+        $registration = $this->createTestRegistration();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $claim = new AgsClaim(
+            [
+                ResultServiceInterface::AUTHORIZATION_SCOPE_RESULT_READ_ONLY
+            ]
+        );
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot list results for claim: Provided AGS claim does not contain line item url');
+
+        $this->subject->listResultsForClaim($registration, $claim);
+    }
+
+    public function testListResultsForClaimErrorOnInvalidScopes(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $claim = new AgsClaim(
+            [
+                'invalid'
+            ],
+            null,
+            $lineItem->getIdentifier()
+        );
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot list results for claim: Provided AGS claim does not contain result scope');
+
+        $this->subject->listResultsForClaim($registration, $claim);
     }
 
     public function testListResultsSuccess(): void
