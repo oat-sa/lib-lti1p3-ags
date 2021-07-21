@@ -144,7 +144,7 @@ class LineItemServiceClientTest extends TestCase
             ->method('request');
 
         $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Cannot update line item: Provided line item does not have an identifier');
+        $this->expectExceptionMessage('Cannot update line item: No provided line item url');
 
         $this->subject->updateLineItem($registration, $lineItem);
     }

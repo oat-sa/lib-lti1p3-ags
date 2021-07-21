@@ -27,6 +27,8 @@ use OAT\Library\Lti1p3Ags\Service\Score\Client\ScoreServiceClient;
 use OAT\Library\Lti1p3Ags\Service\Score\ScoreServiceInterface;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use OAT\Library\Lti1p3Core\Message\Payload\Claim\AgsClaim;
+use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
 use OAT\Library\Lti1p3Core\Tests\Traits\DomainTestingTrait;
@@ -53,7 +55,156 @@ class ScoreServiceClientTest extends TestCase
         $this->subject = new ScoreServiceClient($this->clientMock);
     }
 
-    public function testCreateLineItemSuccess(): void
+    public function testPublishScoreForPayloadSuccess(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+        $score = $this->createTestScore();
+
+        $this->prepareClientMockSuccess(
+            $registration,
+            'POST',
+            $lineItem->getIdentifier() . '/scores',
+            [
+                'headers' => [
+                    'Content-Type' => ScoreServiceInterface::CONTENT_TYPE_SCORE,
+                ],
+                'body' => json_encode($score)
+            ],
+            [
+                ScoreServiceInterface::AUTHORIZATION_SCOPE_SCORE,
+            ],
+            json_encode($score)
+        );
+
+        $claim = new AgsClaim(
+            [
+                ScoreServiceInterface::AUTHORIZATION_SCOPE_SCORE
+            ],
+            null,
+            $lineItem->getIdentifier()
+        );
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->once())
+            ->method('getAgs')
+            ->willReturn($claim);
+
+        $result = $this->subject->publishScoreForPayload($registration, $score, $payload);
+
+        $this->assertTrue($result);
+    }
+
+    public function testPublishScoreForPayloadErrorOnMissingAgsClaim(): void
+    {
+        $registration = $this->createTestRegistration();
+        $score = $this->createTestScore();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->once())
+            ->method('getAgs')
+            ->willReturn(null);
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot publish score for payload: Provided payload does not contain AGS claim');
+
+        $result = $this->subject->publishScoreForPayload($registration, $score, $payload);
+
+        $this->assertFalse($result);
+    }
+
+    public function testPublishScoreForClaimSuccess(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+        $score = $this->createTestScore();
+
+        $this->prepareClientMockSuccess(
+            $registration,
+            'POST',
+            $lineItem->getIdentifier() . '/scores',
+            [
+                'headers' => [
+                    'Content-Type' => ScoreServiceInterface::CONTENT_TYPE_SCORE,
+                ],
+                'body' => json_encode($score)
+            ],
+            [
+                ScoreServiceInterface::AUTHORIZATION_SCOPE_SCORE,
+            ],
+            json_encode($score)
+        );
+
+        $claim = new AgsClaim(
+            [
+                ScoreServiceInterface::AUTHORIZATION_SCOPE_SCORE
+            ],
+            null,
+            $lineItem->getIdentifier()
+        );
+
+        $result = $this->subject->publishScoreForClaim($registration, $score, $claim);
+
+        $this->assertTrue($result);
+    }
+
+    public function testPublishScoreForClaimErrorOnMissingLineItemUrl(): void
+    {
+        $registration = $this->createTestRegistration();
+        $score = $this->createTestScore();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $claim = new AgsClaim(
+            [
+                ScoreServiceInterface::AUTHORIZATION_SCOPE_SCORE
+            ]
+        );
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot publish score for claim: Provided AGS claim does not contain line item url');
+
+        $result = $this->subject->publishScoreForClaim($registration, $score, $claim);
+
+        $this->assertFalse($result);
+    }
+
+    public function testPublishScoreForClaimErrorOnInvalidScopes(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+        $score = $this->createTestScore();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $claim = new AgsClaim(
+            [
+                'invalid'
+            ],
+            null,
+            $lineItem->getIdentifier()
+
+        );
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot publish score for claim: Provided AGS claim does not contain score scope');
+
+        $result = $this->subject->publishScoreForClaim($registration, $score, $claim);
+
+        $this->assertFalse($result);
+    }
+
+    public function testPublishScoreSuccess(): void
     {
         $registration = $this->createTestRegistration();
         $lineItem = $this->createTestLineItem();
@@ -80,7 +231,7 @@ class ScoreServiceClientTest extends TestCase
         $this->assertTrue($result);
     }
 
-    public function testCreateLineItemError(): void
+    public function testPublishScoreError(): void
     {
         $error = 'publish error';
 
