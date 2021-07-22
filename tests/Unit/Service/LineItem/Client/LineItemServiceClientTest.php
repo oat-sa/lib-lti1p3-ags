@@ -27,6 +27,7 @@ use OAT\Library\Lti1p3Ags\Service\LineItem\Client\LineItemServiceClient;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use OAT\Library\Lti1p3Core\Message\Payload\Claim\AgsClaim;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
 use OAT\Library\Lti1p3Core\Tests\Traits\DomainTestingTrait;
@@ -51,6 +52,39 @@ class LineItemServiceClientTest extends TestCase
         $this->clientMock = $this->createMock(LtiServiceClientInterface::class);
 
         $this->subject = new LineItemServiceClient($this->clientMock);
+    }
+
+    public function testCreateLineItemForClaimSuccess(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $this->prepareClientMockSuccess(
+            $registration,
+            'POST',
+            'https://example.com/line-items',
+            [
+                'headers' => [
+                    'Content-Type' => LineItemServiceInterface::CONTENT_TYPE_LINE_ITEM,
+                ],
+                'body' => json_encode($lineItem)
+            ],
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM,
+            ],
+            json_encode($lineItem)
+        );
+
+        $claim = new AgsClaim(
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM
+            ],
+            'https://example.com/line-items'
+        );
+
+        $result = $this->subject->createLineItemForClaim($registration, $lineItem, $claim);
+
+        $this->assertEquals($lineItem, $result);
     }
 
     public function testCreateLineItemSuccess(): void
