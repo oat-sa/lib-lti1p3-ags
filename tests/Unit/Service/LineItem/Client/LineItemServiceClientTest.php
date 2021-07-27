@@ -25,9 +25,11 @@ namespace OAT\Library\Lti1p3Ags\Tests\Unit\Service\LineItem\Client;
 use Exception;
 use OAT\Library\Lti1p3Ags\Service\LineItem\Client\LineItemServiceClient;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
+use OAT\Library\Lti1p3Ags\Service\Result\ResultServiceInterface;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use OAT\Library\Lti1p3Core\Message\Payload\Claim\AgsClaim;
+use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
 use OAT\Library\Lti1p3Core\Tests\Traits\DomainTestingTrait;
@@ -52,6 +54,66 @@ class LineItemServiceClientTest extends TestCase
         $this->clientMock = $this->createMock(LtiServiceClientInterface::class);
 
         $this->subject = new LineItemServiceClient($this->clientMock);
+    }
+
+    public function testCreateLineItemForPayloadSuccess(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $this->prepareClientMockSuccess(
+            $registration,
+            'POST',
+            'https://example.com/line-items',
+            [
+                'headers' => [
+                    'Content-Type' => LineItemServiceInterface::CONTENT_TYPE_LINE_ITEM,
+                ],
+                'body' => json_encode($lineItem)
+            ],
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM,
+            ],
+            json_encode($lineItem)
+        );
+
+        $claim = new AgsClaim(
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM
+            ],
+            'https://example.com/line-items'
+        );
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->once())
+            ->method('getAgs')
+            ->willReturn($claim);
+
+        $result = $this->subject->createLineItemForPayload($registration, $lineItem, $payload);
+
+        $this->assertEquals($lineItem, $result);
+    }
+
+    public function testCreateLineItemForPayloadErrorOnMissingAgsClaim(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->once())
+            ->method('getAgs')
+            ->willReturn(null);
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot create line item for payload: Provided payload does not contain AGS claim');
+
+        $this->subject->createLineItemForPayload($registration, $lineItem, $payload);
     }
 
     public function testCreateLineItemForClaimSuccess(): void
@@ -85,6 +147,49 @@ class LineItemServiceClientTest extends TestCase
         $result = $this->subject->createLineItemForClaim($registration, $lineItem, $claim);
 
         $this->assertEquals($lineItem, $result);
+    }
+
+    public function testCreateLineItemForClaimErrorOnMissingLineItemsContainerUrl(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot create line item for claim: Provided AGS claim does not contain line items container url');
+
+        $claim = new AgsClaim(
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM
+            ]
+        );
+
+        $this->subject->createLineItemForClaim($registration, $lineItem, $claim);
+    }
+
+    public function testCreateLineItemForClaimErrorOnInvalidScopes(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot create line item for claim: Provided AGS claim does not contain line item write scope');
+
+        $claim = new AgsClaim(
+            [
+                'invalid'
+            ],
+            'https://example.com/line-items'
+        );
+
+        $this->subject->createLineItemForClaim($registration, $lineItem, $claim);
     }
 
     public function testCreateLineItemSuccess(): void
@@ -140,6 +245,145 @@ class LineItemServiceClientTest extends TestCase
         $this->expectExceptionMessage('Cannot create line item: create error');
 
         $this->subject->createLineItem($registration, $lineItem, 'https://example.com/line-items');
+    }
+
+    public function testUpdateLineItemForPayloadSuccess(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $this->prepareClientMockSuccess(
+            $registration,
+            'PUT',
+            $lineItem->getIdentifier(),
+            [
+                'headers' => [
+                    'Content-Type' => LineItemServiceInterface::CONTENT_TYPE_LINE_ITEM,
+                ],
+                'body' => json_encode($lineItem)
+            ],
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM,
+            ],
+            json_encode($lineItem)
+        );
+
+        $claim = new AgsClaim(
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM
+            ],
+            null,
+            $lineItem->getIdentifier()
+        );
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->once())
+            ->method('getAgs')
+            ->willReturn($claim);
+
+        $result = $this->subject->updateLineItemForPayload($registration, $lineItem, $payload);
+
+        $this->assertEquals($lineItem, $result);
+    }
+
+    public function testUpdateLineItemForPayloadErrorOnMissingAgsClaim(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->once())
+            ->method('getAgs')
+            ->willReturn(null);
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot update line item for payload: Provided payload does not contain AGS claim');
+
+        $this->subject->updateLineItemForPayload($registration, $lineItem, $payload);
+    }
+
+    public function testUpdateLineItemForClaimSuccess(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $this->prepareClientMockSuccess(
+            $registration,
+            'PUT',
+            $lineItem->getIdentifier(),
+            [
+                'headers' => [
+                    'Content-Type' => LineItemServiceInterface::CONTENT_TYPE_LINE_ITEM,
+                ],
+                'body' => json_encode($lineItem)
+            ],
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM,
+            ],
+            json_encode($lineItem)
+        );
+
+        $claim = new AgsClaim(
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM
+            ],
+            null,
+            $lineItem->getIdentifier()
+        );
+
+        $result = $this->subject->updateLineItemForClaim($registration, $lineItem, $claim);
+
+        $this->assertEquals($lineItem, $result);
+    }
+
+    public function testUpdateLineItemForClaimErrorOnMissingLineItemsContainerUrl(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem()->setIdentifier(null);
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot update line item for claim: Provided AGS claim or line item does not contain line item url');
+
+        $claim = new AgsClaim(
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM
+            ]
+        );
+
+        $this->subject->updateLineItemForClaim($registration, $lineItem, $claim);
+    }
+
+    public function testUpdateLineItemForClaimErrorOnInvalidScopes(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot update line item for claim: Provided AGS claim does not contain line item write scope');
+
+        $claim = new AgsClaim(
+            [
+                'invalid'
+            ],
+            null,
+            $lineItem->getIdentifier()
+        );
+
+        $this->subject->updateLineItemForClaim($registration, $lineItem, $claim);
     }
 
     public function testUpdateLineItemSuccess(): void
@@ -212,6 +456,145 @@ class LineItemServiceClientTest extends TestCase
         $this->subject->updateLineItem($registration, $lineItem);
     }
 
+    public function testGetLineItemForPayloadSuccess(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $this->prepareClientMockSuccess(
+            $registration,
+            'GET',
+            $lineItem->getIdentifier(),
+            [
+                'headers' => [
+                    'Accept' => LineItemServiceInterface::CONTENT_TYPE_LINE_ITEM,
+                ]
+            ],
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM,
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY,
+            ],
+            json_encode($lineItem)
+        );
+
+        $claim = new AgsClaim(
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM,
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY,
+            ],
+            null,
+            $lineItem->getIdentifier()
+        );
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->once())
+            ->method('getAgs')
+            ->willReturn($claim);
+
+        $result = $this->subject->getLineItemForPayload($registration, $payload);
+
+        $this->assertEquals($lineItem, $result);
+    }
+
+    public function testGetLineItemForPayloadErrorOnMissingAgsClaim(): void
+    {
+        $registration = $this->createTestRegistration();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->once())
+            ->method('getAgs')
+            ->willReturn(null);
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot get line item for payload: Provided payload does not contain AGS claim');
+
+        $this->subject->getLineItemForPayload($registration, $payload);
+    }
+
+    public function testGetLineItemForClaimSuccess(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $this->prepareClientMockSuccess(
+            $registration,
+            'GET',
+            $lineItem->getIdentifier(),
+            [
+                'headers' => [
+                    'Accept' => LineItemServiceInterface::CONTENT_TYPE_LINE_ITEM,
+                ]
+            ],
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM,
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY,
+            ],
+            json_encode($lineItem)
+        );
+
+        $claim = new AgsClaim(
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM,
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY,
+            ],
+            null,
+            $lineItem->getIdentifier()
+        );
+
+        $result = $this->subject->getLineItemForClaim($registration, $claim);
+
+        $this->assertEquals($lineItem, $result);
+    }
+
+    public function testGetLineItemForClaimErrorOnMissingLineItemsContainerUrl(): void
+    {
+        $registration = $this->createTestRegistration();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot get line item for claim: Provided AGS claim does not contain line item url');
+
+        $claim = new AgsClaim(
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM
+            ]
+        );
+
+        $this->subject->getLineItemForClaim($registration, $claim);
+    }
+
+    public function testGetLineItemForClaimErrorOnInvalidScopes(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot get line item for claim: Provided AGS claim does not contain line item read scope');
+
+        $claim = new AgsClaim(
+            [
+                'invalid'
+            ],
+            null,
+            $lineItem->getIdentifier()
+        );
+
+        $this->subject->getLineItemForClaim($registration, $claim);
+    }
+
     public function testGetLineItemSuccess(): void
     {
         $registration = $this->createTestRegistration();
@@ -265,6 +648,175 @@ class LineItemServiceClientTest extends TestCase
         $this->expectExceptionMessage('Cannot get line item: get error');
 
         $this->subject->getLineItem($registration, $lineItem->getIdentifier());
+    }
+
+    public function testListLineItemsForPayloadSuccess(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItemCollection = $this->createTestLineItemCollection();
+
+        $this->prepareClientMockSuccess(
+            $registration,
+            'GET',
+            'https://example.com/line-items?resource_id=rid&resource_link_id=rlid&tag=tag&limit=1&offset=1',
+            [
+                'headers' => [
+                    'Accept' => LineItemServiceInterface::CONTENT_TYPE_LINE_ITEM_CONTAINER,
+                ]
+            ],
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM,
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY,
+            ],
+            json_encode($lineItemCollection),
+            200,
+            [
+                LineItemServiceInterface::HEADER_LINK => '<https://example.com/line-items?limit=1&offset=2>; rel="next"'
+            ]
+        );
+
+        $claim = new AgsClaim(
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM,
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY,
+            ],
+            'https://example.com/line-items'
+        );
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->once())
+            ->method('getAgs')
+            ->willReturn($claim);
+
+        $result = $this->subject->listLineItemsForPayload(
+            $registration,
+            $payload,
+            'rid',
+            'rlid',
+            'tag',
+            1,
+            1
+        );
+
+        $this->assertEquals($lineItemCollection, $result->getLineItems());
+        $this->assertTrue($result->hasNext());
+        $this->assertEquals(
+            'https://example.com/line-items?limit=1&offset=2',
+            $result->getRelationLinkUrl()
+        );
+    }
+
+    public function testListLineItemsForPayloadErrorOnMissingAgsClaim(): void
+    {
+        $registration = $this->createTestRegistration();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->once())
+            ->method('getAgs')
+            ->willReturn(null);
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot list line items for payload: Provided payload does not contain AGS claim');
+
+        $this->subject->listLineItemsForPayload($registration, $payload);
+    }
+
+    public function testListLineItemsForClaimSuccess(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItemCollection = $this->createTestLineItemCollection();
+
+        $this->prepareClientMockSuccess(
+            $registration,
+            'GET',
+            'https://example.com/line-items?resource_id=rid&resource_link_id=rlid&tag=tag&limit=1&offset=1',
+            [
+                'headers' => [
+                    'Accept' => LineItemServiceInterface::CONTENT_TYPE_LINE_ITEM_CONTAINER,
+                ]
+            ],
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM,
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY,
+            ],
+            json_encode($lineItemCollection),
+            200,
+            [
+                LineItemServiceInterface::HEADER_LINK => '<https://example.com/line-items?limit=1&offset=2>; rel="next"'
+            ]
+        );
+
+        $claim = new AgsClaim(
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM,
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM_READ_ONLY,
+            ],
+            'https://example.com/line-items'
+        );
+
+        $result = $this->subject->listLineItemsForClaim(
+            $registration,
+            $claim,
+            'rid',
+            'rlid',
+            'tag',
+            1,
+            1
+        );
+
+        $this->assertEquals($lineItemCollection, $result->getLineItems());
+        $this->assertTrue($result->hasNext());
+        $this->assertEquals(
+            'https://example.com/line-items?limit=1&offset=2',
+            $result->getRelationLinkUrl()
+        );
+    }
+
+    public function testListLineItemsForClaimErrorOnMissingLineItemsContainerUrl(): void
+    {
+        $registration = $this->createTestRegistration();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot list line items for claim: Provided AGS claim does not contain line items container url');
+
+        $claim = new AgsClaim(
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM
+            ]
+        );
+
+        $this->subject->listLineItemsForClaim($registration, $claim);
+    }
+
+    public function testGetLineItemsForClaimErrorOnInvalidScopes(): void
+    {
+        $registration = $this->createTestRegistration();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot list line items for claim: Provided AGS claim does not contain line item read scope');
+
+        $claim = new AgsClaim(
+            [
+                'invalid'
+            ],
+            'https://example.com/line-items'
+        );
+
+        $this->subject->listLineItemsForClaim($registration, $claim);
     }
 
     public function testListLineItemsSuccess(): void
