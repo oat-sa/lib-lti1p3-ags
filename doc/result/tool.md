@@ -47,3 +47,9 @@ if ($resultContainer->hasNext()) {
     // Handle retrieval of the next results
 }
 ```
+
+**Notes**:
+
+- you can use the method `listResultsForClaim()` to work directly with an [AGS claim](https://github.com/oat-sa/lib-lti1p3-core/blob/master/src/Message/Payload/Claim/AgsClaim.php) received at launch
+- you can use the method `listResultsForPayload()` to work directly with an [LTI message payload](https://github.com/oat-sa/lib-lti1p3-core/blob/master/src/Message/Payload/LtiMessagePayloadInterface.php) received at launch
+
