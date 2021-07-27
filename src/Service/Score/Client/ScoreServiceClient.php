@@ -35,6 +35,7 @@ use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use OAT\Library\Lti1p3Core\Message\Payload\Claim\AgsClaim;
 use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
+use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClient;
 use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
 use Throwable;
 
@@ -53,11 +54,11 @@ class ScoreServiceClient implements ScoreServiceInterface
     private $builder;
 
     public function __construct(
-        LtiServiceClientInterface $client,
+        ?LtiServiceClientInterface $client = null,
         ?ScoreSerializerInterface $serializer = null,
         ?UrlBuilderInterface $builder = null
     ) {
-        $this->client = $client;
+        $this->client = $client ?? new LtiServiceClient();
         $this->serializer = $serializer ?? new ScoreSerializer();
         $this->builder = $builder ?? new UrlBuilder();
     }
