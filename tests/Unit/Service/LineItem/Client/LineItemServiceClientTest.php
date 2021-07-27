@@ -798,7 +798,7 @@ class LineItemServiceClientTest extends TestCase
         $this->subject->listLineItemsForClaim($registration, $claim);
     }
 
-    public function testGetLineItemsForClaimErrorOnInvalidScopes(): void
+    public function testListLineItemsForClaimErrorOnInvalidScopes(): void
     {
         $registration = $this->createTestRegistration();
 
@@ -896,6 +896,135 @@ class LineItemServiceClientTest extends TestCase
             1,
             1
         );
+    }
+
+    public function testDeleteLineItemForPayloadSuccess(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $this->prepareClientMockSuccess(
+            $registration,
+            'DELETE',
+            $lineItem->getIdentifier(),
+            [],
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM,
+            ],
+            '',
+            204
+        );
+
+        $claim = new AgsClaim(
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM,
+            ],
+            null,
+            $lineItem->getIdentifier()
+        );
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->once())
+            ->method('getAgs')
+            ->willReturn($claim);
+
+        $result = $this->subject->deleteLineItemForPayload($registration, $payload);
+
+        $this->assertTrue($result);
+    }
+
+    public function testDeleteLineItemForPayloadErrorOnMissingAgsClaim(): void
+    {
+        $registration = $this->createTestRegistration();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->once())
+            ->method('getAgs')
+            ->willReturn(null);
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot delete line item for payload: Provided payload does not contain AGS claim');
+
+        $this->subject->deleteLineItemForPayload($registration, $payload);
+    }
+
+    public function testDeleteLineItemForClaimSuccess(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $this->prepareClientMockSuccess(
+            $registration,
+            'DELETE',
+            $lineItem->getIdentifier(),
+            [],
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM,
+            ],
+            '',
+            204
+        );
+
+        $claim = new AgsClaim(
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM,
+            ],
+            null,
+            $lineItem->getIdentifier()
+        );
+
+        $result = $this->subject->deleteLineItemForClaim($registration, $claim);
+
+        $this->assertTrue($result);
+    }
+
+    public function testDeleteLineItemForClaimErrorOnMissingLineItemsContainerUrl(): void
+    {
+        $registration = $this->createTestRegistration();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot delete line item for claim: Provided AGS claim does not contain line item url');
+
+        $claim = new AgsClaim(
+            [
+                LineItemServiceInterface::AUTHORIZATION_SCOPE_LINE_ITEM
+            ]
+        );
+
+        $this->subject->deleteLineItemForClaim($registration, $claim);
+    }
+
+    public function testDeleteLineItemForClaimErrorOnInvalidScopes(): void
+    {
+        $registration = $this->createTestRegistration();
+        $lineItem = $this->createTestLineItem();
+
+        $this->clientMock
+            ->expects($this->never())
+            ->method('request');
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Cannot delete line item for claim: Provided AGS claim does not contain line item write scope');
+
+        $claim = new AgsClaim(
+            [
+                'invalid'
+            ],
+            null,
+            $lineItem->getIdentifier()
+        );
+
+        $this->subject->deleteLineItemForClaim($registration, $claim);
     }
 
     public function testDeleteLineItemSuccess(): void
