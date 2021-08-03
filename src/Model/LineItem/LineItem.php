@@ -230,7 +230,10 @@ class LineItem implements LineItemInterface
                     'resourceId' => $this->resourceIdentifier,
                     'resourceLinkId' => $this->resourceLinkIdentifier
                 ]
-            )
+            ),
+            static function ($value): bool {
+                return null !== $value;
+            }
         );
     }
 }

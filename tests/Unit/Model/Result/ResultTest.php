@@ -140,4 +140,24 @@ class ResultTest extends TestCase
             $subject->jsonSerialize()
         );
     }
+
+    public function testJsonSerializeWithZeroValues(): void
+    {
+        $subject = $this->createTestResult()
+            ->setResultScore(0)
+            ->setResultMaximum(0);
+
+        $this->assertEquals(
+            [
+                'id' => 'https://example.com/line-items/lineItemIdentifier/results/resultIdentifier',
+                'scoreOf' => 'https://example.com/line-items/lineItemIdentifier',
+                'userId' => 'resultUserIdentifier',
+                'resultScore' => 0,
+                'resultMaximum' => 0,
+                'comment' => 'resultComment',
+                'key' => 'value'
+            ],
+            $subject->jsonSerialize()
+        );
+    }
 }
