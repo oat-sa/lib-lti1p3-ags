@@ -174,4 +174,27 @@ class ScoreTest extends TestCase
             $subject->jsonSerialize()
         );
     }
+
+    public function testJsonSerializeWithZeroValues(): void
+    {
+        $subject = $this
+            ->createTestScore()
+            ->setTimestamp($this->now)
+            ->setScoreGiven(0)
+            ->setScoreMaximum(0);
+
+        $this->assertEquals(
+            [
+                'userId' => 'scoreUserIdentifier',
+                'activityProgress' => ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
+                'gradingProgress' => ScoreInterface::GRADING_PROGRESS_STATUS_NOT_READY,
+                'scoreGiven' => 0,
+                'scoreMaximum' => 0,
+                'comment' => 'scoreComment',
+                'timestamp' => $this->now->format(DateTimeInterface::ATOM),
+                'key' => 'value'
+            ],
+            $subject->jsonSerialize()
+        );
+    }
 }

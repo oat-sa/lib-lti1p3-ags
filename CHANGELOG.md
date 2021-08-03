@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+1.1.1
+-----
+
+* Fixed models serialization to allow zero values
+
 1.1.0
 -----
 

@@ -188,4 +188,31 @@ class LineItemTest extends TestCase
             $subject->jsonSerialize()
         );
     }
+
+    public function testJsonSerializeWithZeroValues(): void
+    {
+        $start = Carbon::now();
+        $end = Carbon::now()->addHour();
+
+        $subject = $this
+            ->createTestLineItem()
+            ->setStartDateTime($start)
+            ->setEndDateTime($end)
+            ->setScoreMaximum(0);
+
+        $this->assertEquals(
+            [
+                'id' => 'https://example.com/line-items/lineItemIdentifier',
+                'startDateTime' => $start->format(DateTimeInterface::ATOM),
+                'endDateTime' => $end->format(DateTimeInterface::ATOM),
+                'scoreMaximum' => 0,
+                'label' => 'lineItemLabel',
+                'tag' => 'lineItemTag',
+                'resourceId' => 'lineItemResourceIdentifier',
+                'resourceLinkId' => 'lineItemResourceLinkIdentifier',
+                'key' => 'value'
+            ],
+            $subject->jsonSerialize()
+        );
+    }
 }
