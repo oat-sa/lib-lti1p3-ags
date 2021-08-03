@@ -227,7 +227,10 @@ class Score implements ScoreInterface
                     'comment' => $this->comment,
                     'timestamp' => $this->timestamp->format(DateTimeInterface::ATOM),
                 ]
-            )
+            ),
+            static function ($value): bool {
+                return null !== $value;
+            }
         );
     }
 }

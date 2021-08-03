@@ -166,7 +166,10 @@ class Result implements ResultInterface
                     'resultMaximum' => $this->resultMaximum,
                     'comment' => $this->comment,
                 ]
-            )
+            ),
+            static function ($value): bool {
+                return null !== $value;
+            }
         );
     }
 }
