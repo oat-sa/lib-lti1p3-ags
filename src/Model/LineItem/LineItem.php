@@ -55,6 +55,9 @@ class LineItem implements LineItemInterface
     /** @var DateTimeInterface|null */
     private $endDateTime;
 
+    /** @var LineItemSubmissionReviewInterface $submissionReview */
+    private $submissionReview;
+
     /** @var CollectionInterface */
     private $additionalProperties;
 
@@ -67,6 +70,7 @@ class LineItem implements LineItemInterface
         ?string $tag = null,
         ?DateTimeInterface $startDateTime = null,
         ?DateTimeInterface $endDateTime = null,
+        ?LineItemSubmissionReviewInterface $submissionReview,
         array $additionalProperties = []
     ) {
         $this->scoreMaximum = $scoreMaximum;
@@ -77,6 +81,7 @@ class LineItem implements LineItemInterface
         $this->tag = $tag;
         $this->startDateTime = $startDateTime;
         $this->endDateTime = $endDateTime;
+        $this->submissionReview = $submissionReview;
         $this->additionalProperties = (new Collection())->add($additionalProperties);
     }
 
@@ -176,6 +181,18 @@ class LineItem implements LineItemInterface
         return $this;
     }
 
+    public function getSubmissionReview(): ?LineItemSubmissionReviewInterface
+    {
+        return $this->submissionReview;
+    }
+
+    public function setSubmissionReview(?LineItemSubmissionReviewInterface $submissionReview): LineItemInterface
+    {
+        $this->submissionReview = $submissionReview;
+
+        return $this;
+    }
+
     public function getAdditionalProperties(): CollectionInterface
     {
         return $this->additionalProperties;
@@ -198,6 +215,7 @@ class LineItem implements LineItemInterface
             ->setTag($lineItem->getTag())
             ->setStartDateTime($lineItem->getStartDateTime())
             ->setEndDateTime($lineItem->getEndDateTime())
+            ->setSubmissionReview($lineItem->getSubmissionReview())
             ->setAdditionalProperties($lineItem->getAdditionalProperties());
     }
 
@@ -228,7 +246,8 @@ class LineItem implements LineItemInterface
                     'label' => $this->label,
                     'tag' => $this->tag,
                     'resourceId' => $this->resourceIdentifier,
-                    'resourceLinkId' => $this->resourceLinkIdentifier
+                    'resourceLinkId' => $this->resourceLinkIdentifier,
+                    'submissionReview' => $this->submissionReview
                 ]
             ),
             static function ($value): bool {
