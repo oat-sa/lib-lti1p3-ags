@@ -121,10 +121,7 @@ class LineItemSubmissionReview implements LineItemSubmissionReviewInterface
                 'label' => $this->label,
                 'url' => $this->url,
                 'custom' => $this->customProperties,
-            ],
-            static function ($value): bool {
-                return !empty($value);
-            }
+            ]
         );
     }
 }
