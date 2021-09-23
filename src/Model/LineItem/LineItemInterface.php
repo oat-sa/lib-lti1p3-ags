@@ -63,9 +63,13 @@ interface LineItemInterface extends JsonSerializable
 
     public function setEndDateTime(?DateTimeInterface $endDateTime): LineItemInterface;
 
-    public function setAdditionalProperties(CollectionInterface $additionalProperties): LineItemInterface;
+    public function getSubmissionReview(): ?LineItemSubmissionReviewInterface;
+
+    public function setSubmissionReview(?LineItemSubmissionReviewInterface $submissionReview): LineItemInterface;
 
     public function getAdditionalProperties(): CollectionInterface;
+
+    public function setAdditionalProperties(CollectionInterface $additionalProperties): LineItemInterface;
 
     /** @see getIdentifier */
     public function getUrl(): ?string;

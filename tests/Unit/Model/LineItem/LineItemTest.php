@@ -26,6 +26,7 @@ use Carbon\Carbon;
 use DateTimeInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemSubmissionReview;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
 use OAT\Library\Lti1p3Core\Util\Collection\Collection;
 use PHPUnit\Framework\TestCase;
@@ -57,6 +58,7 @@ class LineItemTest extends TestCase
         $this->assertNull($this->subject->getTag());
         $this->assertNull($this->subject->getStartDateTime());
         $this->assertNull($this->subject->getEndDateTime());
+        $this->assertNull($this->subject->getSubmissionReview());
         $this->assertEmpty($this->subject->getAdditionalProperties()->all());
 
         $this->assertEquals(
@@ -129,6 +131,15 @@ class LineItemTest extends TestCase
         $this->subject->setEndDateTime($now);
 
         $this->assertEquals($now, $this->subject->getEndDateTime());
+    }
+
+    public function testSubmissionReview(): void
+    {
+        $submissionReview = new LineItemSubmissionReview([]);
+
+        $this->subject->setSubmissionReview($submissionReview);
+
+        $this->assertEquals($submissionReview, $this->subject->getSubmissionReview());
     }
 
     public function testAdditionalProperties(): void

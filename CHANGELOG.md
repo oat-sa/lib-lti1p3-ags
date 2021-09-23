@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+1.2.0
+-----
+
+* Added [submission review service](https://www.imsglobal.org/spec/lti-sr/v1p0) support (line item submission review)
+
 1.1.1
 -----
 
