@@ -70,7 +70,7 @@ class LineItem implements LineItemInterface
         ?string $tag = null,
         ?DateTimeInterface $startDateTime = null,
         ?DateTimeInterface $endDateTime = null,
-        ?LineItemSubmissionReviewInterface $submissionReview,
+        ?LineItemSubmissionReviewInterface $submissionReview = null,
         array $additionalProperties = []
     ) {
         $this->scoreMaximum = $scoreMaximum;

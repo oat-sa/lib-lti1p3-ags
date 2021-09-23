@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
 use InvalidArgumentException;
-use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 
 /**
  * @see https://www.imsglobal.org/spec/lti-sr/v1p0#on-a-per-line-item-basis-0
@@ -63,7 +62,7 @@ class LineItemSubmissionReview implements LineItemSubmissionReviewInterface
     public function setReviewableStatuses(array $reviewableStatuses): LineItemSubmissionReviewInterface
     {
         foreach ($reviewableStatuses as $reviewableStatus) {
-            if (!in_array($reviewableStatus, ScoreInterface::SUPPORTED_ACTIVITY_PROGRESS_STATUSES)) {
+            if (!in_array($reviewableStatus, self::SUPPORTED_REVIEWABLE_STATUSES)) {
                 throw new InvalidArgumentException(
                     sprintf('Line item reviewable status %s is not supported', $reviewableStatus)
                 );

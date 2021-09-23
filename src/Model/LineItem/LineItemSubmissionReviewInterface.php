@@ -23,12 +23,24 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
 use JsonSerializable;
+use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 
 /**
  * @see https://www.imsglobal.org/spec/lti-sr/v1p0#on-a-per-line-item-basis-0
  */
 interface LineItemSubmissionReviewInterface extends JsonSerializable
 {
+    public const REVIEWABLE_STATUS_NONE = 'None';
+
+    public const SUPPORTED_REVIEWABLE_STATUSES = [
+        ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
+        ScoreInterface::ACTIVITY_PROGRESS_STATUS_STARTED,
+        ScoreInterface::ACTIVITY_PROGRESS_STATUS_IN_PROGRESS,
+        ScoreInterface::ACTIVITY_PROGRESS_STATUS_SUBMITTED,
+        ScoreInterface::ACTIVITY_PROGRESS_STATUS_COMPLETED,
+        self::REVIEWABLE_STATUS_NONE
+    ];
+
     public function getReviewableStatuses(): array;
 
     public function setReviewableStatuses(array $reviewableStatuses): LineItemSubmissionReviewInterface;
