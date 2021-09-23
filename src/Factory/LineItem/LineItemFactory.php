@@ -29,6 +29,14 @@ use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 
 class LineItemFactory implements LineItemFactoryInterface
 {
+    /** @var LineItemSubmissionReviewFactoryInterface */
+    private $submissionReviewFactory;
+
+    public function __construct(?LineItemSubmissionReviewFactoryInterface $submissionReviewFactory = null)
+    {
+        $this->submissionReviewFactory = $submissionReviewFactory ?? new LineItemSubmissionReviewFactory();
+    }
+
     /**
      * @throws InvalidArgumentException
      */
@@ -46,6 +54,12 @@ class LineItemFactory implements LineItemFactoryInterface
             throw new InvalidArgumentException('Missing mandatory label');
         }
 
+        $submissionReview = null;
+
+        if (array_key_exists('submissionReview', $data)) {
+            $submissionReview = $this->submissionReviewFactory->create($data['submissionReview']);
+        }
+
         $additionalProperties = array_diff_key(
             $data,
             array_flip(
@@ -58,6 +72,7 @@ class LineItemFactory implements LineItemFactoryInterface
                     'tag',
                     'startDateTime',
                     'endDateTime',
+                    'submissionReview'
                 ]
             )
         );
@@ -71,6 +86,7 @@ class LineItemFactory implements LineItemFactoryInterface
             $data['tag'] ?? null,
             isset($data['startDateTime']) ? new Carbon($data['startDateTime']) : null,
             isset($data['endDateTime']) ? new Carbon($data['endDateTime']) : null,
+            $submissionReview,
             $additionalProperties
         );
     }

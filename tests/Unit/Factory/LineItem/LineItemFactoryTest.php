@@ -28,6 +28,7 @@ use InvalidArgumentException;
 use OAT\Library\Lti1p3Ags\Factory\LineItem\LineItemFactory;
 use OAT\Library\Lti1p3Ags\Factory\LineItem\LineItemFactoryInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemSubmissionReviewInterface;
 use PHPUnit\Framework\TestCase;
 
 class LineItemFactoryTest extends TestCase
@@ -54,6 +55,9 @@ class LineItemFactoryTest extends TestCase
             'tag' => 'lineItemTag',
             'startDateTime' => $start,
             'endDateTime' => $end,
+            'submissionReview' => [
+                'reviewableStatus' => [LineItemSubmissionReviewInterface::REVIEWABLE_STATUS_NONE]
+            ],
             'key' => 'value'
         ];
 
@@ -69,7 +73,18 @@ class LineItemFactoryTest extends TestCase
         $this->assertEquals($data['tag'],  $lineItem->getTag());
         $this->assertEquals($start, $lineItem->getStartDateTime()->format(DateTimeInterface::ATOM));
         $this->assertEquals($end, $lineItem->getEndDateTime()->format(DateTimeInterface::ATOM));
-        $this->assertSame(['key' => 'value'], $lineItem->getAdditionalProperties()->all());
+        $this->assertEquals(
+            [
+                LineItemSubmissionReviewInterface::REVIEWABLE_STATUS_NONE
+            ],
+            $lineItem->getSubmissionReview()->getReviewableStatuses()
+        );
+        $this->assertSame(
+            [
+                'key' => 'value'
+            ],
+            $lineItem->getAdditionalProperties()->all()
+        );
     }
 
     public function testCreateFailureOnMissingScoreMaximum(): void

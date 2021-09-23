@@ -27,6 +27,7 @@ use OAT\Library\Lti1p3Ags\Model\LineItem\LineItem;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollection;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemSubmissionReviewInterface;
 use OAT\Library\Lti1p3Ags\Model\Result\Result;
 use OAT\Library\Lti1p3Ags\Model\Result\ResultCollection;
 use OAT\Library\Lti1p3Ags\Model\Result\ResultCollectionInterface;
@@ -52,6 +53,7 @@ trait AgsDomainTestingTrait
         string $tag = 'lineItemTag',
         ?DateTimeInterface $startDateTime = null,
         ?DateTimeInterface $endDateTime = null,
+        ?LineItemSubmissionReviewInterface $submissionReview = null,
         array $additionalProperties = ['key' => 'value']
     ): LineItemInterface {
         return new LineItem(
@@ -63,6 +65,7 @@ trait AgsDomainTestingTrait
             $tag,
             $startDateTime,
             $endDateTime,
+            $submissionReview,
             $additionalProperties
         );
     }
