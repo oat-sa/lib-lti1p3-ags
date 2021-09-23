@@ -59,6 +59,9 @@ class LineItemSubmissionReview implements LineItemSubmissionReviewInterface
         return $this->reviewableStatuses;
     }
 
+    /**
+     * @throws InvalidArgumentException
+     */
     public function setReviewableStatuses(array $reviewableStatuses): LineItemSubmissionReviewInterface
     {
         foreach ($reviewableStatuses as $reviewableStatus) {
