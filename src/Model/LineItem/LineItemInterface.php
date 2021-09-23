@@ -67,9 +67,9 @@ interface LineItemInterface extends JsonSerializable
 
     public function setSubmissionReview(?LineItemSubmissionReviewInterface $submissionReview): LineItemInterface;
 
-    public function setAdditionalProperties(CollectionInterface $additionalProperties): LineItemInterface;
-
     public function getAdditionalProperties(): CollectionInterface;
+
+    public function setAdditionalProperties(CollectionInterface $additionalProperties): LineItemInterface;
 
     /** @see getIdentifier */
     public function getUrl(): ?string;
