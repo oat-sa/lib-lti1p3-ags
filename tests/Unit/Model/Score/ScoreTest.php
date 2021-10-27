@@ -73,7 +73,7 @@ class ScoreTest extends TestCase
                 'userId' => 'scoreUserIdentifier',
                 'activityProgress' => ScoreInterface::ACTIVITY_PROGRESS_STATUS_INITIALIZED,
                 'gradingProgress' => ScoreInterface::GRADING_PROGRESS_STATUS_NOT_READY,
-                'timestamp' => $this->now->format(DateTimeInterface::ATOM),
+                'timestamp' => $this->now->format(Score::DATE_FORMAT),
             ],
             $this->subject->jsonSerialize()
         );
@@ -168,7 +168,7 @@ class ScoreTest extends TestCase
                 'scoreGiven' => (float)10,
                 'scoreMaximum' => (float)100,
                 'comment' => 'scoreComment',
-                'timestamp' => $this->now->format(DateTimeInterface::ATOM),
+                'timestamp' => $this->now->format(Score::DATE_FORMAT),
                 'key' => 'value'
             ],
             $subject->jsonSerialize()
@@ -191,7 +191,7 @@ class ScoreTest extends TestCase
                 'scoreGiven' => 0,
                 'scoreMaximum' => 0,
                 'comment' => 'scoreComment',
-                'timestamp' => $this->now->format(DateTimeInterface::ATOM),
+                'timestamp' => $this->now->format(Score::DATE_FORMAT),
                 'key' => 'value'
             ],
             $subject->jsonSerialize()
