@@ -33,8 +33,6 @@ use OAT\Library\Lti1p3Core\Util\Collection\CollectionInterface;
  */
 class Score implements ScoreInterface
 {
-    public const DATE_FORMAT = 'Y-m-d\TH:i:s.vP';
-
     /** @var string */
     private $userIdentifier;
 
@@ -227,7 +225,7 @@ class Score implements ScoreInterface
                     'scoreGiven' => $this->scoreGiven,
                     'scoreMaximum' => $this->scoreMaximum,
                     'comment' => $this->comment,
-                    'timestamp' => $this->timestamp->format(self::DATE_FORMAT),
+                    'timestamp' => $this->timestamp->format(DATE_RFC3339_EXTENDED),
                 ]
             ),
             static function ($value): bool {
