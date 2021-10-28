@@ -1,7 +1,7 @@
 CHANGELOG
 =========
 
-Unreleased
+1.3.0
 -----
 
 * Added `milliseconds` to timestamp in `Score` JSON output
