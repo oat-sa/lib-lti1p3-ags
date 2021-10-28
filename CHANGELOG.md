@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+1.3.0
+-----
+
+* Added `milliseconds` to timestamp in `Score` JSON output
+
 1.2.0
 -----
 
