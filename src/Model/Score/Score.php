@@ -225,7 +225,7 @@ class Score implements ScoreInterface
                     'scoreGiven' => $this->scoreGiven,
                     'scoreMaximum' => $this->scoreMaximum,
                     'comment' => $this->comment,
-                    'timestamp' => $this->timestamp->format(DATE_RFC3339_EXTENDED),
+                    'timestamp' => $this->timestamp->format(DateTimeInterface::RFC3339_EXTENDED),
                 ]
             ),
             static function ($value): bool {
