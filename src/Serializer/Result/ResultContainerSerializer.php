@@ -25,44 +25,48 @@ namespace OAT\Library\Lti1p3Ags\Serializer\Result;
 use OAT\Library\Lti1p3Ags\Factory\Result\ResultFactory;
 use OAT\Library\Lti1p3Ags\Factory\Result\ResultFactoryInterface;
 use OAT\Library\Lti1p3Ags\Model\Result\ResultCollection;
-use OAT\Library\Lti1p3Ags\Model\Result\ResultCollectionInterface;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultContainer;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultContainerInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 
-class ResultCollectionSerializer implements ResultCollectionSerializerInterface
+class ResultContainerSerializer implements ResultContainerSerializerInterface
 {
     /** @var ResultFactoryInterface */
-    private $factory;
+    private $resultFactory;
 
     public function __construct(?ResultFactoryInterface $factory = null)
     {
-        $this->factory = $factory ?? new ResultFactory();
+        $this->resultFactory = $factory ?? new ResultFactory();
     }
 
-    public function serialize(ResultCollectionInterface $collection): string
+    public function serialize(ResultContainerInterface $container): string
     {
-        return json_encode($collection);
+        return json_encode($container);
     }
 
     /**
      * @throws LtiExceptionInterface
      */
-    public function deserialize(string $data): ResultCollectionInterface
+    public function deserialize(string $data): ResultContainerInterface
     {
         $data = json_decode($data, true);
 
         if (JSON_ERROR_NONE !== json_last_error()) {
             throw new LtiException(
-                sprintf('Error during result collection deserialization: %s', json_last_error_msg())
+                sprintf('Error during result container deserialization: %s', json_last_error_msg())
             );
         }
 
         $collection = new ResultCollection();
 
-        foreach ($data as $resultData) {
-            $collection->add($this->factory->create($resultData));
+        foreach ($data['results'] ?? [] as $resultData) {
+            $collection->add($this->resultFactory->create($resultData));
         }
 
-        return $collection;
+        return new ResultContainer(
+            $collection,
+            $data['relationLink'] ?? null
+        );
     }
 }

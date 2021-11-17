@@ -75,4 +75,12 @@ class LineItemContainer implements LineItemContainerInterface
 
         return (bool) strpos($this->relationLink, sprintf('rel="%s"', static::REL_NEXT));
     }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'lineItems' => $this->lineItems,
+            'relationLink' => $this->relationLink
+        ];
+    }
 }

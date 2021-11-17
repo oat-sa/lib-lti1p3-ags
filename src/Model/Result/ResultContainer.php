@@ -75,4 +75,12 @@ class ResultContainer implements ResultContainerInterface
 
         return (bool) strpos($this->relationLink, sprintf('rel="%s"', static::REL_NEXT));
     }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'results' => $this->results,
+            'relationLink' => $this->relationLink
+        ];
+    }
 }

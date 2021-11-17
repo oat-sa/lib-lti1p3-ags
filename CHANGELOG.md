@@ -1,6 +1,10 @@
 CHANGELOG
 =========
 
+[Unreleased]
+-----
+* Added `LineItemContainerSerializer` and `ResultContainerSerializer`
+
 1.3.0
 -----
 
