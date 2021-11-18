@@ -40,9 +40,20 @@ class ResultContainerSerializer implements ResultContainerSerializerInterface
         $this->resultFactory = $factory ?? new ResultFactory();
     }
 
+    /**
+     * @throws LtiExceptionInterface
+     */
     public function serialize(ResultContainerInterface $container): string
     {
-        return json_encode($container);
+        $json = json_encode($container);
+
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new LtiException(
+                sprintf('Error during result container serialization: %s', json_last_error_msg())
+            );
+        }
+
+        return $json;
     }
 
     /**

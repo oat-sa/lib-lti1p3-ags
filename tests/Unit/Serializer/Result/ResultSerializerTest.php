@@ -23,6 +23,8 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Result;
 
 use Carbon\Carbon;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
+use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Result\ResultSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\Result\ResultSerializerInterface;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
@@ -49,7 +51,20 @@ class ResultSerializerTest extends TestCase
         Carbon::setTestNow();
     }
 
-    public function testSerialize(): void
+    public function testSerializeForFailure(): void
+    {
+        $invalidContainer = $this->createMock(ResultInterface::class);
+        $invalidContainer->expects($this->once())
+            ->method('jsonSerialize')
+            ->willReturn(NAN); // Note: NaN cannot be JSON encoded
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Error during result serialization');
+
+        $this->subject->serialize($invalidContainer);
+    }
+
+    public function testSerializeForSuccess(): void
     {
         $result = $this->createTestResult();
 

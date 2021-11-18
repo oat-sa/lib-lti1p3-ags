@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Score;
 
 use Carbon\Carbon;
+use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Score\ScoreSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\Score\ScoreSerializerInterface;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
@@ -49,7 +50,20 @@ class ScoreSerializerTest extends TestCase
         Carbon::setTestNow();
     }
 
-    public function testSerialize(): void
+    public function testSerializeForFailure(): void
+    {
+        $invalidContainer = $this->createMock(ScoreInterface::class);
+        $invalidContainer->expects($this->once())
+            ->method('jsonSerialize')
+            ->willReturn(NAN); // Note: NaN cannot be JSON encoded
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Error during score serialization');
+
+        $this->subject->serialize($invalidContainer);
+    }
+
+    public function testSerializeForSuccess(): void
     {
         $score = $this->createTestScore();
 

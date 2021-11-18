@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Result;
 
+use OAT\Library\Lti1p3Ags\Model\Result\ResultCollectionInterface;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Result\ResultCollectionSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\Result\ResultCollectionSerializerInterface;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
@@ -40,7 +42,20 @@ class ResultCollectionSerializerTest extends TestCase
         $this->subject = new ResultCollectionSerializer();
     }
 
-    public function testSerialize(): void
+    public function testSerializeForFailure(): void
+    {
+        $invalidContainer = $this->createMock(ResultCollectionInterface::class);
+        $invalidContainer->expects($this->once())
+            ->method('jsonSerialize')
+            ->willReturn(NAN); // Note: NaN cannot be JSON encoded
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Error during result collection serialization');
+
+        $this->subject->serialize($invalidContainer);
+    }
+
+    public function testSerializeForSuccess(): void
     {
         $collection = $this->createTestResultCollection();
 

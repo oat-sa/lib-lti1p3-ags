@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\LineItem;
 
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
@@ -40,7 +41,20 @@ class LineItemSerializerTest extends TestCase
         $this->subject = new LineItemSerializer();
     }
 
-    public function testSerialize(): void
+    public function testSerializeForFailure(): void
+    {
+        $invalidContainer = $this->createMock(LineItemInterface::class);
+        $invalidContainer->expects($this->once())
+            ->method('jsonSerialize')
+            ->willReturn(NAN); // Note: NaN cannot be JSON encoded
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Error during line item serialization');
+
+        $this->subject->serialize($invalidContainer);
+    }
+
+    public function testSerializeForSuccess(): void
     {
         $lineItem = $this->createTestLineItem();
 

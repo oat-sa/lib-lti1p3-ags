@@ -38,9 +38,20 @@ class ScoreSerializer implements ScoreSerializerInterface
         $this->factory = $factory ?? new ScoreFactory();
     }
 
+    /**
+     * @throws LtiExceptionInterface
+     */
     public function serialize(ScoreInterface $score): string
     {
-        return json_encode($score);
+        $json = json_encode($score);
+
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new LtiException(
+                sprintf('Error during score serialization: %s', json_last_error_msg())
+            );
+        }
+
+        return $json;
     }
 
     /**

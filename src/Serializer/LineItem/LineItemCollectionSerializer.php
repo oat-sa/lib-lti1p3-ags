@@ -39,9 +39,20 @@ class LineItemCollectionSerializer implements LineItemCollectionSerializerInterf
         $this->factory = $factory ?? new LineItemFactory();
     }
 
+    /**
+     * @throws LtiExceptionInterface
+     */
     public function serialize(LineItemCollectionInterface $collection): string
     {
-        return json_encode($collection);
+        $json = json_encode($collection);
+
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new LtiException(
+                sprintf('Error during line item collection serialization: %s', json_last_error_msg())
+            );
+        }
+
+        return $json;
     }
 
     /**

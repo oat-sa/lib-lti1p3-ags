@@ -40,9 +40,20 @@ class LineItemContainerSerializer implements LineItemContainerSerializerInterfac
         $this->lineItemFactory = $factory ?? new LineItemFactory();
     }
 
+    /**
+     * @throws LtiExceptionInterface
+     */
     public function serialize(LineItemContainerInterface $container): string
     {
-        return json_encode($container);
+        $json = json_encode($container);
+
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new LtiException(
+                sprintf('Error during line item container serialization: %s', json_last_error_msg())
+            );
+        }
+
+        return $json;
     }
 
     /**

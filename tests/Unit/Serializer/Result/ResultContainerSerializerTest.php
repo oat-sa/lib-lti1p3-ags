@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Result;
 
 use OAT\Library\Lti1p3Ags\Model\Result\ResultContainer;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultContainerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Result\ResultContainerSerializer;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
@@ -40,7 +41,20 @@ final class ResultContainerSerializerTest extends TestCase
         $this->subject = new ResultContainerSerializer();
     }
 
-    public function testSerialize(): void
+    public function testSerializeForFailure(): void
+    {
+        $invalidContainer = $this->createMock(ResultContainerInterface::class);
+        $invalidContainer->expects($this->once())
+            ->method('jsonSerialize')
+            ->willReturn(NAN); // Note: NaN cannot be JSON encoded
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Error during result container serialization');
+
+        $this->subject->serialize($invalidContainer);
+    }
+
+    public function testSerializeForSuccess(): void
     {
         $container = new ResultContainer(
             $this->createTestResultCollection(),
@@ -53,15 +67,15 @@ final class ResultContainerSerializerTest extends TestCase
         );
     }
 
-    public function testDeserializeFailure(): void
+    public function testDeserializeForFailure(): void
     {
         $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Error during result container deserialization: Syntax error');
+        $this->expectExceptionMessage('Error during result container deserialization');
 
         $this->subject->deserialize('{');
     }
 
-    public function testDeserializeSuccess(): void
+    public function testDeserializeForSuccess(): void
     {
         $container = new ResultContainer(
             $this->createTestResultCollection(),

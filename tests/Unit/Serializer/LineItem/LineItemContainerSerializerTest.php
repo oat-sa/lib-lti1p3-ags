@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\LineItem;
 
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemContainerSerializer;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
@@ -40,7 +41,20 @@ final class LineItemContainerSerializerTest extends TestCase
         $this->subject = new LineItemContainerSerializer();
     }
 
-    public function testSerialize(): void
+    public function testSerializeForFailure(): void
+    {
+        $invalidContainer = $this->createMock(LineItemContainerInterface::class);
+        $invalidContainer->expects($this->once())
+            ->method('jsonSerialize')
+            ->willReturn(NAN); // Note: NaN cannot be JSON encoded
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Error during line item container serialization');
+
+        $this->subject->serialize($invalidContainer);
+    }
+
+    public function testSerializeForSuccess(): void
     {
         $container = new LineItemContainer(
             $this->createTestLineItemCollection(),
@@ -53,15 +67,15 @@ final class LineItemContainerSerializerTest extends TestCase
         );
     }
 
-    public function testDeserializeFailure(): void
+    public function testDeserializeForFailure(): void
     {
         $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Error during line item container deserialization: Syntax error');
+        $this->expectExceptionMessage('Error during line item container deserialization');
 
         $this->subject->deserialize('{');
     }
 
-    public function testDeserializeSuccess(): void
+    public function testDeserializeForSuccess(): void
     {
         $container = new LineItemContainer(
             $this->createTestLineItemCollection(),

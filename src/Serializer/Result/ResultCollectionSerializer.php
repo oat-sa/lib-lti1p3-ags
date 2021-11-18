@@ -39,9 +39,20 @@ class ResultCollectionSerializer implements ResultCollectionSerializerInterface
         $this->factory = $factory ?? new ResultFactory();
     }
 
+    /**
+     * @throws LtiExceptionInterface
+     */
     public function serialize(ResultCollectionInterface $collection): string
     {
-        return json_encode($collection);
+        $json = json_encode($collection);
+
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new LtiException(
+                sprintf('Error during result collection serialization: %s', json_last_error_msg())
+            );
+        }
+
+        return $json;
     }
 
     /**
