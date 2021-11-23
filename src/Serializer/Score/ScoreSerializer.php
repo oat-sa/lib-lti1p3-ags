@@ -25,17 +25,26 @@ namespace OAT\Library\Lti1p3Ags\Serializer\Score;
 use OAT\Library\Lti1p3Ags\Factory\Score\ScoreFactory;
 use OAT\Library\Lti1p3Ags\Factory\Score\ScoreFactoryInterface;
 use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
+use OAT\Library\Lti1p3Ags\Serializer\JsonSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\JsonSerializerInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use RuntimeException;
 
 class ScoreSerializer implements ScoreSerializerInterface
 {
     /** @var ScoreFactoryInterface */
-    private $factory;
+    private $scoreFactory;
 
-    public function __construct(?ScoreFactoryInterface $factory = null)
-    {
-        $this->factory = $factory ?? new ScoreFactory();
+    /** @var JsonSerializerInterface */
+    private $jsonSerializer;
+
+    public function __construct(
+        ?ScoreFactoryInterface $factory = null,
+        ?JsonSerializerInterface $jsonSerializer = null
+    ) {
+        $this->scoreFactory = $factory ?? new ScoreFactory();
+        $this->jsonSerializer = $jsonSerializer ?? new JsonSerializer();
     }
 
     /**
@@ -43,15 +52,13 @@ class ScoreSerializer implements ScoreSerializerInterface
      */
     public function serialize(ScoreInterface $score): string
     {
-        $json = json_encode($score);
-
-        if (JSON_ERROR_NONE !== json_last_error()) {
+        try {
+            return $this->jsonSerializer->serialize($score);
+        } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during score serialization: %s', json_last_error_msg())
+                sprintf('Error during score serialization: %s', $exception->getMessage())
             );
         }
-
-        return $json;
     }
 
     /**
@@ -59,14 +66,12 @@ class ScoreSerializer implements ScoreSerializerInterface
      */
     public function deserialize(string $data): ScoreInterface
     {
-        $data = json_decode($data, true);
-
-        if (JSON_ERROR_NONE !== json_last_error()) {
+        try {
+            return $this->scoreFactory->create($this->jsonSerializer->deserialize($data));
+        } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during score deserialization: %s', json_last_error_msg())
+                sprintf('Error during score deserialization: %s', $exception->getMessage())
             );
         }
-
-        return $this->factory->create($data);
     }
 }

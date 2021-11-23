@@ -26,17 +26,26 @@ use OAT\Library\Lti1p3Ags\Factory\LineItem\LineItemFactory;
 use OAT\Library\Lti1p3Ags\Factory\LineItem\LineItemFactoryInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollection;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollectionInterface;
+use OAT\Library\Lti1p3Ags\Serializer\JsonSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\JsonSerializerInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use RuntimeException;
 
 class LineItemCollectionSerializer implements LineItemCollectionSerializerInterface
 {
     /** @var LineItemFactoryInterface */
-    private $factory;
+    private $lineItemFactory;
 
-    public function __construct(?LineItemFactoryInterface $factory = null)
-    {
-        $this->factory = $factory ?? new LineItemFactory();
+    /** @var JsonSerializerInterface */
+    private $jsonSerializer;
+
+    public function __construct(
+        ?LineItemFactoryInterface $factory = null,
+        ?JsonSerializerInterface $jsonSerializer = null
+    ) {
+        $this->lineItemFactory = $factory ?? new LineItemFactory();
+        $this->jsonSerializer = $jsonSerializer ?? new JsonSerializer();
     }
 
     /**
@@ -44,15 +53,13 @@ class LineItemCollectionSerializer implements LineItemCollectionSerializerInterf
      */
     public function serialize(LineItemCollectionInterface $collection): string
     {
-        $json = json_encode($collection);
-
-        if (JSON_ERROR_NONE !== json_last_error()) {
+        try {
+            return $this->jsonSerializer->serialize($collection);
+        } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during line item collection serialization: %s', json_last_error_msg())
+                sprintf('Error during line item collection serialization: %s', $exception->getMessage())
             );
         }
-
-        return $json;
     }
 
     /**
@@ -60,18 +67,18 @@ class LineItemCollectionSerializer implements LineItemCollectionSerializerInterf
      */
     public function deserialize(string $data): LineItemCollectionInterface
     {
-        $data = json_decode($data, true);
-
-        if (JSON_ERROR_NONE !== json_last_error()) {
+        try {
+            $deserializedData = $this->jsonSerializer->deserialize($data);
+        } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during line item collection deserialization: %s', json_last_error_msg())
+                sprintf('Error during line item collection deserialization: %s', $exception->getMessage())
             );
         }
 
         $collection = new LineItemCollection();
 
-        foreach ($data as $lineItemData) {
-            $collection->add($this->factory->create($lineItemData));
+        foreach ($deserializedData as $lineItemData) {
+            $collection->add($this->lineItemFactory->create($lineItemData));
         }
 
         return $collection;

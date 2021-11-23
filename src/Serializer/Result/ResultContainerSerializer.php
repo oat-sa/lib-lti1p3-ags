@@ -27,17 +27,26 @@ use OAT\Library\Lti1p3Ags\Factory\Result\ResultFactoryInterface;
 use OAT\Library\Lti1p3Ags\Model\Result\ResultCollection;
 use OAT\Library\Lti1p3Ags\Model\Result\ResultContainer;
 use OAT\Library\Lti1p3Ags\Model\Result\ResultContainerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\JsonSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\JsonSerializerInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use RuntimeException;
 
 class ResultContainerSerializer implements ResultContainerSerializerInterface
 {
     /** @var ResultFactoryInterface */
     private $resultFactory;
 
-    public function __construct(?ResultFactoryInterface $factory = null)
-    {
+    /** @var JsonSerializerInterface */
+    private $jsonSerializer;
+
+    public function __construct(
+        ?ResultFactoryInterface $factory = null,
+        ?JsonSerializerInterface $jsonSerializer = null
+    ) {
         $this->resultFactory = $factory ?? new ResultFactory();
+        $this->jsonSerializer = $jsonSerializer ?? new JsonSerializer();
     }
 
     /**
@@ -45,15 +54,13 @@ class ResultContainerSerializer implements ResultContainerSerializerInterface
      */
     public function serialize(ResultContainerInterface $container): string
     {
-        $json = json_encode($container);
-
-        if (JSON_ERROR_NONE !== json_last_error()) {
+        try {
+            return $this->jsonSerializer->serialize($container);
+        } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during result container serialization: %s', json_last_error_msg())
+                sprintf('Error during result container serialization: %s', $exception->getMessage())
             );
         }
-
-        return $json;
     }
 
     /**
@@ -61,23 +68,23 @@ class ResultContainerSerializer implements ResultContainerSerializerInterface
      */
     public function deserialize(string $data): ResultContainerInterface
     {
-        $data = json_decode($data, true);
-
-        if (JSON_ERROR_NONE !== json_last_error()) {
+        try {
+            $deserializedData = $this->jsonSerializer->deserialize($data);
+        } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during result container deserialization: %s', json_last_error_msg())
+                sprintf('Error during result container deserialization: %s', $exception->getMessage())
             );
         }
 
         $collection = new ResultCollection();
 
-        foreach ($data['results'] ?? [] as $resultData) {
+        foreach ($deserializedData['results'] ?? [] as $resultData) {
             $collection->add($this->resultFactory->create($resultData));
         }
 
         return new ResultContainer(
             $collection,
-            $data['relationLink'] ?? null
+            $deserializedData['relationLink'] ?? null
         );
     }
 }

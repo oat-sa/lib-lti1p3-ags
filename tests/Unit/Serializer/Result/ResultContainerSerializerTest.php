@@ -24,34 +24,33 @@ namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Result;
 
 use OAT\Library\Lti1p3Ags\Model\Result\ResultContainer;
 use OAT\Library\Lti1p3Ags\Model\Result\ResultContainerInterface;
+use OAT\Library\Lti1p3Ags\Serializer\JsonSerializerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Result\ResultContainerSerializer;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 final class ResultContainerSerializerTest extends TestCase
 {
     use AgsDomainTestingTrait;
 
-    /** @var ResultContainerSerializer */
-    private $subject;
-
-    protected function setUp(): void
-    {
-        $this->subject = new ResultContainerSerializer();
-    }
-
     public function testSerializeForFailure(): void
     {
         $invalidContainer = $this->createMock(ResultContainerInterface::class);
-        $invalidContainer->expects($this->once())
-            ->method('jsonSerialize')
-            ->willReturn(NAN); // Note: NaN cannot be JSON encoded
+        $serializerMock = $this->createMock(JsonSerializerInterface::class);
+        $subject = new ResultContainerSerializer(null, $serializerMock);
+
+        $serializerMock->expects($this->once())
+            ->method('serialize')
+            ->with($invalidContainer)
+            ->willThrowException(new RuntimeException('some error'));
+
 
         $this->expectException(LtiExceptionInterface::class);
         $this->expectExceptionMessage('Error during result container serialization');
 
-        $this->subject->serialize($invalidContainer);
+        $subject->serialize($invalidContainer);
     }
 
     public function testSerializeForSuccess(): void
@@ -63,16 +62,24 @@ final class ResultContainerSerializerTest extends TestCase
 
         $this->assertEquals(
             json_encode($container->jsonSerialize()),
-            $this->subject->serialize($container)
+            (new ResultContainerSerializer())->serialize($container)
         );
     }
 
     public function testDeserializeForFailure(): void
     {
+        $serializerMock = $this->createMock(JsonSerializerInterface::class);
+        $subject = new ResultContainerSerializer(null, $serializerMock);
+
+        $serializerMock->expects($this->once())
+            ->method('deserialize')
+            ->with('{')
+            ->willThrowException(new RuntimeException('some error'));
+
         $this->expectException(LtiExceptionInterface::class);
         $this->expectExceptionMessage('Error during result container deserialization');
 
-        $this->subject->deserialize('{');
+        $subject->deserialize('{');
     }
 
     public function testDeserializeForSuccess(): void
@@ -84,7 +91,7 @@ final class ResultContainerSerializerTest extends TestCase
 
         $this->assertEquals(
             $container,
-            $this->subject->deserialize(json_encode($container->jsonSerialize()))
+            (new ResultContainerSerializer())->deserialize(json_encode($container->jsonSerialize()))
         );
     }
 }

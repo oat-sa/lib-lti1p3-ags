@@ -26,17 +26,26 @@ use OAT\Library\Lti1p3Ags\Factory\Result\ResultFactory;
 use OAT\Library\Lti1p3Ags\Factory\Result\ResultFactoryInterface;
 use OAT\Library\Lti1p3Ags\Model\Result\ResultCollection;
 use OAT\Library\Lti1p3Ags\Model\Result\ResultCollectionInterface;
+use OAT\Library\Lti1p3Ags\Serializer\JsonSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\JsonSerializerInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use RuntimeException;
 
 class ResultCollectionSerializer implements ResultCollectionSerializerInterface
 {
     /** @var ResultFactoryInterface */
-    private $factory;
+    private $resultFactory;
 
-    public function __construct(?ResultFactoryInterface $factory = null)
-    {
-        $this->factory = $factory ?? new ResultFactory();
+    /** @var JsonSerializerInterface */
+    private $jsonSerializer;
+
+    public function __construct(
+        ?ResultFactoryInterface $factory = null,
+        ?JsonSerializerInterface $jsonSerializer = null
+    ) {
+        $this->resultFactory = $factory ?? new ResultFactory();
+        $this->jsonSerializer = $jsonSerializer ?? new JsonSerializer();
     }
 
     /**
@@ -44,15 +53,13 @@ class ResultCollectionSerializer implements ResultCollectionSerializerInterface
      */
     public function serialize(ResultCollectionInterface $collection): string
     {
-        $json = json_encode($collection);
-
-        if (JSON_ERROR_NONE !== json_last_error()) {
+        try {
+            return $this->jsonSerializer->serialize($collection);
+        } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during result collection serialization: %s', json_last_error_msg())
+                sprintf('Error during result collection serialization: %s', $exception->getMessage())
             );
         }
-
-        return $json;
     }
 
     /**
@@ -60,18 +67,18 @@ class ResultCollectionSerializer implements ResultCollectionSerializerInterface
      */
     public function deserialize(string $data): ResultCollectionInterface
     {
-        $data = json_decode($data, true);
-
-        if (JSON_ERROR_NONE !== json_last_error()) {
+        try {
+            $deserializedData = $this->jsonSerializer->deserialize($data);
+        } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during result collection deserialization: %s', json_last_error_msg())
+                sprintf('Error during result collection deserialization: %s', $exception->getMessage())
             );
         }
 
         $collection = new ResultCollection();
 
-        foreach ($data as $resultData) {
-            $collection->add($this->factory->create($resultData));
+        foreach ($deserializedData as $resultData) {
+            $collection->add($this->resultFactory->create($resultData));
         }
 
         return $collection;
