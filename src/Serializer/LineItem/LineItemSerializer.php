@@ -56,7 +56,9 @@ class LineItemSerializer implements LineItemSerializerInterface
             return $this->jsonSerializer->serialize($lineItem);
         } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during line item serialization: %s', $exception->getMessage())
+                sprintf('Error during line item serialization: %s', $exception->getMessage()),
+                0,
+                $exception
             );
         }
     }
@@ -70,7 +72,9 @@ class LineItemSerializer implements LineItemSerializerInterface
             return $this->lineItemFactory->create($this->jsonSerializer->deserialize($data));
         } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during line item deserialization: %s', $exception->getMessage())
+                sprintf('Error during line item deserialization: %s', $exception->getMessage()),
+                0,
+                $exception
             );
         }
     }

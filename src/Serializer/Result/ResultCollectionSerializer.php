@@ -57,7 +57,9 @@ class ResultCollectionSerializer implements ResultCollectionSerializerInterface
             return $this->jsonSerializer->serialize($collection);
         } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during result collection serialization: %s', $exception->getMessage())
+                sprintf('Error during result collection serialization: %s', $exception->getMessage()),
+                0,
+                $exception
             );
         }
     }
@@ -71,7 +73,9 @@ class ResultCollectionSerializer implements ResultCollectionSerializerInterface
             $deserializedData = $this->jsonSerializer->deserialize($data);
         } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during result collection deserialization: %s', $exception->getMessage())
+                sprintf('Error during result collection deserialization: %s', $exception->getMessage()),
+                0,
+                $exception
             );
         }
 

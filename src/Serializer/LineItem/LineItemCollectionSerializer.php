@@ -57,7 +57,9 @@ class LineItemCollectionSerializer implements LineItemCollectionSerializerInterf
             return $this->jsonSerializer->serialize($collection);
         } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during line item collection serialization: %s', $exception->getMessage())
+                sprintf('Error during line item collection serialization: %s', $exception->getMessage()),
+                0,
+                $exception
             );
         }
     }
@@ -71,7 +73,9 @@ class LineItemCollectionSerializer implements LineItemCollectionSerializerInterf
             $deserializedData = $this->jsonSerializer->deserialize($data);
         } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during line item collection deserialization: %s', $exception->getMessage())
+                sprintf('Error during line item collection deserialization: %s', $exception->getMessage()),
+                0,
+                $exception
             );
         }
 

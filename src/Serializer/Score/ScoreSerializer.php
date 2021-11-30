@@ -56,7 +56,9 @@ class ScoreSerializer implements ScoreSerializerInterface
             return $this->jsonSerializer->serialize($score);
         } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during score serialization: %s', $exception->getMessage())
+                sprintf('Error during score serialization: %s', $exception->getMessage()),
+                0,
+                $exception
             );
         }
     }
@@ -70,7 +72,9 @@ class ScoreSerializer implements ScoreSerializerInterface
             return $this->scoreFactory->create($this->jsonSerializer->deserialize($data));
         } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during score deserialization: %s', $exception->getMessage())
+                sprintf('Error during score deserialization: %s', $exception->getMessage()),
+                0,
+                $exception
             );
         }
     }

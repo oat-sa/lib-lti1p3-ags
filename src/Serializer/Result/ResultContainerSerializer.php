@@ -58,7 +58,9 @@ class ResultContainerSerializer implements ResultContainerSerializerInterface
             return $this->jsonSerializer->serialize($container);
         } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during result container serialization: %s', $exception->getMessage())
+                sprintf('Error during result container serialization: %s', $exception->getMessage()),
+                0,
+                $exception
             );
         }
     }
@@ -72,7 +74,9 @@ class ResultContainerSerializer implements ResultContainerSerializerInterface
             $deserializedData = $this->jsonSerializer->deserialize($data);
         } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during result container deserialization: %s', $exception->getMessage())
+                sprintf('Error during result container deserialization: %s', $exception->getMessage()),
+                0,
+                $exception
             );
         }
 

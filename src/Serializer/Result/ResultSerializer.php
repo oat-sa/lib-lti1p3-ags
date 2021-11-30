@@ -56,7 +56,9 @@ class ResultSerializer implements ResultSerializerInterface
             return $this->jsonSerializer->serialize($result);
         } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during result serialization: %s', $exception->getMessage())
+                sprintf('Error during result serialization: %s', $exception->getMessage()),
+                0,
+                $exception
             );
         }
     }
@@ -70,7 +72,9 @@ class ResultSerializer implements ResultSerializerInterface
             return $this->resultFactory->create($this->jsonSerializer->deserialize($data));
         } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during result deserialization: %s', $exception->getMessage())
+                sprintf('Error during result deserialization: %s', $exception->getMessage()),
+                0,
+                $exception
             );
         }
     }
