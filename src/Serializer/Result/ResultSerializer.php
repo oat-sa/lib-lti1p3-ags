@@ -25,22 +25,42 @@ namespace OAT\Library\Lti1p3Ags\Serializer\Result;
 use OAT\Library\Lti1p3Ags\Factory\Result\ResultFactory;
 use OAT\Library\Lti1p3Ags\Factory\Result\ResultFactoryInterface;
 use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
+use OAT\Library\Lti1p3Ags\Serializer\JsonSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\JsonSerializerInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use RuntimeException;
 
 class ResultSerializer implements ResultSerializerInterface
 {
     /** @var ResultFactoryInterface */
-    private $factory;
+    private $resultFactory;
 
-    public function __construct(?ResultFactoryInterface $factory = null)
-    {
-        $this->factory = $factory ?? new ResultFactory();
+    /** @var JsonSerializerInterface */
+    private $jsonSerializer;
+
+    public function __construct(
+        ?ResultFactoryInterface $resultFactory = null,
+        ?JsonSerializerInterface $jsonSerializer = null
+    ) {
+        $this->resultFactory = $resultFactory ?? new ResultFactory();
+        $this->jsonSerializer = $jsonSerializer ?? new JsonSerializer();
     }
 
+    /**
+     * @throws LtiExceptionInterface
+     */
     public function serialize(ResultInterface $result): string
     {
-        return json_encode($result);
+        try {
+            return $this->jsonSerializer->serialize($result);
+        } catch (RuntimeException $exception) {
+            throw new LtiException(
+                sprintf('Error during result serialization: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
     }
 
     /**
@@ -48,14 +68,14 @@ class ResultSerializer implements ResultSerializerInterface
      */
     public function deserialize(string $data): ResultInterface
     {
-        $data = json_decode($data, true);
-
-        if (JSON_ERROR_NONE !== json_last_error()) {
+        try {
+            return $this->resultFactory->create($this->jsonSerializer->deserialize($data));
+        } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during result deserialization: %s', json_last_error_msg())
+                sprintf('Error during result deserialization: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
             );
         }
-
-        return $this->factory->create($data);
     }
 }

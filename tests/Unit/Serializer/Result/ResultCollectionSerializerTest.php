@@ -22,31 +22,42 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Result;
 
+use OAT\Library\Lti1p3Ags\Model\Result\ResultCollectionInterface;
+use OAT\Library\Lti1p3Ags\Serializer\JsonSerializerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Result\ResultCollectionSerializer;
-use OAT\Library\Lti1p3Ags\Serializer\Result\ResultCollectionSerializerInterface;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class ResultCollectionSerializerTest extends TestCase
 {
     use AgsDomainTestingTrait;
 
-    /** @var ResultCollectionSerializerInterface */
-    private $subject;
-
-    protected function setUp(): void
+    public function testSerializeForFailure(): void
     {
-        $this->subject = new ResultCollectionSerializer();
+        $collectionMock = $this->createMock(ResultCollectionInterface::class);
+        $serializerMock = $this->createMock(JsonSerializerInterface::class);
+        $subject = new ResultCollectionSerializer(null, $serializerMock);
+
+        $serializerMock->expects($this->once())
+            ->method('serialize')
+            ->with($collectionMock)
+            ->willThrowException(new RuntimeException('some error'));
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Error during result collection serialization');
+
+        $subject->serialize($collectionMock);
     }
 
-    public function testSerialize(): void
+    public function testSerializeForSuccess(): void
     {
         $collection = $this->createTestResultCollection();
 
         $this->assertEquals(
             json_encode($collection->jsonSerialize()),
-            $this->subject->serialize($collection)
+            (new ResultCollectionSerializer())->serialize($collection)
         );
     }
 
@@ -56,15 +67,23 @@ class ResultCollectionSerializerTest extends TestCase
 
         $this->assertEquals(
             $collection,
-            $this->subject->deserialize(json_encode($collection->jsonSerialize()))
+            (new ResultCollectionSerializer())->deserialize(json_encode($collection->jsonSerialize()))
         );
     }
 
     public function testDeserializeFailure(): void
     {
+        $serializerMock = $this->createMock(JsonSerializerInterface::class);
+        $subject = new ResultCollectionSerializer(null, $serializerMock);
+
+        $serializerMock->expects($this->once())
+            ->method('deserialize')
+            ->with('{')
+            ->willThrowException(new RuntimeException('some error'));
+
         $this->expectException(LtiExceptionInterface::class);
         $this->expectExceptionMessage('Error during result collection deserialization');
 
-        $this->subject->deserialize('{');
+        $subject->deserialize('{');
     }
 }

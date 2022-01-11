@@ -22,71 +22,54 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Result;
 
-use Carbon\Carbon;
-use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultContainer;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultContainerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\JsonSerializerInterface;
-use OAT\Library\Lti1p3Ags\Serializer\Result\ResultSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\Result\ResultContainerSerializer;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
-class ResultSerializerTest extends TestCase
+final class ResultContainerSerializerTest extends TestCase
 {
     use AgsDomainTestingTrait;
 
-    protected function setUp(): void
-    {
-        $now = Carbon::now()->setMicro(0);
-        Carbon::setTestNow($now);
-    }
-
-    protected function tearDown(): void
-    {
-        Carbon::setTestNow();
-    }
-
     public function testSerializeForFailure(): void
     {
-        $resultMock = $this->createMock(ResultInterface::class);
+        $invalidContainer = $this->createMock(ResultContainerInterface::class);
         $serializerMock = $this->createMock(JsonSerializerInterface::class);
-        $subject = new ResultSerializer(null, $serializerMock);
+        $subject = new ResultContainerSerializer(null, $serializerMock);
 
         $serializerMock->expects($this->once())
             ->method('serialize')
-            ->with($resultMock)
+            ->with($invalidContainer)
             ->willThrowException(new RuntimeException('some error'));
 
-        $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Error during result serialization');
 
-        $subject->serialize($resultMock);
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Error during result container serialization');
+
+        $subject->serialize($invalidContainer);
     }
 
     public function testSerializeForSuccess(): void
     {
-        $result = $this->createTestResult();
+        $container = new ResultContainer(
+            $this->createTestResultCollection(),
+            '<http://example.com/results>; rel="next"'
+        );
 
         $this->assertEquals(
-            json_encode($result->jsonSerialize()),
-            (new ResultSerializer())->serialize($result)
+            json_encode($container->jsonSerialize()),
+            (new ResultContainerSerializer())->serialize($container)
         );
     }
 
-    public function testDeserializeSuccess(): void
-    {
-        $result = $this->createTestResult();
-
-        $this->assertEquals(
-            $result,
-            (new ResultSerializer())->deserialize(json_encode($result->jsonSerialize()))
-        );
-    }
-
-    public function testDeserializeFailure(): void
+    public function testDeserializeForFailure(): void
     {
         $serializerMock = $this->createMock(JsonSerializerInterface::class);
-        $subject = new ResultSerializer(null, $serializerMock);
+        $subject = new ResultContainerSerializer(null, $serializerMock);
 
         $serializerMock->expects($this->once())
             ->method('deserialize')
@@ -94,8 +77,21 @@ class ResultSerializerTest extends TestCase
             ->willThrowException(new RuntimeException('some error'));
 
         $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Error during result deserialization');
+        $this->expectExceptionMessage('Error during result container deserialization');
 
         $subject->deserialize('{');
+    }
+
+    public function testDeserializeForSuccess(): void
+    {
+        $container = new ResultContainer(
+            $this->createTestResultCollection(),
+            '<http://example.com/results>; rel="next"'
+        );
+
+        $this->assertEquals(
+            $container,
+            (new ResultContainerSerializer())->deserialize(json_encode($container->jsonSerialize()))
+        );
     }
 }

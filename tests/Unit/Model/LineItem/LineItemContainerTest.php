@@ -95,4 +95,15 @@ class LineItemContainerTest extends TestCase
 
         $this->assertFalse($this->subject->hasNext());
     }
+
+    public function testJsonSerialize(): void
+    {
+        $this->assertEquals(
+            [
+                'lineItems' => $this->subject->getLineItems(),
+                'relationLink' => $this->subject->getRelationLink()
+            ],
+            $this->subject->jsonSerialize()
+        );
+    }
 }

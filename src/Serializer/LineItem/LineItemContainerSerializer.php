@@ -20,44 +20,45 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Serializer\Result;
+namespace OAT\Library\Lti1p3Ags\Serializer\LineItem;
 
-use OAT\Library\Lti1p3Ags\Factory\Result\ResultFactory;
-use OAT\Library\Lti1p3Ags\Factory\Result\ResultFactoryInterface;
-use OAT\Library\Lti1p3Ags\Model\Result\ResultCollection;
-use OAT\Library\Lti1p3Ags\Model\Result\ResultCollectionInterface;
+use OAT\Library\Lti1p3Ags\Factory\LineItem\LineItemFactory;
+use OAT\Library\Lti1p3Ags\Factory\LineItem\LineItemFactoryInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemCollection;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\JsonSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\JsonSerializerInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use RuntimeException;
 
-class ResultCollectionSerializer implements ResultCollectionSerializerInterface
+class LineItemContainerSerializer implements LineItemContainerSerializerInterface
 {
-    /** @var ResultFactoryInterface */
-    private $resultFactory;
+    /** @var LineItemFactoryInterface */
+    private $lineItemFactory;
 
     /** @var JsonSerializerInterface */
     private $jsonSerializer;
 
     public function __construct(
-        ?ResultFactoryInterface $resultFactory = null,
+        ?LineItemFactoryInterface $lineItemFactory = null,
         ?JsonSerializerInterface $jsonSerializer = null
     ) {
-        $this->resultFactory = $resultFactory ?? new ResultFactory();
+        $this->lineItemFactory = $lineItemFactory ?? new LineItemFactory();
         $this->jsonSerializer = $jsonSerializer ?? new JsonSerializer();
     }
 
     /**
      * @throws LtiExceptionInterface
      */
-    public function serialize(ResultCollectionInterface $collection): string
+    public function serialize(LineItemContainerInterface $container): string
     {
         try {
-            return $this->jsonSerializer->serialize($collection);
+            return $this->jsonSerializer->serialize($container);
         } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during result collection serialization: %s', $exception->getMessage()),
+                sprintf('Error during line item container serialization: %s', $exception->getMessage()),
                 $exception->getCode(),
                 $exception
             );
@@ -67,24 +68,27 @@ class ResultCollectionSerializer implements ResultCollectionSerializerInterface
     /**
      * @throws LtiExceptionInterface
      */
-    public function deserialize(string $data): ResultCollectionInterface
+    public function deserialize(string $data): LineItemContainerInterface
     {
         try {
             $deserializedData = $this->jsonSerializer->deserialize($data);
         } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during result collection deserialization: %s', $exception->getMessage()),
+                sprintf('Error during line item container deserialization: %s', $exception->getMessage()),
                 $exception->getCode(),
                 $exception
             );
         }
 
-        $collection = new ResultCollection();
+        $collection = new LineItemCollection();
 
-        foreach ($deserializedData as $resultData) {
-            $collection->add($this->resultFactory->create($resultData));
+        foreach ($deserializedData['lineItems'] ?? [] as $lineItemData) {
+            $collection->add($this->lineItemFactory->create($lineItemData));
         }
 
-        return $collection;
+        return new LineItemContainer(
+            $collection,
+            $deserializedData['relationLink'] ?? null
+        );
     }
 }

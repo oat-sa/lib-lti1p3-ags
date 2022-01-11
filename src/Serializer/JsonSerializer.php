@@ -20,24 +20,36 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model\Result;
+namespace OAT\Library\Lti1p3Ags\Serializer;
 
 use JsonSerializable;
+use RuntimeException;
 
-/**
- * @see https://www.imsglobal.org/spec/lti-ags/v2p0#result-service
- */
-interface ResultContainerInterface extends JsonSerializable
+class JsonSerializer implements JsonSerializerInterface
 {
-    public const REL_NEXT = 'next';
+    public function serialize(JsonSerializable $object): string
+    {
+        $json = json_encode($object);
+        $this->assertNoJsonError();
 
-    public function getResults(): ResultCollectionInterface;
+        return $json;
+    }
 
-    public function getRelationLink(): ?string;
+    public function deserialize(string $json): array
+    {
+        $data = json_decode($json, true);
+        $this->assertNoJsonError();
 
-    public function setRelationLink(?string $relationLink): ResultContainerInterface;
+        return $data;
+    }
 
-    public function getRelationLinkUrl(): ?string;
-
-    public function hasNext(): bool;
+    /**
+     * @throws RuntimeException
+     */
+    private function assertNoJsonError(): void
+    {
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new RuntimeException(json_last_error_msg());
+        }
+    }
 }
