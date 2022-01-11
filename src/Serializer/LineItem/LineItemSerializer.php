@@ -40,10 +40,10 @@ class LineItemSerializer implements LineItemSerializerInterface
     private $jsonSerializer;
 
     public function __construct(
-        ?LineItemFactoryInterface $factory = null,
+        ?LineItemFactoryInterface $lineItemFactory = null,
         ?JsonSerializerInterface $jsonSerializer = null
     ) {
-        $this->lineItemFactory = $factory ?? new LineItemFactory();
+        $this->lineItemFactory = $lineItemFactory ?? new LineItemFactory();
         $this->jsonSerializer = $jsonSerializer ?? new JsonSerializer();
     }
 
@@ -57,7 +57,7 @@ class LineItemSerializer implements LineItemSerializerInterface
         } catch (RuntimeException $exception) {
             throw new LtiException(
                 sprintf('Error during line item serialization: %s', $exception->getMessage()),
-                0,
+                $exception->getCode(),
                 $exception
             );
         }
@@ -73,7 +73,7 @@ class LineItemSerializer implements LineItemSerializerInterface
         } catch (RuntimeException $exception) {
             throw new LtiException(
                 sprintf('Error during line item deserialization: %s', $exception->getMessage()),
-                0,
+                $exception->getCode(),
                 $exception
             );
         }

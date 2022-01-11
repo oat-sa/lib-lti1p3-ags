@@ -41,10 +41,10 @@ class ResultCollectionSerializer implements ResultCollectionSerializerInterface
     private $jsonSerializer;
 
     public function __construct(
-        ?ResultFactoryInterface $factory = null,
+        ?ResultFactoryInterface $resultFactory = null,
         ?JsonSerializerInterface $jsonSerializer = null
     ) {
-        $this->resultFactory = $factory ?? new ResultFactory();
+        $this->resultFactory = $resultFactory ?? new ResultFactory();
         $this->jsonSerializer = $jsonSerializer ?? new JsonSerializer();
     }
 
@@ -58,7 +58,7 @@ class ResultCollectionSerializer implements ResultCollectionSerializerInterface
         } catch (RuntimeException $exception) {
             throw new LtiException(
                 sprintf('Error during result collection serialization: %s', $exception->getMessage()),
-                0,
+                $exception->getCode(),
                 $exception
             );
         }
@@ -74,7 +74,7 @@ class ResultCollectionSerializer implements ResultCollectionSerializerInterface
         } catch (RuntimeException $exception) {
             throw new LtiException(
                 sprintf('Error during result collection deserialization: %s', $exception->getMessage()),
-                0,
+                $exception->getCode(),
                 $exception
             );
         }

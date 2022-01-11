@@ -40,10 +40,10 @@ class ResultSerializer implements ResultSerializerInterface
     private $jsonSerializer;
 
     public function __construct(
-        ?ResultFactoryInterface $factory = null,
+        ?ResultFactoryInterface $resultFactory = null,
         ?JsonSerializerInterface $jsonSerializer = null
     ) {
-        $this->resultFactory = $factory ?? new ResultFactory();
+        $this->resultFactory = $resultFactory ?? new ResultFactory();
         $this->jsonSerializer = $jsonSerializer ?? new JsonSerializer();
     }
 
@@ -57,7 +57,7 @@ class ResultSerializer implements ResultSerializerInterface
         } catch (RuntimeException $exception) {
             throw new LtiException(
                 sprintf('Error during result serialization: %s', $exception->getMessage()),
-                0,
+                $exception->getCode(),
                 $exception
             );
         }
@@ -73,7 +73,7 @@ class ResultSerializer implements ResultSerializerInterface
         } catch (RuntimeException $exception) {
             throw new LtiException(
                 sprintf('Error during result deserialization: %s', $exception->getMessage()),
-                0,
+                $exception->getCode(),
                 $exception
             );
         }

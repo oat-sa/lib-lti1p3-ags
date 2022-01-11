@@ -40,10 +40,10 @@ class ScoreSerializer implements ScoreSerializerInterface
     private $jsonSerializer;
 
     public function __construct(
-        ?ScoreFactoryInterface $factory = null,
+        ?ScoreFactoryInterface $scoreFactory = null,
         ?JsonSerializerInterface $jsonSerializer = null
     ) {
-        $this->scoreFactory = $factory ?? new ScoreFactory();
+        $this->scoreFactory = $scoreFactory ?? new ScoreFactory();
         $this->jsonSerializer = $jsonSerializer ?? new JsonSerializer();
     }
 
@@ -57,7 +57,7 @@ class ScoreSerializer implements ScoreSerializerInterface
         } catch (RuntimeException $exception) {
             throw new LtiException(
                 sprintf('Error during score serialization: %s', $exception->getMessage()),
-                0,
+                $exception->getCode(),
                 $exception
             );
         }
@@ -73,7 +73,7 @@ class ScoreSerializer implements ScoreSerializerInterface
         } catch (RuntimeException $exception) {
             throw new LtiException(
                 sprintf('Error during score deserialization: %s', $exception->getMessage()),
-                0,
+                $exception->getCode(),
                 $exception
             );
         }
