@@ -95,4 +95,15 @@ class ResultContainerTest extends TestCase
 
         $this->assertFalse($this->subject->hasNext());
     }
+
+    public function testJsonSerialize(): void
+    {
+        $this->assertEquals(
+            [
+                'results' => $this->subject->getResults(),
+                'relationLink' => $this->subject->getRelationLink()
+            ],
+            $this->subject->jsonSerialize()
+        );
+    }
 }

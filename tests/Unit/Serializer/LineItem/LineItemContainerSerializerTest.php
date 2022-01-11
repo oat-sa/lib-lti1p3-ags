@@ -20,73 +20,55 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Result;
+namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\LineItem;
 
-use Carbon\Carbon;
-use OAT\Library\Lti1p3Ags\Model\Result\ResultInterface;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainer;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\JsonSerializerInterface;
-use OAT\Library\Lti1p3Ags\Serializer\Result\ResultSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemContainerSerializer;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use PHPUnit\Framework\TestCase;
 use RuntimeException;
 
-class ResultSerializerTest extends TestCase
+final class LineItemContainerSerializerTest extends TestCase
 {
     use AgsDomainTestingTrait;
 
-    protected function setUp(): void
-    {
-        $now = Carbon::now()->setMicro(0);
-        Carbon::setTestNow($now);
-    }
-
-    protected function tearDown(): void
-    {
-        Carbon::setTestNow();
-    }
-
     public function testSerializeForFailure(): void
     {
-        $resultMock = $this->createMock(ResultInterface::class);
+        $containerMock = $this->createMock(LineItemContainerInterface::class);
         $serializerMock = $this->createMock(JsonSerializerInterface::class);
-        $subject = new ResultSerializer(null, $serializerMock);
+        $subject = new LineItemContainerSerializer(null, $serializerMock);
 
         $serializerMock->expects($this->once())
             ->method('serialize')
-            ->with($resultMock)
+            ->with($containerMock)
             ->willThrowException(new RuntimeException('some error'));
 
         $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Error during result serialization');
+        $this->expectExceptionMessage('Error during line item container serialization: some error');
 
-        $subject->serialize($resultMock);
+        $subject->serialize($containerMock);
     }
 
     public function testSerializeForSuccess(): void
     {
-        $result = $this->createTestResult();
+        $container = new LineItemContainer(
+            $this->createTestLineItemCollection(),
+            '<http://example.com/line-items>; rel="next"'
+        );
 
         $this->assertEquals(
-            json_encode($result->jsonSerialize()),
-            (new ResultSerializer())->serialize($result)
+            json_encode($container->jsonSerialize()),
+            (new LineItemContainerSerializer())->serialize($container)
         );
     }
 
-    public function testDeserializeSuccess(): void
-    {
-        $result = $this->createTestResult();
-
-        $this->assertEquals(
-            $result,
-            (new ResultSerializer())->deserialize(json_encode($result->jsonSerialize()))
-        );
-    }
-
-    public function testDeserializeFailure(): void
+    public function testDeserializeForFailure(): void
     {
         $serializerMock = $this->createMock(JsonSerializerInterface::class);
-        $subject = new ResultSerializer(null, $serializerMock);
+        $subject = new LineItemContainerSerializer(null, $serializerMock);
 
         $serializerMock->expects($this->once())
             ->method('deserialize')
@@ -94,8 +76,21 @@ class ResultSerializerTest extends TestCase
             ->willThrowException(new RuntimeException('some error'));
 
         $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Error during result deserialization');
+        $this->expectExceptionMessage('Error during line item container deserialization: some error');
 
         $subject->deserialize('{');
+    }
+
+    public function testDeserializeForSuccess(): void
+    {
+        $container = new LineItemContainer(
+            $this->createTestLineItemCollection(),
+            '<http://example.com/line-items>; rel="next"'
+        );
+
+        $this->assertEquals(
+            $container,
+            (new LineItemContainerSerializer())->deserialize(json_encode($container->jsonSerialize()))
+        );
     }
 }

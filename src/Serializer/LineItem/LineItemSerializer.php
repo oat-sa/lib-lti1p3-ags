@@ -25,22 +25,42 @@ namespace OAT\Library\Lti1p3Ags\Serializer\LineItem;
 use OAT\Library\Lti1p3Ags\Factory\LineItem\LineItemFactory;
 use OAT\Library\Lti1p3Ags\Factory\LineItem\LineItemFactoryInterface;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Serializer\JsonSerializer;
+use OAT\Library\Lti1p3Ags\Serializer\JsonSerializerInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use RuntimeException;
 
 class LineItemSerializer implements LineItemSerializerInterface
 {
     /** @var LineItemFactoryInterface */
-    private $factory;
+    private $lineItemFactory;
 
-    public function __construct(?LineItemFactoryInterface $factory = null)
-    {
-        $this->factory = $factory ?? new LineItemFactory();
+    /** @var JsonSerializerInterface */
+    private $jsonSerializer;
+
+    public function __construct(
+        ?LineItemFactoryInterface $lineItemFactory = null,
+        ?JsonSerializerInterface $jsonSerializer = null
+    ) {
+        $this->lineItemFactory = $lineItemFactory ?? new LineItemFactory();
+        $this->jsonSerializer = $jsonSerializer ?? new JsonSerializer();
     }
 
+    /**
+     * @throws LtiExceptionInterface
+     */
     public function serialize(LineItemInterface $lineItem): string
     {
-        return json_encode($lineItem);
+        try {
+            return $this->jsonSerializer->serialize($lineItem);
+        } catch (RuntimeException $exception) {
+            throw new LtiException(
+                sprintf('Error during line item serialization: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
     }
 
     /**
@@ -48,14 +68,14 @@ class LineItemSerializer implements LineItemSerializerInterface
      */
     public function deserialize(string $data): LineItemInterface
     {
-        $data = json_decode($data, true);
-
-        if (JSON_ERROR_NONE !== json_last_error()) {
+        try {
+            return $this->lineItemFactory->create($this->jsonSerializer->deserialize($data));
+        } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during line item deserialization: %s', json_last_error_msg())
+                sprintf('Error during line item deserialization: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
             );
         }
-
-        return $this->factory->create($data);
     }
 }

@@ -22,31 +22,42 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\LineItem;
 
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemInterface;
+use OAT\Library\Lti1p3Ags\Serializer\JsonSerializerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer;
-use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class LineItemSerializerTest extends TestCase
 {
     use AgsDomainTestingTrait;
 
-    /** @var LineItemSerializerInterface */
-    private $subject;
-
-    protected function setUp(): void
+    public function testSerializeForFailure(): void
     {
-        $this->subject = new LineItemSerializer();
+        $lineItemMock = $this->createMock(LineItemInterface::class);
+        $serializerMock = $this->createMock(JsonSerializerInterface::class);
+        $subject = new LineItemSerializer(null, $serializerMock);
+
+        $serializerMock->expects($this->once())
+            ->method('serialize')
+            ->with($lineItemMock)
+            ->willThrowException(new RuntimeException('some error'));
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Error during line item serialization');
+
+        $subject->serialize($lineItemMock);
     }
 
-    public function testSerialize(): void
+    public function testSerializeForSuccess(): void
     {
         $lineItem = $this->createTestLineItem();
 
         $this->assertEquals(
             json_encode($lineItem->jsonSerialize()),
-            $this->subject->serialize($lineItem)
+            (new LineItemSerializer())->serialize($lineItem)
         );
     }
 
@@ -56,15 +67,23 @@ class LineItemSerializerTest extends TestCase
 
         $this->assertEquals(
             $lineItem,
-            $this->subject->deserialize(json_encode($lineItem->jsonSerialize()))
+            (new LineItemSerializer())->deserialize(json_encode($lineItem->jsonSerialize()))
         );
     }
 
     public function testDeserializeFailure(): void
     {
+        $serializerMock = $this->createMock(JsonSerializerInterface::class);
+        $subject = new LineItemSerializer(null, $serializerMock);
+
+        $serializerMock->expects($this->once())
+            ->method('deserialize')
+            ->with('{')
+            ->willThrowException(new RuntimeException('some error'));
+
         $this->expectException(LtiExceptionInterface::class);
         $this->expectExceptionMessage('Error during line item deserialization');
 
-        $this->subject->deserialize('{');
+        $subject->deserialize('{');
     }
 }

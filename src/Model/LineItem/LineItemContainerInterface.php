@@ -22,10 +22,12 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Model\LineItem;
 
+use JsonSerializable;
+
 /**
  * @see https://www.imsglobal.org/spec/lti-ags/v2p0#line-item-service
  */
-interface LineItemContainerInterface
+interface LineItemContainerInterface extends JsonSerializable
 {
     public const REL_NEXT = 'next';
 

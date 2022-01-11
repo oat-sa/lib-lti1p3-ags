@@ -20,24 +20,13 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3Ags\Model\Result;
+namespace OAT\Library\Lti1p3Ags\Serializer\LineItem;
 
-use JsonSerializable;
+use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
 
-/**
- * @see https://www.imsglobal.org/spec/lti-ags/v2p0#result-service
- */
-interface ResultContainerInterface extends JsonSerializable
+interface LineItemContainerSerializerInterface
 {
-    public const REL_NEXT = 'next';
+    public function serialize(LineItemContainerInterface $container): string;
 
-    public function getResults(): ResultCollectionInterface;
-
-    public function getRelationLink(): ?string;
-
-    public function setRelationLink(?string $relationLink): ResultContainerInterface;
-
-    public function getRelationLinkUrl(): ?string;
-
-    public function hasNext(): bool;
+    public function deserialize(string $data): LineItemContainerInterface;
 }

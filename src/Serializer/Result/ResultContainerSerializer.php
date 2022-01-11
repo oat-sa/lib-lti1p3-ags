@@ -25,14 +25,15 @@ namespace OAT\Library\Lti1p3Ags\Serializer\Result;
 use OAT\Library\Lti1p3Ags\Factory\Result\ResultFactory;
 use OAT\Library\Lti1p3Ags\Factory\Result\ResultFactoryInterface;
 use OAT\Library\Lti1p3Ags\Model\Result\ResultCollection;
-use OAT\Library\Lti1p3Ags\Model\Result\ResultCollectionInterface;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultContainer;
+use OAT\Library\Lti1p3Ags\Model\Result\ResultContainerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\JsonSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\JsonSerializerInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use RuntimeException;
 
-class ResultCollectionSerializer implements ResultCollectionSerializerInterface
+class ResultContainerSerializer implements ResultContainerSerializerInterface
 {
     /** @var ResultFactoryInterface */
     private $resultFactory;
@@ -51,13 +52,13 @@ class ResultCollectionSerializer implements ResultCollectionSerializerInterface
     /**
      * @throws LtiExceptionInterface
      */
-    public function serialize(ResultCollectionInterface $collection): string
+    public function serialize(ResultContainerInterface $container): string
     {
         try {
-            return $this->jsonSerializer->serialize($collection);
+            return $this->jsonSerializer->serialize($container);
         } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during result collection serialization: %s', $exception->getMessage()),
+                sprintf('Error during result container serialization: %s', $exception->getMessage()),
                 $exception->getCode(),
                 $exception
             );
@@ -67,13 +68,13 @@ class ResultCollectionSerializer implements ResultCollectionSerializerInterface
     /**
      * @throws LtiExceptionInterface
      */
-    public function deserialize(string $data): ResultCollectionInterface
+    public function deserialize(string $data): ResultContainerInterface
     {
         try {
             $deserializedData = $this->jsonSerializer->deserialize($data);
         } catch (RuntimeException $exception) {
             throw new LtiException(
-                sprintf('Error during result collection deserialization: %s', $exception->getMessage()),
+                sprintf('Error during result container deserialization: %s', $exception->getMessage()),
                 $exception->getCode(),
                 $exception
             );
@@ -81,10 +82,13 @@ class ResultCollectionSerializer implements ResultCollectionSerializerInterface
 
         $collection = new ResultCollection();
 
-        foreach ($deserializedData as $resultData) {
+        foreach ($deserializedData['results'] ?? [] as $resultData) {
             $collection->add($this->resultFactory->create($resultData));
         }
 
-        return $collection;
+        return new ResultContainer(
+            $collection,
+            $deserializedData['relationLink'] ?? null
+        );
     }
 }

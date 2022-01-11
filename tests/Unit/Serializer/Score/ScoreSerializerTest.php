@@ -23,25 +23,22 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3Ags\Tests\Unit\Serializer\Score;
 
 use Carbon\Carbon;
+use OAT\Library\Lti1p3Ags\Model\Score\ScoreInterface;
+use OAT\Library\Lti1p3Ags\Serializer\JsonSerializerInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Score\ScoreSerializer;
-use OAT\Library\Lti1p3Ags\Serializer\Score\ScoreSerializerInterface;
 use OAT\Library\Lti1p3Ags\Tests\Traits\AgsDomainTestingTrait;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class ScoreSerializerTest extends TestCase
 {
     use AgsDomainTestingTrait;
 
-    /** @var ScoreSerializerInterface */
-    private $subject;
-
     protected function setUp(): void
     {
         $now = Carbon::now()->setMicro(0);
         Carbon::setTestNow($now);
-
-        $this->subject = new ScoreSerializer();
     }
 
     protected function tearDown(): void
@@ -49,13 +46,30 @@ class ScoreSerializerTest extends TestCase
         Carbon::setTestNow();
     }
 
-    public function testSerialize(): void
+    public function testSerializeForFailure(): void
+    {
+        $coreMock = $this->createMock(ScoreInterface::class);
+        $serializerMock = $this->createMock(JsonSerializerInterface::class);
+        $subject = new ScoreSerializer(null, $serializerMock);
+
+        $serializerMock->expects($this->once())
+            ->method('serialize')
+            ->with($coreMock)
+            ->willThrowException(new RuntimeException('some error'));
+
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Error during score serialization');
+
+        $subject->serialize($coreMock);
+    }
+
+    public function testSerializeForSuccess(): void
     {
         $score = $this->createTestScore();
 
         $this->assertEquals(
             json_encode($score->jsonSerialize()),
-            $this->subject->serialize($score)
+            (new ScoreSerializer())->serialize($score)
         );
     }
 
@@ -67,15 +81,23 @@ class ScoreSerializerTest extends TestCase
 
         $this->assertEquals(
             $score,
-            $this->subject->deserialize(json_encode($score->jsonSerialize()))
+            (new ScoreSerializer())->deserialize(json_encode($score->jsonSerialize()))
         );
     }
 
     public function testDeserializeFailure(): void
     {
+        $serializerMock = $this->createMock(JsonSerializerInterface::class);
+        $subject = new ScoreSerializer(null, $serializerMock);
+
+        $serializerMock->expects($this->once())
+            ->method('deserialize')
+            ->with('{')
+            ->willThrowException(new RuntimeException('some error'));
+
         $this->expectException(LtiExceptionInterface::class);
         $this->expectExceptionMessage('Error during score deserialization');
 
-        $this->subject->deserialize('{');
+        $subject->deserialize('{');
     }
 }

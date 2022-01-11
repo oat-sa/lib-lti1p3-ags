@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+[Unreleased]
+-----
+
+### Added
+* Implemented `LineItemContainerSerializer` and `ResultContainerSerializer`
+* Added `JsonSerializer` with error handling for `json_encode` and `json_decode`
+
+### Changed
+* Updated `LineItemContainerInterface` and `ResultContainerInterface` by extending `JsonSerializable`.
+
 1.3.0
 -----
 
