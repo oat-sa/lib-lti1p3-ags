@@ -22,8 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\Result\Server\Handler;
 
-use Http\Message\ResponseFactory;
-use Nyholm\Psr7\Factory\HttplugFactory;
+use Nyholm\Psr7\Response;
 use OAT\Library\Lti1p3Ags\Factory\Result\ResultCollectionFactory;
 use OAT\Library\Lti1p3Ags\Factory\Result\ResultCollectionFactoryInterface;
 use OAT\Library\Lti1p3Ags\Model\Result\ResultContainerInterface;
@@ -66,9 +65,6 @@ class ResultServiceServerRequestHandler implements LtiServiceServerRequestHandle
     /** @var UrlBuilderInterface */
     private $builder;
 
-    /** @var ResponseFactory */
-    private $responseFactory;
-
     /** @var LoggerInterface */
     protected $logger;
 
@@ -79,7 +75,6 @@ class ResultServiceServerRequestHandler implements LtiServiceServerRequestHandle
         ?ResultCollectionFactoryInterface $resultCollectionFactory = null,
         ?UrlExtractorInterface $extractor = null,
         ?UrlBuilderInterface $builder = null,
-        ?ResponseFactory $responseFactory = null,
         ?LoggerInterface $logger = null
     ) {
         $this->lineItemRepository = $lineItemRepository;
@@ -88,7 +83,6 @@ class ResultServiceServerRequestHandler implements LtiServiceServerRequestHandle
         $this->resultCollectionFactory = $resultCollectionFactory ?? new ResultCollectionFactory();
         $this->extractor = $extractor ?? new UrlExtractor();
         $this->builder = $builder ?? new UrlBuilder();
-        $this->responseFactory = $responseFactory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
 
@@ -132,7 +126,7 @@ class ResultServiceServerRequestHandler implements LtiServiceServerRequestHandle
 
             $this->logger->error($message);
 
-            return $this->responseFactory->createResponse(404, null, [], $message);
+            return new Response(404, [], $message);
         }
 
         parse_str($request->getUri()->getQuery(), $parameters);
@@ -178,6 +172,6 @@ class ResultServiceServerRequestHandler implements LtiServiceServerRequestHandle
             );
         }
 
-        return $this->responseFactory->createResponse(200, null, $responseHeaders, $responseBody);
+        return new Response(200, $responseHeaders, $responseBody);
     }
 }

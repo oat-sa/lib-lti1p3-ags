@@ -22,8 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\Score\Server\Handler;
 
-use Http\Message\ResponseFactory;
-use Nyholm\Psr7\Factory\HttplugFactory;
+use Nyholm\Psr7\Response;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Repository\ScoreRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\Score\ScoreSerializer;
@@ -56,9 +55,6 @@ class ScoreServiceServerRequestHandler implements LtiServiceServerRequestHandler
     /** @var UrlExtractorInterface */
     private $extractor;
 
-    /** @var ResponseFactory */
-    private $factory;
-
     /** @var LoggerInterface */
     protected $logger;
 
@@ -67,14 +63,12 @@ class ScoreServiceServerRequestHandler implements LtiServiceServerRequestHandler
         ScoreRepositoryInterface $scoreRepository,
         ?ScoreSerializerInterface $serializer = null,
         ?UrlExtractorInterface $extractor = null,
-        ?ResponseFactory $factory = null,
         ?LoggerInterface $logger = null
     ) {
         $this->lineItemRepository = $lineItemRepository;
         $this->scoreRepository = $scoreRepository;
         $this->serializer = $serializer ?? new ScoreSerializer();
         $this->extractor = $extractor ?? new UrlExtractor();
-        $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
 
@@ -116,7 +110,7 @@ class ScoreServiceServerRequestHandler implements LtiServiceServerRequestHandler
 
             $this->logger->error($message);
 
-            return $this->factory->createResponse(404, null, [], $message);
+            return new Response(404, [], $message);
         }
 
         try {
@@ -124,13 +118,13 @@ class ScoreServiceServerRequestHandler implements LtiServiceServerRequestHandler
         } catch (LtiExceptionInterface $exception) {
             $this->logger->error($exception->getMessage());
 
-            return $this->factory->createResponse(400, null, [], $exception->getMessage());
+            return new Response(400, [], $exception->getMessage());
         }
 
         $this->scoreRepository->save(
             $score->setLineItemIdentifier($lineItem->getIdentifier())
         );
 
-        return $this->factory->createResponse(201);
+        return new Response(201);
     }
 }

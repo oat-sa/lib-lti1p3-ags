@@ -22,8 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem\Server\Handler;
 
-use Http\Message\ResponseFactory;
-use Nyholm\Psr7\Factory\HttplugFactory;
+use Nyholm\Psr7\Response;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Service\LineItem\LineItemServiceInterface;
 use OAT\Library\Lti1p3Core\Security\OAuth2\Validator\Result\RequestAccessTokenValidationResultInterface;
@@ -41,19 +40,14 @@ class DeleteLineItemServiceServerRequestHandler implements LtiServiceServerReque
     /** @var LineItemRepositoryInterface */
     private $repository;
 
-    /** @var ResponseFactory */
-    private $factory;
-
     /** @var LoggerInterface */
     protected $logger;
 
     public function __construct(
         LineItemRepositoryInterface $repository,
-        ?ResponseFactory $factory = null,
         ?LoggerInterface $logger = null
     ) {
         $this->repository = $repository;
-        $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
 
@@ -95,11 +89,11 @@ class DeleteLineItemServiceServerRequestHandler implements LtiServiceServerReque
 
             $this->logger->error($message);
 
-            return $this->factory->createResponse(404, null, [], $message);
+            return new Response(404, [], $message);
         }
 
         $this->repository->delete($lineItemIdentifier);
 
-        return $this->factory->createResponse(204);
+        return new Response(204);
     }
 }

@@ -75,14 +75,12 @@ class UpdateLineItemServiceServerRequestHandlerTest extends TestCase
         $this->subject = new UpdateLineItemServiceServerRequestHandler(
             $this->repository,
             null,
-            null,
             $this->logger
         );
 
         $this->server = new LtiServiceServer(
             $this->validatorMock,
             $this->subject,
-            null,
             $this->logger
         );
     }

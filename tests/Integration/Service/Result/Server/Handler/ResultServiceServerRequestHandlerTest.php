@@ -84,14 +84,12 @@ class ResultServiceServerRequestHandlerTest extends TestCase
             null,
             null,
             null,
-            null,
             $this->logger
         );
 
         $this->server = new LtiServiceServer(
             $this->validatorMock,
             $this->subject,
-            null,
             $this->logger
         );
     }
