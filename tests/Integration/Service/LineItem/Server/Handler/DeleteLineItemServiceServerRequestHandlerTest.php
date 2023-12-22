@@ -66,14 +66,12 @@ class DeleteLineItemServiceServerRequestHandlerTest extends TestCase
 
         $this->subject = new DeleteLineItemServiceServerRequestHandler(
             $this->repository,
-            null,
             $this->logger
         );
 
         $this->server = new LtiServiceServer(
             $this->validatorMock,
             $this->subject,
-            null,
             $this->logger
         );
     }

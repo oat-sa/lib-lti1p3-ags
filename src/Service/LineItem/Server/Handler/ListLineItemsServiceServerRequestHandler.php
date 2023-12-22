@@ -22,8 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem\Server\Handler;
 
-use Http\Message\ResponseFactory;
-use Nyholm\Psr7\Factory\HttplugFactory;
+use Nyholm\Psr7\Response;
 use OAT\Library\Lti1p3Ags\Model\LineItem\LineItemContainerInterface;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemCollectionSerializer;
@@ -50,19 +49,14 @@ class ListLineItemsServiceServerRequestHandler implements LtiServiceServerReques
     /** @var UrlBuilderInterface */
     private $builder;
 
-    /** @var ResponseFactory */
-    private $factory;
-
     public function __construct(
         LineItemRepositoryInterface $repository,
         ?LineItemCollectionSerializerInterface $serializer = null,
         ?UrlBuilderInterface $builder = null,
-        ?ResponseFactory $factory = null
     ) {
         $this->repository = $repository;
         $this->serializer = $serializer ?? new LineItemCollectionSerializer();
         $this->builder = $builder ?? new UrlBuilder();
-        $this->factory = $factory ?? new HttplugFactory();
     }
 
     public function getServiceName(): string
@@ -130,6 +124,6 @@ class ListLineItemsServiceServerRequestHandler implements LtiServiceServerReques
             );
         }
 
-        return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
+        return new Response(200, $responseHeaders, $responseBody);
     }
 }

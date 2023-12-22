@@ -22,8 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3Ags\Service\LineItem\Server\Handler;
 
-use Http\Message\ResponseFactory;
-use Nyholm\Psr7\Factory\HttplugFactory;
+use Nyholm\Psr7\Response;
 use OAT\Library\Lti1p3Ags\Repository\LineItemRepositoryInterface;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializer;
 use OAT\Library\Lti1p3Ags\Serializer\LineItem\LineItemSerializerInterface;
@@ -48,21 +47,16 @@ class UpdateLineItemServiceServerRequestHandler implements LtiServiceServerReque
     /** @var LineItemSerializerInterface */
     private $serializer;
 
-    /** @var ResponseFactory */
-    private $factory;
-
     /** @var LoggerInterface */
     protected $logger;
 
     public function __construct(
         LineItemRepositoryInterface $repository,
         ?LineItemSerializerInterface $serializer = null,
-        ?ResponseFactory $factory = null,
         ?LoggerInterface $logger = null
     ) {
         $this->repository = $repository;
         $this->serializer = $serializer ?? new LineItemSerializer();
-        $this->factory = $factory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
 
@@ -104,7 +98,7 @@ class UpdateLineItemServiceServerRequestHandler implements LtiServiceServerReque
 
             $this->logger->error($message);
 
-            return $this->factory->createResponse(404, null, [], $message);
+            return new Response(404, [], $message);
         }
 
         try {
@@ -112,7 +106,7 @@ class UpdateLineItemServiceServerRequestHandler implements LtiServiceServerReque
         } catch (LtiExceptionInterface $exception) {
             $this->logger->error($exception->getMessage());
 
-            return $this->factory->createResponse(400, null, [], $exception->getMessage());
+            return new Response(400, [], $exception->getMessage());
         }
 
         $lineItem = $this->repository->save($lineItem->copy($updatedLineItem));
@@ -123,6 +117,6 @@ class UpdateLineItemServiceServerRequestHandler implements LtiServiceServerReque
             'Content-Length' => strlen($responseBody),
         ];
 
-        return $this->factory->createResponse(200, null, $responseHeaders, $responseBody);
+        return new Response(200, $responseHeaders, $responseBody);
     }
 }
