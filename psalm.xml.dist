@@ -1,25 +1,38 @@
-<?xml version="1.0"?>
-<psalm
-        autoloader="vendor/autoload.php"
-        errorLevel="3"
-        hideExternalErrors="true"
-        useDocblockTypes="false"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns="https://getpsalm.org/schema/config"
-        xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd"
->
-    <projectFiles>
-        <directory name="src"/>
-        <ignoreFiles>
-            <directory name="doc"/>
-            <directory name="tests"/>
-            <directory name="vendor"/>
-        </ignoreFiles>
-    </projectFiles>
-    <mockClasses>
-        <class name="PHPUnit\Framework\MockObject\MockObject"/>
-    </mockClasses>
-    <plugins>
-        <pluginClass class="Psalm\PhpUnitPlugin\Plugin"/>
-    </plugins>
+<?xml version="1.0" encoding="UTF-8"?>
+<psalm autoloader="vendor/autoload.php" errorLevel="3" hideExternalErrors="true" useDocblockTypes="false" xmlns="https://getpsalm.org/schema/config" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://getpsalm.org/schema/config vendor/vimeo/psalm/config.xsd">
+  <projectFiles>
+    <directory name="src"></directory>
+    <ignoreFiles>
+      <directory name="doc"></directory>
+      <directory name="tests"></directory>
+      <directory name="vendor"></directory>
+    </ignoreFiles>
+  </projectFiles>
+  <issueHandlers>
+    <MissingOverrideAttribute errorLevel="suppress"></MissingOverrideAttribute>
+    <PossiblyUnusedMethod errorLevel="suppress"></PossiblyUnusedMethod>
+    <UnusedClass errorLevel="suppress"></UnusedClass>
+    <MissingTemplateParam>
+      <errorLevel type="suppress">
+        <file name="src/Model/LineItem/LineItemCollectionInterface.php"></file>
+        <file name="src/Model/Result/ResultCollectionInterface.php"></file>
+      </errorLevel>
+    </MissingTemplateParam>
+    <PossiblyUnusedReturnValue>
+      <errorLevel type="suppress">
+        <file method="add" name="src/Model/LineItem/LineItemCollectionInterface.php"></file>
+        <file method="setRelationLink" name="src/Model/LineItem/LineItemContainerInterface.php"></file>
+        <file method="setReviewableStatuses" name="src/Model/LineItem/LineItemSubmissionReviewInterface.php"></file>
+        <file method="add" name="src/Model/Result/ResultCollectionInterface.php"></file>
+        <file method="setRelationLink" name="src/Model/Result/ResultContainerInterface.php"></file>
+        <file method="setGradingProgressStatus" name="src/Model/Score/ScoreInterface.php"></file>
+      </errorLevel>
+    </PossiblyUnusedReturnValue>
+  </issueHandlers>
+  <mockClasses>
+    <class name="PHPUnit\Framework\MockObject\MockObject"></class>
+  </mockClasses>
+  <plugins>
+    <pluginClass class="Psalm\PhpUnitPlugin\Plugin"></pluginClass>
+  </plugins>
 </psalm>
