@@ -182,7 +182,9 @@ class UpdateLineItemServiceServerRequestHandlerTest extends TestCase
         $this->assertInstanceOf(ResponseInterface::class, $response);
         $this->assertEquals(400, $response->getStatusCode());
 
-        $errorMessage = 'Error during line item deserialization: Syntax error';
+        // The JSON error text depends on the PHP version: PHP 8.6 adds the error location.
+        json_decode('invalid');
+        $errorMessage = 'Error during line item deserialization: ' . json_last_error_msg();
 
         $this->assertEquals($errorMessage, $response->getBody()->__toString());
         $this->assertTrue($this->logger->hasLog(LogLevel::ERROR, $errorMessage));
